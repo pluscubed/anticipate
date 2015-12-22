@@ -6,4 +6,11 @@
     <string name="desc_default">To open all links using Anticipate, you may set it as the default browser</string>
     <string name="set_as_default_browser">Set as default browser</string>
     <string name="dialog_clear_defaults">Another browser is currently set as default. You must clear its defaults first.</string>
+    <string name="try_it_out">Try it out</string>
+    <string name="enter_a_url">Enter a URL</string>
+    <string name="dialog_draw_overlay">On Marshmallow and up, the Draw Over Other Apps permission must be granted to show the floating window</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser</string>
+    <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled, which means it can\'t pre-load links on-screen. Please open the app to enable.</string>
+    <string name="floating_window_checkbox">Floating window to monitor pre-loaded URLs</string>
 </resources>

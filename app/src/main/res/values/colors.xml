@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#1976D2</color>
     <color name="colorAccent">#FFC107</color>
 
-    <color name="browser">#1565c0</color>
-    <color name="enabled">#4caf50</color>
+    <color name="blue_800">#1565c0</color>
+    <color name="green_500">#4caf50</color>
+
+    <color name="floating_background">#80000000</color>
 </resources>

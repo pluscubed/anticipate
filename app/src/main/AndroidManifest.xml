@@ -5,6 +5,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -13,7 +15,9 @@
         android:theme="@style/Theme.Anticipate">
 
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,6 +52,10 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/service" />
         </service>
+
+        <service
+            android:name=".MainService"
+            android:exported="false" />
 
         <service
             android:name=".customtabsshared.KeepAliveService"

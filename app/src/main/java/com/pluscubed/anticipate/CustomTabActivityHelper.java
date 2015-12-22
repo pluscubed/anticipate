@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
@@ -37,6 +38,8 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
     private CustomTabsClient mClient;
     private CustomTabsServiceConnection mConnection;
     private ConnectionCallback mConnectionCallback;
+
+    private CustomTabsCallback mCallback;
 
     /**
      * Opens the URL on a Custom Tab if possible. Otherwise fallsback to opening it on a WebView.
@@ -86,7 +89,7 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
         if (mClient == null) {
             mCustomTabsSession = null;
         } else if (mCustomTabsSession == null) {
-            mCustomTabsSession = mClient.newSession(null);
+            mCustomTabsSession = mClient.newSession(mCallback);
         }
         return mCustomTabsSession;
     }
@@ -105,7 +108,7 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
      *
      * @param activity the activity to be binded to the service.
      */
-    public void bindCustomTabsService(Context activity) {
+    public void bindCustomTabsService(Context activity, CustomTabsCallback callback) {
         if (mClient != null) return;
 
         String packageName = CustomTabsHelper.getPackageNameToUse(activity);
@@ -113,6 +116,9 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
 
         mConnection = new ServiceConnection(this);
         CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
+
+        mCallback = callback;
+        getSession();
     }
 
     /**

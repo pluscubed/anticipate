@@ -19,9 +19,24 @@ public class CustomTabDummyActivity extends AppCompatActivity {
 
         if (getIntent() != null && getIntent().getData() != null) {
 
+            MainAccessibilityService service = MainAccessibilityService.get();
 
-            CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder(
-                    MainAccessibilityService.getSharedService().getCustomTabActivityHelper().getSession())
+            CustomTabsIntent.Builder builder;
+            if (service != null) {
+                service.getCustomTabActivityHelper().mayLaunchUrl(getIntent().getData(), null, null);
+
+                builder = new CustomTabsIntent.Builder(service.getCustomTabActivityHelper().getSession());
+
+            } else {
+                builder = new CustomTabsIntent.Builder();
+
+                /*Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
+                Toast.makeText(this, R.string.accessibility_disabled, Toast.LENGTH_LONG).show();
+               /* startActivity(intent);*/
+            }
+
+            CustomTabsIntent customTabsIntent = builder
                     .enableUrlBarHiding()
                     .setShowTitle(true)
                     .build();
@@ -30,9 +45,7 @@ public class CustomTabDummyActivity extends AppCompatActivity {
                     this, customTabsIntent, getIntent().getData(), new CustomTabActivityHelper.CustomTabFallback() {
                         @Override
                         public void openUri(Context activity, Uri uri) {
-                            Intent open = new Intent(Intent.ACTION_VIEW);
-                            open.setData(uri);
-                            activity.startActivity(open);
+                            openUrlStandard(activity, uri);
                         }
                     });
         } else {
@@ -40,5 +53,11 @@ public class CustomTabDummyActivity extends AppCompatActivity {
         }
 
         finish();
+    }
+
+    void openUrlStandard(Context activity, Uri uri) {
+        Intent open = new Intent(Intent.ACTION_VIEW);
+        open.setData(uri);
+        activity.startActivity(Intent.createChooser(open, "Open with:"));
     }
 }

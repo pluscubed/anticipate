@@ -69,7 +69,11 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:customtabs:23.1.1'
+    compile 'com.android.support:design:23.1.1'
     compile 'com.github.afollestad.material-dialogs:core:0.8.5.3'
+
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'io.reactivex:rxjava:1.1.0'
 
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;

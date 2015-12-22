@@ -5,4 +5,10 @@
     <item name="image_enabled" type="id" />
     <item name="image_default" type="id" />
     <item name="button_set_default" type="id" />
+    <item name="button_try" type="id" />
+    <item name="edittext_try" type="id" />
+    <item name="textinputlayout_try" type="id" />
+    <item name="menu_try_anticipate" type="id" />
+    <item name="menu_try_browser" type="id" />
+    <item name="checkbox_preload_window" type="id" />
 </resources>

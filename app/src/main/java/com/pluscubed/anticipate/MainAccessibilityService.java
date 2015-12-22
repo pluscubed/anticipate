@@ -4,14 +4,16 @@ import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsCallback;
+import android.support.customtabs.CustomTabsService;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,10 +24,9 @@ public class MainAccessibilityService extends AccessibilityService {
 
     private static final int URL_PRELOAD_TIMEOUT = 10000;
     private static MainAccessibilityService sSharedService;
-    private Map<String, Long> mUrlsToExpire;
     private CustomTabActivityHelper mCustomTabActivityHelper;
 
-    public static MainAccessibilityService getSharedService() {
+    public static MainAccessibilityService get() {
         return sSharedService;
     }
 
@@ -38,11 +39,11 @@ public class MainAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
         sSharedService = this;
 
-        mUrlsToExpire = new HashMap<>();
-
         mCustomTabActivityHelper = new CustomTabActivityHelper();
         mCustomTabActivityHelper.setConnectionCallback(null);
-        mCustomTabActivityHelper.bindCustomTabsService(this);
+        mCustomTabActivityHelper.bindCustomTabsService(this, new CustomTabsCallback() {
+
+        });
     }
 
     @Override
@@ -55,42 +56,73 @@ public class MainAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "====onAccessibilityEvent===");
+            Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
+        }
+
+        if (MainService.get() != null) {
+            MainService.get().clear();
+        }
+
         CharSequence packageName = event.getPackageName();
 
         if (packageName != null) {
             String appId = packageName.toString();
 
+            if (appId.equals("com.google.android.googlequicksearchbox") || appId.equals(CustomTabsHelper.STABLE_PACKAGE)) {
+                return;
+            }
 
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "=appId: " + appId);
         }
 
-        processAllText(getRootInActiveWindow());
 
-        long currentTime = System.currentTimeMillis();
+        String allText = getAllText(getRootInActiveWindow());
+
+        Pattern pattern = Pattern.compile(LINK_REG_EX);
+        Matcher matcher = pattern.matcher(allText);
 
 
-        ArrayList<Uri> urls = new ArrayList<>();
-        for (Iterator<String> iterator = mUrlsToExpire.keySet().iterator(); iterator.hasNext(); ) {
-            String url = iterator.next();
-            if (mUrlsToExpire.get(url) < currentTime) {
-                iterator.remove();
-                continue;
+        Uri top = null;
+        List<Bundle> possibleUrls = new ArrayList<>();
+
+        while (matcher.find()) {
+            String url = matcher.group(0);
+
+            if (MainService.get() != null) {
+                MainService.get().addUrl(url);
             }
-            urls.add(Uri.parse(url));
+
+            Uri uri = Uri.parse(url);
+
+            if (top == null) {
+                top = uri;
+            } else {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(CustomTabsService.KEY_URL, uri);
+            }
 
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Preload URL: " + url);
         }
 
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("", urls);
-        if (urls.size() > 0) {
-            mCustomTabActivityHelper.mayLaunchUrl(urls.get(0), bundle, null);
+        if (top != null) {
+            boolean success = mCustomTabActivityHelper.mayLaunchUrl(top, null, possibleUrls);
+
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "Preload URL: " + success);
         }
+
+
     }
 
-    private void processAllText(AccessibilityNodeInfo source) {
+    private String getAllText(AccessibilityNodeInfo source) {
+        String string = "";
+
         if (source == null) {
-            return;
+            return string;
         }
 
         if (source.getText() != null) {
@@ -98,21 +130,17 @@ public class MainAccessibilityService extends AccessibilityService {
 
             text = text.replace("\n", " ");
 
-            Pattern pattern = Pattern.compile(LINK_REG_EX);
-            Matcher matcher = pattern.matcher(text);
-            while (matcher.find()) {
-                String url = matcher.group(0);
-
-                mUrlsToExpire.put(url, System.currentTimeMillis() + URL_PRELOAD_TIMEOUT);
-            }
+            string += text + " ";
 
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Text: " + text);
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
-            processAllText(source.getChild(i));
+            string += getAllText(source.getChild(i));
         }
+
+        return string;
     }
 
     @Override
