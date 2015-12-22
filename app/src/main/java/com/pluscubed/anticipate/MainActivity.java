@@ -1,14 +1,15 @@
 package com.pluscubed.anticipate;
 
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.customtabs.CustomTabsIntent;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.crashlytics.android.Crashlytics;
+
+import java.util.List;
+
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,25 +39,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        if (getIntent() != null && getIntent().getData() != null) {
-            CustomTabsIntent launch = new CustomTabsIntent.Builder(
-                    MainAccessibilityService.getSharedService().getCustomTabActivityHelper().getSession())
-                    .enableUrlBarHiding()
-                    .setShowTitle(true)
-                    .build();
-            CustomTabActivityHelper.openCustomTab(
-                    this, launch, getIntent().getData(), new CustomTabActivityHelper.CustomTabFallback() {
-                        @Override
-                        public void openUri(Context activity, Uri uri) {
-                            Intent open = new Intent(Intent.ACTION_VIEW);
-                            open.setData(uri);
-                            activity.startActivity(open);
-                        }
-                    });
-            finish();
+        if (!BuildConfig.DEBUG) {
+            Fabric.with(this, new Crashlytics());
         }
+
+        setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
@@ -67,13 +63,42 @@ public class MainActivity extends AppCompatActivity {
         mSetDefaultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
-                startActivity(intent);
+                final String current = getDefaultBrowserPackage();
+
+
+                if (!current.equals("android") && packageExists(current)) {
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .content(R.string.dialog_clear_defaults)
+                            .positiveText(android.R.string.ok)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    try {
+                                        //Open the current default browswer App Info page
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        intent.setData(Uri.parse("package:" + current));
+                                        startActivity(intent);
+                                    } catch (ActivityNotFoundException ignored) {
+                                        //Silent fail. User will assume he has to clear defaults.
+                                    }
+                                }
+                            })
+                            .show();
+                } else {
+                    promptSetDefault();
+                }
+
+
             }
         });
 
         mSetDefaultImage = (ImageView) findViewById(R.id.image_default);
 
+    }
+
+    private void promptSetDefault() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"));
+        startActivity(intent);
     }
 
     @Override
@@ -93,18 +118,35 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean isSetAsDefault() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://"));
-        ResolveInfo resolveInfo = getPackageManager().resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
+    public boolean packageExists(String targetPackage) {
+        List<ApplicationInfo> packages;
+        PackageManager pm;
 
-        String packageName = resolveInfo.activityInfo.packageName;
+        pm = getPackageManager();
+        packages = pm.getInstalledApplications(0);
+        for (ApplicationInfo packageInfo : packages) {
+            if (packageInfo.packageName.equals(targetPackage))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isSetAsDefault() {
+        String packageName = getDefaultBrowserPackage();
 
         return packageName.equals(BuildConfig.APPLICATION_ID);
     }
 
+    private String getDefaultBrowserPackage() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://"));
+        ResolveInfo resolveInfo = getPackageManager().resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
+
+        return resolveInfo.activityInfo.packageName;
+    }
+
     private boolean isAccessibilityServiceEnabled() {
         int accessibilityEnabled = 0;
-        final String service = "com.pluscubed.anticipate/com.pluscubed.anticipate.MainAccessibilityService";
+        final String service = BuildConfig.APPLICATION_ID + "/com.pluscubed.anticipate.MainAccessibilityService";
         try {
             accessibilityEnabled = Settings.Secure.getInt(getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
         } catch (Settings.SettingNotFoundException e) {

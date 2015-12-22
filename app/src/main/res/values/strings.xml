@@ -5,4 +5,5 @@
 
     <string name="desc_default">To open all links using Anticipate, you may set it as the default browser</string>
     <string name="set_as_default_browser">Set as default browser</string>
+    <string name="dialog_clear_defaults">Another browser is currently set as default. You must clear its defaults first.</string>
 </resources>

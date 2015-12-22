@@ -33,10 +33,6 @@ public class MainAccessibilityService extends AccessibilityService {
         return mCustomTabActivityHelper;
     }
 
-    public void setmCustomTabActivityHelper(CustomTabActivityHelper mCustomTabActivityHelper) {
-        this.mCustomTabActivityHelper = mCustomTabActivityHelper;
-    }
-
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();

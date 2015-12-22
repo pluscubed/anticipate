@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.pluscubed.anticipate">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -7,7 +8,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="${appName}"
         android:supportsRtl="true"
         android:theme="@style/Theme.Anticipate">
 
@@ -19,6 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+        </activity>
+
+        <activity
+            android:name=".CustomTabDummyActivity"
+            android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -28,7 +34,6 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
             </intent-filter>
-
         </activity>
 
         <service
@@ -43,6 +48,11 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/service" />
         </service>
+
+        <service
+            android:name=".customtabsshared.KeepAliveService"
+            android:exported="true"
+            tools:ignore="ExportedService" />
 
     </application>
 
