@@ -42,8 +42,6 @@ public class MainAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
         sSharedService = this;
 
-        Log.e(TAG, "onServiceConnected:");
-
         mUrlsToExpire = new HashMap<>();
 
         mCustomTabActivityHelper = new CustomTabActivityHelper();
@@ -61,6 +59,14 @@ public class MainAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        CharSequence packageName = event.getPackageName();
+
+        if (packageName != null) {
+            String appId = packageName.toString();
+
+
+        }
+
         processAllText(getRootInActiveWindow());
 
         long currentTime = System.currentTimeMillis();
@@ -74,16 +80,16 @@ public class MainAccessibilityService extends AccessibilityService {
                 continue;
             }
             urls.add(Uri.parse(url));
+
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "Preload URL: " + url);
         }
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("", urls);
-        if (urls.size() > 0)
+        if (urls.size() > 0) {
             mCustomTabActivityHelper.mayLaunchUrl(urls.get(0), bundle, null);
-
-        /*for(AccessibilityWindowInfo window: getWindows()){
-            processAllText(window.getRoot(), "window - "+ AccessibilityEvent.eventTypeToString(event.getEventType())+": ");
-        }*/
+        }
     }
 
     private void processAllText(AccessibilityNodeInfo source) {
@@ -102,13 +108,10 @@ public class MainAccessibilityService extends AccessibilityService {
                 String url = matcher.group(0);
 
                 mUrlsToExpire.put(url, System.currentTimeMillis() + URL_PRELOAD_TIMEOUT);
-
-
-                if (BuildConfig.DEBUG)
-                    Log.i(TAG, url);
             }
 
-            Log.i(TAG, text);
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "Text: " + text);
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {

@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Anticipate</string>
-    <string name="desc">Anticipate accesses the accessibility services to scan for links onscreen and pre-load the webpages.</string>
+    <string name="desc">To detect links on-screen and pre-load them, Anticipate requires its accessibility service to be enabled</string>
+    <string name="enable_accessibility_service">Enable Accessibility Service</string>
+
+    <string name="desc_default">To open all links using Anticipate, you may set it as the default browser</string>
+    <string name="set_as_default_browser">Set as default browser</string>
 </resources>

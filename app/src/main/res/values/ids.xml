@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="toolbar_actionbar" type="id" />
+    <item name="button_enable_service" type="id" />
+    <item name="image_enabled" type="id" />
+    <item name="image_default" type="id" />
+    <item name="button_set_default" type="id" />
+</resources>
