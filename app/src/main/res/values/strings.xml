@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Anticipate accesses the accessibility services to scan for links onscreen and pre-load the webpages.</string>
+</resources>
