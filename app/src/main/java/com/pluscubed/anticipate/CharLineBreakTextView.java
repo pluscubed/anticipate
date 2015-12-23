@@ -1,14 +1,15 @@
 package com.pluscubed.anticipate;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Paint;
-import android.os.Build;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-public class CharLineBreakTextView extends TextView {
+public class CharLineBreakTextView extends AppCompatTextView {
+
+
     public CharLineBreakTextView(Context context) {
         super(context);
     }
@@ -20,12 +21,6 @@ public class CharLineBreakTextView extends TextView {
     public CharLineBreakTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public CharLineBreakTextView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-    }
-
 
     //http://stackoverflow.com/questions/14373157/dont-wrap-text-in-android-textview-at-period-in-abbreviation
     private static void breakManually(TextView tv, Editable editable) {

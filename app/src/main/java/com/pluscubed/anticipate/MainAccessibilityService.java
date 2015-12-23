@@ -61,9 +61,6 @@ public class MainAccessibilityService extends AccessibilityService {
             Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
         }
 
-        if (MainService.get() != null) {
-            MainService.get().clear();
-        }
 
         CharSequence packageName = event.getPackageName();
 
@@ -86,30 +83,36 @@ public class MainAccessibilityService extends AccessibilityService {
 
 
         Uri top = null;
+        String list = "";
         List<Bundle> possibleUrls = new ArrayList<>();
 
         while (matcher.find()) {
             String url = matcher.group(0);
 
-            if (MainService.get() != null) {
-                MainService.get().addUrl(url);
-            }
-
             Uri uri = Uri.parse(url);
 
             if (top == null) {
                 top = uri;
+
+                list += uri;
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(CustomTabsService.KEY_URL, uri);
+
+                list += "\n" + uri;
             }
 
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Preload URL: " + url);
         }
 
+
         if (top != null) {
             boolean success = mCustomTabActivityHelper.mayLaunchUrl(top, null, possibleUrls);
+
+            if (success && FloatingWindowService.get() != null) {
+                FloatingWindowService.get().setText(list);
+            }
 
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "Preload URL: " + success);
@@ -139,6 +142,8 @@ public class MainAccessibilityService extends AccessibilityService {
         for (int i = 0; i < source.getChildCount(); i++) {
             string += getAllText(source.getChild(i));
         }
+
+        source.recycle();
 
         return string;
     }

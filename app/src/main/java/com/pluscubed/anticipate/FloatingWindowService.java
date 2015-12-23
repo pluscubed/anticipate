@@ -6,61 +6,52 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v7.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-public class MainService extends Service {
+public class FloatingWindowService extends Service {
 
-    private static MainService sSharedService;
+    private static FloatingWindowService sSharedService;
+
+    String mOldDisplayed="";
+    String mDisplayed="";
+
     TextView mTextView;
-    private Handler mHandler;
     private WindowManager mWindowManager;
 
-    public static MainService get() {
+    public static FloatingWindowService get() {
         return sSharedService;
     }
 
-    public void addUrl(final String url) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mTextView.append((mTextView.getText().length() == 0 ? "" : "\n") + url);
-            }
-        });
+    public void setText(final String url) {
+        mOldDisplayed = mDisplayed;
+        mDisplayed=url;
 
-    }
-
-    public void clear() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mTextView.setText("");
-            }
-        });
+        if(!mOldDisplayed.equals(mDisplayed))
+            mTextView.setText(mDisplayed);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mHandler = new Handler();
-
-        Intent notificationIntent = new Intent(this, MainService.class);
+        Intent notificationIntent = new Intent(this, FloatingWindowService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle("Anticipate")
-                .setContentText("Tap to close.")
-                .setPriority(Notification.PRIORITY_LOW)
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(getString(R.string.anticipate_url_monitor))
+                .setContentText(getString(R.string.notification_tap_to_close))
+                .setPriority(Notification.PRIORITY_MIN)
+                .setSmallIcon(R.drawable.earth)
                 .setContentIntent(pendingIntent)
                 .build();
 
-        startForeground(42, notification);
+        startForeground(1, notification);
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -74,10 +65,10 @@ public class MainService extends Service {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT);
 
-        params.gravity = Gravity.TOP | Gravity.START;
+        params.gravity = Gravity.BOTTOM | Gravity.START;
         params.x = 0;
         params.y = 0;
 

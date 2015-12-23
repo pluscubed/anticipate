@@ -22,155 +22,165 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="32dp">
+            android:layout_height="match_parent">
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingEnd="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp"
-                tools:ignore="UseCompoundDrawables">
+                android:animateLayoutChanges="true"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingTop="32dp">
 
-                <ImageView
-                    android:id="@id/image_enabled"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:contentDescription="@null"
-                    tools:src="@drawable/ic_cross_black_24dp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingEnd="16dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingStart="16dp"
+                    tools:ignore="UseCompoundDrawables">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/desc"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@id/button_enable_service"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/enable_accessibility_service" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:paddingEnd="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp"
-                tools:ignore="UseCompoundDrawables">
-
-                <ImageView
-                    android:id="@id/image_default"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/earth" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/desc_default"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-            <Button
-                android:id="@id/button_set_default"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/set_as_default_browser" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusableInTouchMode="true"
-                android:orientation="horizontal"
-                android:paddingBottom="8dp"
-                android:paddingEnd="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingStart="16dp"
-                android:theme="@style/Theme.Anticipate.DarkAccent"
-                tools:ignore="UseCompoundDrawables">
-
-
-                <android.support.design.widget.TextInputLayout
-                    android:id="@id/textinputlayout_try"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="2dp"
-                    android:layout_weight="1">
-
-                    <EditText
-                        android:id="@id/edittext_try"
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:id="@id/image_enabled"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="@string/enter_a_url"
-                        android:inputType="textUri" />
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:contentDescription="@null"
+                        tools:src="@drawable/ic_cross_black_24dp" />
 
-                </android.support.design.widget.TextInputLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/desc"
+                        android:textSize="16sp" />
 
+                </LinearLayout>
 
                 <Button
-                    android:id="@id/button_try"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:id="@id/button_enable_service"
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:text="@string/try_it_out" />
+                    android:layout_marginTop="8dp"
+                    android:text="@string/enable_accessibility_service" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingStart="16dp"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <ImageView
+                        android:id="@id/image_default"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginRight="16dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/earth" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/desc_default"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@id/button_set_default"
+                    style="@style/Widget.AppCompat.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/set_as_default_browser" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusableInTouchMode="true"
+                    android:orientation="horizontal"
+                    android:paddingBottom="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingStart="16dp"
+                    android:theme="@style/Theme.Anticipate.DarkAccent"
+                    tools:ignore="UseCompoundDrawables">
+
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@id/textinputlayout_try"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:layout_weight="1">
+
+                        <com.pluscubed.anticipate.DispatchBackEditText
+                            android:id="@id/edittext_try"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_a_url"
+                            android:inputType="textUri" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+
+                    <Button
+                        android:id="@id/button_try"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:text="@string/try_it_out" />
+
+
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp" />
+
+                <!--<TextView
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Limitations:\nCan only detect the parts of a link that are visible on-screen\n"
+                    android:textSize="16sp" />-->
+
+
+                <Switch
+                    android:id="@id/checkbox_preload_window"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:switchPadding="8dp"
+                    android:text="@string/floating_window_checkbox" />
 
 
             </LinearLayout>
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="16dp" />
-
-            <!--<TextView
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Limitations:\nCan only detect the parts of a link that are visible on-screen\n"
-                android:textSize="16sp" />-->
-
-            <CheckBox
-                android:id="@id/checkbox_preload_window"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/floating_window_checkbox" />
-
-
-        </LinearLayout>
+        </ScrollView>
 
 
         <View

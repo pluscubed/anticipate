@@ -2,10 +2,12 @@ package com.pluscubed.anticipate;
 
 import android.annotation.TargetApi;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -22,12 +24,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
     PopupMenu mTryPopup;
+    DispatchBackEditText mTryEditText;
     private Button mEnableServiceButton;
     private ImageView mEnabledImage;
     private Button mSetDefaultButton;
@@ -75,30 +80,7 @@ public class MainActivity extends AppCompatActivity {
         mSetDefaultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String current = getDefaultBrowserPackage();
-
-
-                if (!current.equals("android") && packageExists(current)) {
-                    new MaterialDialog.Builder(MainActivity.this)
-                            .content(R.string.dialog_clear_defaults)
-                            .positiveText(R.string.open_settings)
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    try {
-                                        //Open the current default browswer App Info page
-                                        openSettings(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, current);
-                                    } catch (ActivityNotFoundException ignored) {
-                                        Toast.makeText(MainActivity.this, R.string.open_settings_failed_clear_deafults, Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            })
-                            .show();
-                } else {
-                    promptSetDefault();
-                }
-
-
+                onSetDefaultButtonPressed();
             }
         });
 
@@ -106,12 +88,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         final Button tryButton = (Button) findViewById(R.id.button_try);
-        final EditText tryEditText = (EditText) findViewById(R.id.edittext_try);
+        mTryEditText = (DispatchBackEditText) findViewById(R.id.edittext_try);
 
         tryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mTryPopup.show();
+                onTryButtonPressed();
             }
         });
 
@@ -120,71 +102,140 @@ public class MainActivity extends AppCompatActivity {
         mTryPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                String input = tryEditText.getText().toString();
-
-                if (!input.startsWith("http://") && !input.startsWith("https://")) {
-                    input = "http://" + input;
-                }
-                Intent viewUrlIntent = getViewUrlIntent(input);
-
-                switch (item.getItemId()) {
-                    case R.id.menu_try_anticipate:
-                        viewUrlIntent.setClass(MainActivity.this, CustomTabDummyActivity.class);
-                        break;
-                    case R.id.menu_try_browser:
-                        viewUrlIntent = Intent.createChooser(viewUrlIntent, "Open with:");
-                        break;
-                }
-
-                startActivity(viewUrlIntent);
-
+                onTrySelectPopupPressed(item, mTryEditText);
                 return true;
             }
         });
 
-        final CheckBox box = (CheckBox) findViewById(R.id.checkbox_preload_window);
-        box.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent service = new Intent(MainActivity.this, MainService.class);
-
-                if (box.isChecked()) {
-                    if (MainService.get() == null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
-                            new MaterialDialog.Builder(MainActivity.this)
-                                    .content(R.string.dialog_draw_overlay)
-                                    .positiveText(R.string.open_settings)
-                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                        @TargetApi(Build.VERSION_CODES.M)
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                            openSettings(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, BuildConfig.APPLICATION_ID);
-                                        }
-                                    })
-                                    .show();
-                            box.setChecked(false);
-                        } else {
-                            startService(service);
-                        }
-                    }
-                } else {
-                    stopService(service);
-                }
-            }
-        });
-
-        tryEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mTryEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    tryButton.callOnClick();
-                    return true;
-                }
-
-                return false;
+                return onTryEditTextChanged(actionId, tryButton);
             }
         });
 
+        final Switch floatingWindowSwitch = (Switch) findViewById(R.id.checkbox_preload_window);
+        floatingWindowSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onFloatingWindowSwitchChange(floatingWindowSwitch);
+            }
+        });
+
+        floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
+
+        invalidateStates();
+
+    }
+
+    void onFloatingWindowSwitchChange(Switch floatingWindowSwitch) {
+        Intent service = new Intent(MainActivity.this, FloatingWindowService.class);
+
+        if (floatingWindowSwitch.isChecked()) {
+            if (FloatingWindowService.get() == null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .content(R.string.dialog_draw_overlay)
+                            .positiveText(R.string.open_settings)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @TargetApi(Build.VERSION_CODES.M)
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    openSettings(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, BuildConfig.APPLICATION_ID);
+                                }
+                            })
+                            .show();
+                    floatingWindowSwitch.setChecked(false);
+                } else {
+                    startService(service);
+                }
+            }
+        } else {
+            stopService(service);
+        }
+    }
+
+    boolean onTryEditTextChanged(int actionId, Button tryButton) {
+        if (actionId == EditorInfo.IME_ACTION_DONE) {
+            tryButton.callOnClick();
+
+            return true;
+        }
+        return false;
+    }
+
+    void onTrySelectPopupPressed(MenuItem item, EditText tryEditText) {
+        String input = tryEditText.getText().toString();
+
+        if (!input.startsWith("http://") && !input.startsWith("https://")) {
+            input = "http://" + input;
+        }
+        Intent viewUrlIntent = getViewUrlIntent(input);
+
+        switch (item.getItemId()) {
+            case R.id.menu_try_anticipate:
+                viewUrlIntent.setClass(MainActivity.this, CustomTabDummyActivity.class);
+                break;
+            case R.id.menu_try_browser:
+                viewUrlIntent = Intent.createChooser(viewUrlIntent, "Open with:");
+                break;
+        }
+
+        startActivity(viewUrlIntent);
+    }
+
+    void onTryButtonPressed() {
+        mTryPopup.show();
+
+        clearEditTextFocus();
+    }
+
+    void onSetDefaultButtonPressed() {
+        final String current = getDefaultBrowserPackage();
+
+
+        if (!current.equals("android") && packageExists(current)) {
+            new MaterialDialog.Builder(MainActivity.this)
+                    .content(R.string.dialog_clear_defaults)
+                    .positiveText(R.string.open_settings)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            try {
+                                //Open the current default browswer App Info page
+                                openSettings(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, current);
+                            } catch (ActivityNotFoundException ignored) {
+                                Toast.makeText(MainActivity.this, R.string.open_settings_failed_clear_deafults, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    })
+                    .show();
+        } else {
+            promptSetDefault();
+        }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        //http://stackoverflow.com/questions/4828636/edittext-clear-focus-on-touch-outside
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            View v = getCurrentFocus();
+            if (v instanceof EditText) {
+                Rect outRect = new Rect();
+                v.getGlobalVisibleRect(outRect);
+                if (!outRect.contains((int) event.getRawX(), (int) event.getRawY())) {
+                    clearEditTextFocus();
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+
+    void clearEditTextFocus() {
+        mTryEditText.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mTryEditText.getWindowToken(), 0);
     }
 
     void openSettings(String settingsAction, String packageName) {
@@ -204,10 +255,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
 
-        boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled();
+        if (hasFocus) {
+            invalidateStates();
+        }
+    }
+
+    private void invalidateStates() {
+        final boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled();
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
 
@@ -217,7 +274,6 @@ public class MainActivity extends AppCompatActivity {
         Drawable drawable = mSetDefaultImage.getDrawable();
         DrawableCompat.setTint(drawable, ContextCompat.getColor(this, isSetAsDefault ? R.color.green_500 : R.color.blue_800));
         mSetDefaultButton.setVisibility(isSetAsDefault ? View.GONE : View.VISIBLE);
-
     }
 
     public boolean packageExists(String targetPackage) {
