@@ -4,7 +4,6 @@
     package="com.pluscubed.anticipate">
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
@@ -13,8 +12,6 @@
         android:label="${appName}"
         android:supportsRtl="true"
         android:theme="@style/Theme.Anticipate">
-
-
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop">
@@ -23,9 +20,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-
         <activity
             android:name=".CustomTabDummyActivity"
             android:theme="@android:style/Theme.NoDisplay">
@@ -40,6 +35,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PerAppListActivity" />
+
+        <activity
+            android:name=".AddAppDialogActivity"
+            android:theme="@style/Theme.Anticipate.Dialog" />
+
         <service
             android:name=".MainAccessibilityService"
             android:exported="true"
@@ -52,11 +53,9 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/service" />
         </service>
-
         <service
             android:name=".FloatingWindowService"
             android:exported="false" />
-
         <service
             android:name=".customtabsshared.KeepAliveService"
             android:exported="true"

@@ -19,10 +19,12 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +40,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.pluscubed.anticipate.widget.DispatchBackEditText;
 
 import java.util.List;
 
@@ -153,6 +156,34 @@ public class MainActivity extends AppCompatActivity {
         } else {
             stopService(service);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_main_about:
+                showAboutDialog();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void showAboutDialog() {
+        new MaterialDialog.Builder(this)
+                .title(getString(R.string.about_dialog_title, BuildConfig.VERSION_NAME))
+                .positiveText(R.string.dismiss)
+                .content(Html.fromHtml(getString(R.string.about_body)))
+                .iconRes(R.mipmap.ic_launcher)
+                .linkColor(ContextCompat.getColor(this, R.color.blue_800))
+                .positiveColor(ContextCompat.getColor(this, R.color.blue_800))
+                .show();
     }
 
     boolean onTryEditTextChanged(int actionId, Button tryButton) {

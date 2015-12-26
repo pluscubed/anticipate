@@ -11,4 +11,12 @@
     <item name="menu_try_anticipate" type="id" />
     <item name="menu_try_browser" type="id" />
     <item name="checkbox_preload_window" type="id" />
+    <item name="menu_main_about" type="id" />
+    <item name="recyclerview_excluded" type="id" />
+    <item name="fab_add_excluded" type="id" />
+    <item name="app_bar" type="id" />
+    <item name="image_excluded_app" type="id" />
+    <item name="text_excluded_name" type="id" />
+    <item name="text_excluded_desc" type="id" />
+    <item name="spinner_per_app_mode" type="id" />
 </resources>

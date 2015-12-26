@@ -10,8 +10,6 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,9 +20,10 @@ public class MainAccessibilityService extends AccessibilityService {
     public static final String TAG = "Accesibility";
     public static final String LINK_REG_EX = "((?:[a-z][\\w-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
 
-    private static final int URL_PRELOAD_TIMEOUT = 10000;
     private static MainAccessibilityService sSharedService;
     private CustomTabActivityHelper mCustomTabActivityHelper;
+
+    private List<String> mPerAppList;
 
     public static MainAccessibilityService get() {
         return sSharedService;
@@ -44,6 +43,8 @@ public class MainAccessibilityService extends AccessibilityService {
         mCustomTabActivityHelper.bindCustomTabsService(this, new CustomTabsCallback() {
 
         });
+
+        mPerAppList = new ArrayList<>();
     }
 
     @Override
@@ -67,12 +68,14 @@ public class MainAccessibilityService extends AccessibilityService {
         if (packageName != null) {
             String appId = packageName.toString();
 
-            if (appId.equals("com.google.android.googlequicksearchbox") || appId.equals(CustomTabsHelper.STABLE_PACKAGE)) {
-                return;
-            }
-
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "=appId: " + appId);
+
+            if (mPerAppList.contains(appId)) {
+                if (BuildConfig.DEBUG)
+                    Log.i(TAG, "=excluded");
+                return;
+            }
         }
 
 

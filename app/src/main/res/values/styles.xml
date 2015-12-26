@@ -24,4 +24,8 @@
         <item name="overlapAnchor">true</item>
     </style>
 
+    <style name="Theme.Anticipate.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+
+    </style>
+
 </resources>

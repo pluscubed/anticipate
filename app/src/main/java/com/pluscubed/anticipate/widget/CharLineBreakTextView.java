@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate;
+package com.pluscubed.anticipate.widget;
 
 import android.content.Context;
 import android.graphics.Paint;
