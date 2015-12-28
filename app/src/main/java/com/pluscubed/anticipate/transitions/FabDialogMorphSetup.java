@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pluscubed.anticipate.trasitions;
+package com.pluscubed.anticipate.transitions;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -27,12 +27,9 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
-import com.pluscubed.anticipate.R;
-
 /**
  * Helper class for setting up Fab <-> Dialog shared element transitions.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class FabDialogMorphSetup {
 
     public static final String EXTRA_SHARED_ELEMENT_START_COLOR =
@@ -44,18 +41,19 @@ public class FabDialogMorphSetup {
     }
 
     /**
-     * Configure the shared element transitions for morphing from a fab <-> dialog. We need to do
+     * Configure the shared element transitions for morphin from a fab <-> dialog. We need to do
      * this in code rather than declaratively as we need to supply the color to transition from/to
      * and the dialog corner radius which is dynamically supplied depending upon where this screen
      * is launched from.
      */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void setupSharedElementTransitions(@NonNull Activity activity,
                                                      @Nullable View target,
                                                      int dialogCornerRadius) {
         if (!activity.getIntent().hasExtra(EXTRA_SHARED_ELEMENT_START_COLOR)) return;
 
-        int startCornerRadius = activity.getIntent().getIntExtra
-                (EXTRA_SHARED_ELEMENT_START_CORNER_RADIUS, -1);
+        int startCornerRadius = activity.getIntent()
+                .getIntExtra(EXTRA_SHARED_ELEMENT_START_CORNER_RADIUS, -1);
 
         ArcMotion arcMotion = new ArcMotion();
         arcMotion.setMinimumHorizontalAngle(50f);
@@ -63,19 +61,18 @@ public class FabDialogMorphSetup {
         int color = activity.getIntent().getIntExtra(EXTRA_SHARED_ELEMENT_START_COLOR, Color.TRANSPARENT);
         Interpolator easeInOut =
                 AnimationUtils.loadInterpolator(activity, android.R.interpolator.fast_out_slow_in);
-        MorphTransition sharedEnter = new MorphTransition(color, Color.WHITE,
-                startCornerRadius, activity.getResources().getDimensionPixelSize(R.dimen.dialog_corners), true);
+        MorphFabToDialog sharedEnter =
+                new MorphFabToDialog(color, dialogCornerRadius, startCornerRadius);
         sharedEnter.setPathMotion(arcMotion);
         sharedEnter.setInterpolator(easeInOut);
-
-        MorphTransition sharedReturn = new MorphTransition(color, Color.WHITE,
-                activity.getResources().getDimensionPixelSize(R.dimen.dialog_corners), startCornerRadius, false);
+        MorphDialogToFab sharedReturn = new MorphDialogToFab(color, startCornerRadius);
         sharedReturn.setPathMotion(arcMotion);
         sharedReturn.setInterpolator(easeInOut);
         if (target != null) {
             sharedEnter.addTarget(target);
             sharedReturn.addTarget(target);
         }
+
         activity.getWindow().setSharedElementEnterTransition(sharedEnter);
         activity.getWindow().setSharedElementReturnTransition(sharedReturn);
     }

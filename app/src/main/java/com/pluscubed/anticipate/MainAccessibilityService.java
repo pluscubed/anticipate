@@ -41,7 +41,15 @@ public class MainAccessibilityService extends AccessibilityService {
         mCustomTabActivityHelper = new CustomTabActivityHelper();
         mCustomTabActivityHelper.setConnectionCallback(null);
         mCustomTabActivityHelper.bindCustomTabsService(this, new CustomTabsCallback() {
+            @Override
+            public void onNavigationEvent(int navigationEvent, Bundle extras) {
+                super.onNavigationEvent(navigationEvent, extras);
+            }
 
+            @Override
+            public void extraCallback(String callbackName, Bundle args) {
+                super.extraCallback(callbackName, args);
+            }
         });
 
         mPerAppList = new ArrayList<>();
@@ -57,6 +65,8 @@ public class MainAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        sSharedService = this;
+
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "====onAccessibilityEvent===");
             Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));

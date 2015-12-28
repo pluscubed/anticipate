@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pluscubed.anticipate.trasitions;
+package com.pluscubed.anticipate.transitions;
 
 import android.animation.Animator;
 import android.animation.TimeInterpolator;
@@ -31,8 +31,7 @@ import java.util.ArrayList;
  */
 public class AnimUtils {
 
-    private AnimUtils() {
-    }
+    private AnimUtils() { }
 
     /**
      * Linear interpolate between a and b with parameter t.

@@ -128,5 +128,12 @@
     <string name="action_settings">Settings</string>
     <string name="per_app_filter_mode">Per-app filter mode:</string>
     <string name="configure">Configure</string>
+    <string name="blacklist">Blacklist</string>
+    <string name="whitelist">Whitelist</string>
+    <string name="blacklisted_apps">Blacklisted Apps</string>
+    <string name="whitelisted_apps">Whitelisted Apps</string>
+    <string name="open_with">Open with:</string>
+    <string name="unable_to_launch">Chrome isn\'t installed</string>
+    <string name="transition_fab_add">dialog_add</string>
 
 </resources>

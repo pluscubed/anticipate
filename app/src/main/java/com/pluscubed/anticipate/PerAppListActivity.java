@@ -5,7 +5,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +20,8 @@ import android.widget.TextView;
 
 import com.afollestad.inquiry.Inquiry;
 import com.afollestad.inquiry.annotations.Column;
+import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
+import com.pluscubed.anticipate.transitions.FabDialogMorphSetup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,20 +37,31 @@ public class PerAppListActivity extends AppCompatActivity {
 
     public static final String TABLE_EXCLUDED_APPS = "ExcludedApps";
 
-    static final String[] DEFAULT_BLACKLISTED_APPS = {"com.android.systemui", "com.google.android.googlequicksearchbox",};
+    static final String[] DEFAULT_BLACKLISTED_APPS =
+            {"com.android.systemui", "com.google.android.googlequicksearchbox",
+                    CustomTabsHelper.STABLE_PACKAGE, CustomTabsHelper.BETA_PACKAGE,
+                    CustomTabsHelper.DEV_PACKAGE, CustomTabsHelper.LOCAL_PACKAGE};
 
     List<AppPackage> mPerAppList;
     ExcludedAdapter mAdapter;
 
+    boolean mBlacklistMode;
+    private FloatingActionButton mFab;
+    private AppBarLayout mAppBar;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_excluded);
+        setContentView(R.layout.activity_perapplist);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
 
         mPerAppList = new ArrayList<>();
+        mBlacklistMode = PrefUtils.isBlacklistMode(this);
+
+        setTitle(mBlacklistMode ? getString(R.string.blacklisted_apps) : getString(R.string.whitelisted_apps));
 
         Inquiry.init(this, TABLE_EXCLUDED_APPS, 1);
         Single.create(new Single.OnSubscribe<List<AppPackage>>() {
@@ -54,29 +70,25 @@ public class PerAppListActivity extends AppCompatActivity {
                 AppPackage[] all = Inquiry.get().selectFrom(TABLE_EXCLUDED_APPS, AppPackage.class)
                         .all();
                 if (all != null) {
-                    if (all.length == 0) {
-                        AppPackage[] defaultBlacklistApps = new AppPackage[DEFAULT_BLACKLISTED_APPS.length];
-                        for (int i = 0; i < DEFAULT_BLACKLISTED_APPS.length; i++) {
-                            String packageName = DEFAULT_BLACKLISTED_APPS[i];
-                            AppPackage appPackage = new AppPackage();
-                            appPackage.excludedAppPackage = packageName;
-                            defaultBlacklistApps[i] = appPackage;
-                        }
-
-                        Long[] ids = Inquiry.get().insertInto(TABLE_EXCLUDED_APPS, AppPackage.class)
-                                .values(defaultBlacklistApps)
-                                .run();
-
-                        for (int i = 0; i < ids.length; i++) {
-                            defaultBlacklistApps[i].id = ids[i];
-                        }
-
-                        singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(defaultBlacklistApps)));
-                    } else {
-                        singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(all)));
-                    }
+                    singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(all)));
                 } else {
-                    singleSubscriber.onError(new Exception("Unknown error"));
+                    AppPackage[] defaultBlacklistApps = new AppPackage[DEFAULT_BLACKLISTED_APPS.length];
+                    for (int i = 0; i < DEFAULT_BLACKLISTED_APPS.length; i++) {
+                        String packageName = DEFAULT_BLACKLISTED_APPS[i];
+                        AppPackage appPackage = new AppPackage();
+                        appPackage.excludedAppPackage = packageName;
+                        defaultBlacklistApps[i] = appPackage;
+                    }
+
+                    Long[] ids = Inquiry.get().insertInto(TABLE_EXCLUDED_APPS, AppPackage.class)
+                            .values(defaultBlacklistApps)
+                            .run();
+
+                    for (int i = 0; i < ids.length; i++) {
+                        defaultBlacklistApps[i].id = ids[i];
+                    }
+
+                    singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(defaultBlacklistApps)));
                 }
             }
         }).subscribeOn(Schedulers.io())
@@ -95,19 +107,28 @@ public class PerAppListActivity extends AppCompatActivity {
                     }
                 });
 
-        RecyclerView view = (RecyclerView) findViewById(R.id.recyclerview_excluded);
+        RecyclerView view = (RecyclerView) findViewById(R.id.recyclerview);
         mAdapter = new ExcludedAdapter();
         view.setAdapter(mAdapter);
         view.setLayoutManager(new LinearLayoutManager(this));
 
-        FloatingActionButton button = (FloatingActionButton) findViewById(R.id.fab_add_excluded);
-        button.setOnClickListener(new View.OnClickListener() {
+        final View mockFab = findViewById(R.id.view_mock_fab);
+
+        mFab = (FloatingActionButton) findViewById(R.id.fab_add_perapp);
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(PerAppListActivity.this, AddAppDialogActivity.class);
-                startActivity(intent);
+
+                intent.putExtra(FabDialogMorphSetup.EXTRA_SHARED_ELEMENT_START_COLOR,
+                        ContextCompat.getColor(PerAppListActivity.this, R.color.colorAccent));
+                Bundle options = ActivityOptionsCompat
+                        .makeSceneTransitionAnimation(PerAppListActivity.this, mockFab, getString(R.string.transition_fab_add)).toBundle();
+                startActivity(intent, options);
             }
         });
+
+        mAppBar = (AppBarLayout) findViewById(R.id.app_bar);
     }
 
     public static class AppPackage {
@@ -131,7 +152,7 @@ public class PerAppListActivity extends AppCompatActivity {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = getLayoutInflater().inflate(R.layout.list_item_excluded_app, parent, false);
+            View view = getLayoutInflater().inflate(R.layout.list_item_app, parent, false);
             return new ViewHolder(view);
         }
 
@@ -170,9 +191,9 @@ public class PerAppListActivity extends AppCompatActivity {
             public ViewHolder(View itemView) {
                 super(itemView);
 
-                icon = (ImageView) itemView.findViewById(R.id.image_excluded_app);
-                title = (TextView) itemView.findViewById(R.id.text_excluded_name);
-                desc = (TextView) itemView.findViewById(R.id.text_excluded_desc);
+                icon = (ImageView) itemView.findViewById(R.id.image_app);
+                title = (TextView) itemView.findViewById(R.id.text_name);
+                desc = (TextView) itemView.findViewById(R.id.text_desc);
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override

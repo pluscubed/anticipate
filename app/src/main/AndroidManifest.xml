@@ -23,7 +23,7 @@
         </activity>
         <activity
             android:name=".CustomTabDummyActivity"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/Theme.Anticipate.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

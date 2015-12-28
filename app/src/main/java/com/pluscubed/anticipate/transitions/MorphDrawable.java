@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pluscubed.anticipate.trasitions;
+package com.pluscubed.anticipate.transitions;
 
 import android.annotation.TargetApi;
 import android.graphics.Canvas;
@@ -31,7 +31,6 @@ import android.util.Property;
  * A drawable that can morph size, shape (via it's corner radius) and color.  Specifically this is
  * useful for animating between a FAB and a dialog.
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class MorphDrawable extends Drawable {
 
     public static final Property<MorphDrawable, Float> CORNER_RADIUS = new AnimUtils
@@ -87,12 +86,14 @@ public class MorphDrawable extends Drawable {
         invalidateSelf();
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void draw(Canvas canvas) {
         canvas.drawRoundRect(getBounds().left, getBounds().top, getBounds().right, getBounds()
                 .bottom, cornerRadius, cornerRadius, paint);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void getOutline(@NonNull Outline outline) {
         outline.setRoundRect(getBounds(), cornerRadius);

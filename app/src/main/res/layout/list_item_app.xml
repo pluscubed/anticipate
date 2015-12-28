@@ -10,7 +10,7 @@
     android:paddingRight="16dp">
 
     <ImageView
-        android:id="@id/image_excluded_app"
+        android:id="@id/image_app"
         android:layout_width="40dp"
         android:layout_height="40dp"
         tools:ignore="ContentDescription"
@@ -24,14 +24,14 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@id/text_excluded_name"
+            android:id="@id/text_name"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="16sp"
             tools:text="Anticipate" />
 
         <TextView
-            android:id="@id/text_excluded_desc"
+            android:id="@id/text_desc"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginTop="2dp"

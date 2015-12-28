@@ -30,9 +30,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,7 +43,9 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
+import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
 import java.util.List;
 
@@ -49,12 +54,42 @@ import io.fabric.sdk.android.Fabric;
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
+
     PopupMenu mTryPopup;
     DispatchBackEditText mTryEditText;
     private Button mEnableServiceButton;
     private ImageView mEnabledImage;
     private Button mSetDefaultButton;
     private ImageView mSetDefaultImage;
+    private BottomSheetLayout mBottomSheetLayout;
+
+    public static boolean isAccessibilityServiceEnabled(Context context) {
+        int accessibilityEnabled = 0;
+        final String service = BuildConfig.APPLICATION_ID + "/com.pluscubed.anticipate.MainAccessibilityService";
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
+
+        if (accessibilityEnabled == 1) {
+            String settingValue = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (settingValue != null) {
+                splitter.setString(settingValue);
+                while (splitter.hasNext()) {
+                    String accessabilityService = splitter.next();
+                    if (accessabilityService.equalsIgnoreCase(service)) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            Log.v(TAG, "Accessibility is disabled.");
+        }
+
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +162,45 @@ public class MainActivity extends AppCompatActivity {
 
         floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
 
+        Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item,
+                new String[]{getString(R.string.blacklist), getString(R.string.whitelist)});
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                PrefUtils.setBlacklistMode(MainActivity.this, position==0);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        spinner.setSelection(PrefUtils.isBlacklistMode(this)?0:1);
+
+        Button configure = (Button) findViewById(R.id.button_configure_perapp);
+        configure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, PerAppListActivity.class));
+            }
+        });
+
+        mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
+
+
         invalidateStates();
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if(intent.getData()!=null){
+            showBottomSheetFromUrlIntent(getViewUrlIntent(intent.getDataString()));
+        }
     }
 
     void onFloatingWindowSwitchChange(Switch floatingWindowSwitch) {
@@ -201,18 +273,36 @@ public class MainActivity extends AppCompatActivity {
         if (!input.startsWith("http://") && !input.startsWith("https://")) {
             input = "http://" + input;
         }
-        Intent viewUrlIntent = getViewUrlIntent(input);
+        final Intent viewUrlIntent = getViewUrlIntent(input);
 
-        switch (item.getItemId()) {
-            case R.id.menu_try_anticipate:
-                viewUrlIntent.setClass(MainActivity.this, CustomTabDummyActivity.class);
-                break;
-            case R.id.menu_try_browser:
-                viewUrlIntent = Intent.createChooser(viewUrlIntent, "Open with:");
-                break;
+        if (item.getItemId() == R.id.menu_try_anticipate) {
+            viewUrlIntent.setClass(MainActivity.this, CustomTabDummyActivity.class);
+            startActivity(viewUrlIntent);
+        } else if (item.getItemId() == R.id.menu_try_browser) {
+            showBottomSheetFromUrlIntent(viewUrlIntent);
+
         }
 
-        startActivity(viewUrlIntent);
+
+    }
+
+    private void showBottomSheetFromUrlIntent(final Intent viewUrlIntent) {
+        IntentPickerSheetView picker = new IntentPickerSheetView(this, viewUrlIntent, R.string.open_with, new IntentPickerSheetView.OnIntentPickedListener() {
+            @Override
+            public void onIntentPicked(IntentPickerSheetView.ActivityInfo activityInfo) {
+                viewUrlIntent.setComponent(activityInfo.componentName);
+                startActivity(viewUrlIntent);
+            }
+        });
+
+        picker.setFilter(new IntentPickerSheetView.Filter() {
+            @Override
+            public boolean include(IntentPickerSheetView.ActivityInfo info) {
+                return !info.componentName.getPackageName().equals(BuildConfig.APPLICATION_ID);
+            }
+        });
+
+        mBottomSheetLayout.showWithSheetView(picker);
     }
 
     void onTryButtonPressed() {
@@ -262,7 +352,6 @@ public class MainActivity extends AppCompatActivity {
         return super.dispatchTouchEvent(event);
     }
 
-
     void clearEditTextFocus() {
         mTryEditText.clearFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -295,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void invalidateStates() {
-        final boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled();
+        final boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(this);
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
 
@@ -331,34 +420,6 @@ public class MainActivity extends AppCompatActivity {
         ResolveInfo resolveInfo = getPackageManager().resolveActivity(browserIntent, PackageManager.MATCH_DEFAULT_ONLY);
 
         return resolveInfo.activityInfo.packageName;
-    }
-
-    private boolean isAccessibilityServiceEnabled() {
-        int accessibilityEnabled = 0;
-        final String service = BuildConfig.APPLICATION_ID + "/com.pluscubed.anticipate.MainAccessibilityService";
-        try {
-            accessibilityEnabled = Settings.Secure.getInt(getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
-        } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
-        }
-        TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
-
-        if (accessibilityEnabled == 1) {
-            String settingValue = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-            if (settingValue != null) {
-                splitter.setString(settingValue);
-                while (splitter.hasNext()) {
-                    String accessabilityService = splitter.next();
-                    if (accessabilityService.equalsIgnoreCase(service)) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            Log.v(TAG, "Accessibility is disabled.");
-        }
-
-        return false;
     }
 
 
