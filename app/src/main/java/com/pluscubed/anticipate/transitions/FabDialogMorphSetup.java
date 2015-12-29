@@ -56,8 +56,9 @@ public class FabDialogMorphSetup {
                 .getIntExtra(EXTRA_SHARED_ELEMENT_START_CORNER_RADIUS, -1);
 
         ArcMotion arcMotion = new ArcMotion();
-        arcMotion.setMinimumHorizontalAngle(50f);
-        arcMotion.setMinimumVerticalAngle(50f);
+        arcMotion.setMinimumHorizontalAngle(5f);
+        arcMotion.setMinimumVerticalAngle(10f);
+        arcMotion.setMaximumAngle(10f);
         int color = activity.getIntent().getIntExtra(EXTRA_SHARED_ELEMENT_START_COLOR, Color.TRANSPARENT);
         Interpolator easeInOut =
                 AnimationUtils.loadInterpolator(activity, android.R.interpolator.fast_out_slow_in);

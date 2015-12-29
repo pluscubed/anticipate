@@ -144,7 +144,7 @@ public class MorphFabToDialog extends ChangeBounds {
                         .setDuration(150)
                         .setStartDelay(150)
                         .setInterpolator(AnimationUtils.loadInterpolator(vg.getContext(),
-                                android.R.interpolator.fast_out_slow_in));
+                                android.R.interpolator.linear_out_slow_in));
                 offset *= 1.8f;
             }
         }

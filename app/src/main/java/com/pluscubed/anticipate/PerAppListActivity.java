@@ -19,8 +19,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.inquiry.Inquiry;
-import com.afollestad.inquiry.annotations.Column;
-import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
 import com.pluscubed.anticipate.transitions.FabDialogMorphSetup;
 
 import java.util.ArrayList;
@@ -34,21 +32,24 @@ import rx.schedulers.Schedulers;
 
 public class PerAppListActivity extends AppCompatActivity {
 
-
-    public static final String TABLE_EXCLUDED_APPS = "ExcludedApps";
-
-    static final String[] DEFAULT_BLACKLISTED_APPS =
-            {"com.android.systemui", "com.google.android.googlequicksearchbox",
-                    CustomTabsHelper.STABLE_PACKAGE, CustomTabsHelper.BETA_PACKAGE,
-                    CustomTabsHelper.DEV_PACKAGE, CustomTabsHelper.LOCAL_PACKAGE};
+    public static final String DB = "Anticipate";
+    public static final String TABLE_BLACKLISTED_APPS = "BlacklistedApps";
+    public static final String TABLE_WHITELISTED_APPS = "WhitelistedApps";
 
     List<AppPackage> mPerAppList;
-    ExcludedAdapter mAdapter;
+    AppAdapter mAdapter;
 
     boolean mBlacklistMode;
     private FloatingActionButton mFab;
     private AppBarLayout mAppBar;
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mAdapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,32 +64,18 @@ public class PerAppListActivity extends AppCompatActivity {
 
         setTitle(mBlacklistMode ? getString(R.string.blacklisted_apps) : getString(R.string.whitelisted_apps));
 
-        Inquiry.init(this, TABLE_EXCLUDED_APPS, 1);
+
         Single.create(new Single.OnSubscribe<List<AppPackage>>() {
             @Override
             public void call(SingleSubscriber<? super List<AppPackage>> singleSubscriber) {
-                AppPackage[] all = Inquiry.get().selectFrom(TABLE_EXCLUDED_APPS, AppPackage.class)
+                String table = mBlacklistMode ? TABLE_BLACKLISTED_APPS : TABLE_WHITELISTED_APPS;
+
+                AppPackage[] all = Inquiry.get().selectFrom(table, AppPackage.class)
                         .all();
                 if (all != null) {
                     singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(all)));
                 } else {
-                    AppPackage[] defaultBlacklistApps = new AppPackage[DEFAULT_BLACKLISTED_APPS.length];
-                    for (int i = 0; i < DEFAULT_BLACKLISTED_APPS.length; i++) {
-                        String packageName = DEFAULT_BLACKLISTED_APPS[i];
-                        AppPackage appPackage = new AppPackage();
-                        appPackage.excludedAppPackage = packageName;
-                        defaultBlacklistApps[i] = appPackage;
-                    }
-
-                    Long[] ids = Inquiry.get().insertInto(TABLE_EXCLUDED_APPS, AppPackage.class)
-                            .values(defaultBlacklistApps)
-                            .run();
-
-                    for (int i = 0; i < ids.length; i++) {
-                        defaultBlacklistApps[i].id = ids[i];
-                    }
-
-                    singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(defaultBlacklistApps)));
+                    singleSubscriber.onSuccess(new ArrayList<AppPackage>());
                 }
             }
         }).subscribeOn(Schedulers.io())
@@ -108,7 +95,7 @@ public class PerAppListActivity extends AppCompatActivity {
                 });
 
         RecyclerView view = (RecyclerView) findViewById(R.id.recyclerview);
-        mAdapter = new ExcludedAdapter();
+        mAdapter = new AppAdapter();
         view.setAdapter(mAdapter);
         view.setLayoutManager(new LinearLayoutManager(this));
 
@@ -131,21 +118,9 @@ public class PerAppListActivity extends AppCompatActivity {
         mAppBar = (AppBarLayout) findViewById(R.id.app_bar);
     }
 
-    public static class AppPackage {
-        @Column(name = "_id", primaryKey = true, notNull = true, autoIncrement = true)
-        public long id;
+    private class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
 
-        @Column(name = "excluded_package_name")
-        public String excludedAppPackage;
-
-        public AppPackage() {
-
-        }
-    }
-
-    private class ExcludedAdapter extends RecyclerView.Adapter<ExcludedAdapter.ViewHolder> {
-
-        public ExcludedAdapter() {
+        public AppAdapter() {
             super();
             setHasStableIds(true);
         }
@@ -161,7 +136,7 @@ public class PerAppListActivity extends AppCompatActivity {
             AppPackage app = mPerAppList.get(position);
 
             try {
-                ApplicationInfo info = getPackageManager().getApplicationInfo(app.excludedAppPackage, 0);
+                ApplicationInfo info = getPackageManager().getApplicationInfo(app.package_name, 0);
 
                 holder.icon.setImageDrawable(info.loadIcon(getPackageManager()));
                 holder.title.setText(info.loadLabel(getPackageManager()));
@@ -169,7 +144,7 @@ public class PerAppListActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            holder.desc.setText(app.excludedAppPackage);
+            holder.desc.setText(app.package_name);
 
         }
 

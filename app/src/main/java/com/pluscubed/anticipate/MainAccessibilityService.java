@@ -52,7 +52,10 @@ public class MainAccessibilityService extends AccessibilityService {
             }
         });
 
+        PrefUtils.initialize(this);
+
         mPerAppList = new ArrayList<>();
+
     }
 
     @Override

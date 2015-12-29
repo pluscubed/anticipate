@@ -189,6 +189,8 @@ public class MainActivity extends AppCompatActivity {
 
         mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
 
+        PrefUtils.initialize(this);
+
 
         invalidateStates();
 

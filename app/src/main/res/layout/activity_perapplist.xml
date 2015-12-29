@@ -43,6 +43,7 @@
         android:layout_margin="16dp"
         android:background="@drawable/mock_fab"
         android:elevation="6dp"
+        android:transitionName="@string/transition_fab_add"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />
 
