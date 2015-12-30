@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CustomTabDummyActivity"
+            android:name=".customtabs.CustomTabDummyActivity"
             android:theme="@style/Theme.Anticipate.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -36,10 +36,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".PerAppListActivity" />
+        <activity android:name=".perapp.PerAppListActivity" />
 
         <activity
-            android:name=".AddAppDialogActivity"
+            android:name=".perapp.AddAppDialogActivity"
             android:theme="@style/Theme.Anticipate.Dialog" />
 
         <service
@@ -58,7 +58,7 @@
             android:name=".FloatingWindowService"
             android:exported="false" />
         <service
-            android:name=".customtabsshared.KeepAliveService"
+            android:name=".customtabs.util.KeepAliveService"
             android:exported="true"
             tools:ignore="ExportedService" />
 

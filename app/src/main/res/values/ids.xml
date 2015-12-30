@@ -22,4 +22,6 @@
     <item name="button_configure_perapp" type="id" />
     <item name="bottom_sheet" type="id" />
     <item name="view_mock_fab" type="id" />
+    <item name="progressbar" type="id" />
+    <item name="root" type="id" />
 </resources>

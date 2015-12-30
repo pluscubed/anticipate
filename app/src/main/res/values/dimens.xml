@@ -3,4 +3,5 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="dialog_corners">2dp</dimen>
+    <dimen name="icon_size">40dp</dimen>
 </resources>

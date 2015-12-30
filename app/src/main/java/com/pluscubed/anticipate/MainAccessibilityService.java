@@ -10,10 +10,18 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.pluscubed.anticipate.customtabs.util.CustomTabActivityHelper;
+import com.pluscubed.anticipate.perapp.AppInfo;
+import com.pluscubed.anticipate.perapp.DbUtil;
+import com.pluscubed.anticipate.util.PrefUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rx.Observable;
+import rx.functions.Func1;
 
 public class MainAccessibilityService extends AccessibilityService {
 
@@ -24,6 +32,7 @@ public class MainAccessibilityService extends AccessibilityService {
     private CustomTabActivityHelper mCustomTabActivityHelper;
 
     private List<String> mPerAppList;
+    private boolean mBlacklistMode;
 
     public static MainAccessibilityService get() {
         return sSharedService;
@@ -52,9 +61,9 @@ public class MainAccessibilityService extends AccessibilityService {
             }
         });
 
-        PrefUtils.initialize(this);
+        DbUtil.initializeBlacklist(this);
 
-        mPerAppList = new ArrayList<>();
+        updateBlackWhitelist();
 
     }
 
@@ -84,7 +93,8 @@ public class MainAccessibilityService extends AccessibilityService {
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "=appId: " + appId);
 
-            if (mPerAppList.contains(appId)) {
+            if ((mBlacklistMode && mPerAppList.contains(appId)) ||
+                    (!mBlacklistMode && !mPerAppList.contains(appId))) {
                 if (BuildConfig.DEBUG)
                     Log.i(TAG, "=excluded");
                 return;
@@ -135,6 +145,22 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
 
+    }
+
+    public void updateBlackWhitelist() {
+        mPerAppList = DbUtil.getPerAppListApps(this).flatMapObservable(new Func1<List<AppInfo>, Observable<AppInfo>>() {
+            @Override
+            public Observable<AppInfo> call(List<AppInfo> appInfos) {
+                return Observable.from(appInfos);
+            }
+        }).map(new Func1<AppInfo, String>() {
+            @Override
+            public String call(AppInfo appInfo) {
+                return appInfo.packageName;
+            }
+        }).toList().toBlocking().first();
+
+        mBlacklistMode = PrefUtils.isBlacklistMode(this);
     }
 
     private String getAllText(AccessibilityNodeInfo source) {

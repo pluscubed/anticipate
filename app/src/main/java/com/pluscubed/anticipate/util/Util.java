@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate;
+package com.pluscubed.anticipate.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;

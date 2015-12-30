@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate;
+package com.pluscubed.anticipate.customtabs;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +9,11 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
+import com.pluscubed.anticipate.MainAccessibilityService;
+import com.pluscubed.anticipate.MainActivity;
+import com.pluscubed.anticipate.R;
+import com.pluscubed.anticipate.customtabs.util.CustomTabActivityHelper;
+import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
 
 public class CustomTabDummyActivity extends AppCompatActivity {
 

@@ -1,11 +1,8 @@
-package com.pluscubed.anticipate;
+package com.pluscubed.anticipate.perapp;
 
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
@@ -13,42 +10,55 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.afollestad.inquiry.Inquiry;
-import com.pluscubed.anticipate.transitions.FabDialogMorphSetup;
+import com.bumptech.glide.Glide;
+import com.pluscubed.anticipate.R;
+import com.pluscubed.anticipate.transition.FabDialogMorphSetup;
+import com.pluscubed.anticipate.util.PrefUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import rx.Single;
 import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class PerAppListActivity extends AppCompatActivity {
+
+    public static final String EXTRA_ADDED = "com.pluscubed.anticipate.ADDED_APP";
+    //static final int PAYLOAD_ICON = 32;
+    public static final int REQUEST_ADD_APP = 1001;
 
     public static final String DB = "Anticipate";
     public static final String TABLE_BLACKLISTED_APPS = "BlacklistedApps";
     public static final String TABLE_WHITELISTED_APPS = "WhitelistedApps";
 
-    List<AppPackage> mPerAppList;
+    ProgressBar mProgressBar;
+
+    List<AppInfo> mPerAppList;
     AppAdapter mAdapter;
 
     boolean mBlacklistMode;
-    private FloatingActionButton mFab;
-    private AppBarLayout mAppBar;
 
+    FloatingActionButton mFab;
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        mAdapter.notifyDataSetChanged();
+        if (resultCode == RESULT_OK && requestCode == REQUEST_ADD_APP) {
+            mPerAppList.add((AppInfo) data.getSerializableExtra(EXTRA_ADDED));
+
+            Collections.sort(mPerAppList);
+
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -64,35 +74,6 @@ public class PerAppListActivity extends AppCompatActivity {
 
         setTitle(mBlacklistMode ? getString(R.string.blacklisted_apps) : getString(R.string.whitelisted_apps));
 
-
-        Single.create(new Single.OnSubscribe<List<AppPackage>>() {
-            @Override
-            public void call(SingleSubscriber<? super List<AppPackage>> singleSubscriber) {
-                String table = mBlacklistMode ? TABLE_BLACKLISTED_APPS : TABLE_WHITELISTED_APPS;
-
-                AppPackage[] all = Inquiry.get().selectFrom(table, AppPackage.class)
-                        .all();
-                if (all != null) {
-                    singleSubscriber.onSuccess(new ArrayList<>(Arrays.asList(all)));
-                } else {
-                    singleSubscriber.onSuccess(new ArrayList<AppPackage>());
-                }
-            }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleSubscriber<List<AppPackage>>() {
-                    @Override
-                    public void onSuccess(List<AppPackage> value) {
-                        mPerAppList = value;
-
-                        mAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onError(Throwable error) {
-
-                    }
-                });
 
         RecyclerView view = (RecyclerView) findViewById(R.id.recyclerview);
         mAdapter = new AppAdapter();
@@ -111,11 +92,46 @@ public class PerAppListActivity extends AppCompatActivity {
                         ContextCompat.getColor(PerAppListActivity.this, R.color.colorAccent));
                 Bundle options = ActivityOptionsCompat
                         .makeSceneTransitionAnimation(PerAppListActivity.this, mockFab, getString(R.string.transition_fab_add)).toBundle();
-                startActivity(intent, options);
+                startActivityForResult(intent, REQUEST_ADD_APP, options);
             }
         });
 
-        mAppBar = (AppBarLayout) findViewById(R.id.app_bar);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        updateList();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateList() {
+        mProgressBar.setVisibility(View.VISIBLE);
+        DbUtil.getPerAppListApps(this)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleSubscriber<List<AppInfo>>() {
+                    @Override
+                    public void onSuccess(List<AppInfo> newList) {
+                        mPerAppList = newList;
+
+                        mProgressBar.setVisibility(View.GONE);
+
+                        //TODO: Calling this while the view hasn't been laid out causes jank
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+
+                    }
+                });
     }
 
     private class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
@@ -133,19 +149,15 @@ public class PerAppListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            AppPackage app = mPerAppList.get(position);
+            final AppInfo appInfo = mPerAppList.get(position);
 
-            try {
-                ApplicationInfo info = getPackageManager().getApplicationInfo(app.package_name, 0);
+            Glide.with(PerAppListActivity.this)
+                    .load(appInfo)
+                    .crossFade()
+                    .into(holder.icon);
 
-                holder.icon.setImageDrawable(info.loadIcon(getPackageManager()));
-                holder.title.setText(info.loadLabel(getPackageManager()));
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            holder.desc.setText(app.package_name);
-
+            holder.title.setText(appInfo.name);
+            holder.desc.setText(appInfo.packageName);
         }
 
         @Override
@@ -155,7 +167,7 @@ public class PerAppListActivity extends AppCompatActivity {
 
         @Override
         public long getItemId(int position) {
-            return mPerAppList.get(position).id;
+            return mPerAppList.get(position).dbId;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

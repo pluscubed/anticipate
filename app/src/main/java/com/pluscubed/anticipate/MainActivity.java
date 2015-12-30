@@ -44,6 +44,10 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.pluscubed.anticipate.customtabs.CustomTabDummyActivity;
+import com.pluscubed.anticipate.perapp.DbUtil;
+import com.pluscubed.anticipate.perapp.PerAppListActivity;
+import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
 import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
@@ -170,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 PrefUtils.setBlacklistMode(MainActivity.this, position==0);
+                if (position == 1) {
+                    DbUtil.initializeWhitelist(MainActivity.this);
+                }
             }
 
             @Override
@@ -189,7 +196,24 @@ public class MainActivity extends AppCompatActivity {
 
         mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
 
-        PrefUtils.initialize(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBottomSheetLayout.addOnSheetStateChangeListener(new BottomSheetLayout.OnSheetStateChangeListener() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onSheetStateChanged(BottomSheetLayout.State state) {
+                    switch (state) {
+                        case PREPARING:
+                            getWindow().setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimarySuperDark));
+                            break;
+                        case HIDDEN:
+                            getWindow().setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimaryDark));
+                            break;
+                    }
+                }
+            });
+        }
+
+        DbUtil.initializeBlacklist(this);
 
 
         invalidateStates();

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.pluscubed.anticipate.transitions;
+package com.pluscubed.anticipate.transition;
 
 import android.annotation.TargetApi;
 import android.graphics.Canvas;

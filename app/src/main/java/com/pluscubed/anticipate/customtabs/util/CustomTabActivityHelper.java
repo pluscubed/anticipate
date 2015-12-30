@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.pluscubed.anticipate;
+package com.pluscubed.anticipate.customtabs.util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,10 +23,6 @@ import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
-
-import com.pluscubed.anticipate.customtabsshared.CustomTabsHelper;
-import com.pluscubed.anticipate.customtabsshared.ServiceConnection;
-import com.pluscubed.anticipate.customtabsshared.ServiceConnectionCallback;
 
 import java.util.List;
 

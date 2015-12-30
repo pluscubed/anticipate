@@ -23,7 +23,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pluscubed.anticipate.Util;
+import com.pluscubed.anticipate.util.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;

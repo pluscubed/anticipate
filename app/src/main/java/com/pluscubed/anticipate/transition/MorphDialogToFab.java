@@ -1,20 +1,4 @@
-/*
- * Copyright 2015 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.pluscubed.anticipate.transitions;
+package com.pluscubed.anticipate.transition;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -31,54 +15,59 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 
+import com.pluscubed.anticipate.R;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
- * A transition that morphs a circle into a rectangle, changing it's background color.
+ * A transition that morphs a rectangle into a circle, changing it's background color.
+ *
+ * Modified from Plaid
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class MorphFabToDialog extends ChangeBounds {
+public class MorphDialogToFab extends ChangeBounds {
 
-    private static final String PROPERTY_COLOR = "plaid:circleMorph:color";
-    private static final String PROPERTY_CORNER_RADIUS = "plaid:circleMorph:cornerRadius";
+    private static final String PROPERTY_COLOR = "plaid:rectMorph:color";
+    private static final String PROPERTY_CORNER_RADIUS = "plaid:rectMorph:cornerRadius";
     private static final String[] TRANSITION_PROPERTIES = {
             PROPERTY_COLOR,
             PROPERTY_CORNER_RADIUS
     };
     private
     @ColorInt
-    int startColor = Color.TRANSPARENT;
-    private int endCornerRadius;
-    private int startCornerRadius;
+    int endColor = Color.TRANSPARENT;
+    private int endCornerRadius = -1;
 
-    public MorphFabToDialog(@ColorInt int startColor, int endCornerRadius) {
-        this(startColor, endCornerRadius, -1);
-    }
-
-    public MorphFabToDialog(@ColorInt int startColor, int endCornerRadius, int startCornerRadius) {
+    public MorphDialogToFab(@ColorInt int endColor) {
         super();
-        setStartColor(startColor);
-        setEndCornerRadius(endCornerRadius);
-        setStartCornerRadius(startCornerRadius);
+        setEndColor(endColor);
     }
 
-    public MorphFabToDialog(Context context, AttributeSet attrs) {
+    public MorphDialogToFab(@ColorInt int endColor, int endCornerRadius) {
+        super();
+        setEndColor(endColor);
+        setEndCornerRadius(endCornerRadius);
+    }
+
+    public MorphDialogToFab(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public void setStartColor(@ColorInt int startColor) {
-        this.startColor = startColor;
+    public void setEndColor(@ColorInt int endColor) {
+        this.endColor = endColor;
     }
 
     public void setEndCornerRadius(int endCornerRadius) {
         this.endCornerRadius = endCornerRadius;
     }
 
-    public void setStartCornerRadius(int startCornerRadius) {
-        this.startCornerRadius = startCornerRadius;
-    }
-
     @Override
     public String[] getTransitionProperties() {
-        return TRANSITION_PROPERTIES;
+        ArrayList<String> boundsTransitionProps = new ArrayList<>(Arrays.asList(super.getTransitionProperties()));
+        Collections.addAll(boundsTransitionProps, TRANSITION_PROPERTIES);
+        return boundsTransitionProps.toArray(new String[boundsTransitionProps.size()]);
     }
 
     @Override
@@ -88,9 +77,9 @@ public class MorphFabToDialog extends ChangeBounds {
         if (view.getWidth() <= 0 || view.getHeight() <= 0) {
             return;
         }
-        transitionValues.values.put(PROPERTY_COLOR, startColor);
-        transitionValues.values.put(PROPERTY_CORNER_RADIUS,
-                startCornerRadius >= 0 ? startCornerRadius : view.getHeight() / 2);
+        transitionValues.values.put(PROPERTY_COLOR, Color.WHITE);
+        transitionValues.values.put(PROPERTY_CORNER_RADIUS, view.getResources()
+                .getDimensionPixelSize(R.dimen.dialog_corners));
     }
 
     @Override
@@ -100,14 +89,15 @@ public class MorphFabToDialog extends ChangeBounds {
         if (view.getWidth() <= 0 || view.getHeight() <= 0) {
             return;
         }
-        transitionValues.values.put(PROPERTY_COLOR, Color.WHITE);
-        transitionValues.values.put(PROPERTY_CORNER_RADIUS, endCornerRadius);
+        transitionValues.values.put(PROPERTY_COLOR, endColor);
+        transitionValues.values.put(PROPERTY_CORNER_RADIUS,
+                endCornerRadius >= 0 ? endCornerRadius : view.getHeight() / 2);
     }
 
     @Override
     public Animator createAnimator(final ViewGroup sceneRoot,
                                    TransitionValues startValues,
-                                   final TransitionValues endValues) {
+                                   TransitionValues endValues) {
         Animator changeBounds = super.createAnimator(sceneRoot, startValues, endValues);
         if (startValues == null || endValues == null || changeBounds == null) {
             return null;
@@ -130,22 +120,22 @@ public class MorphFabToDialog extends ChangeBounds {
         Animator corners = ObjectAnimator.ofFloat(background, MorphDrawable.CORNER_RADIUS,
                 endCornerRadius);
 
-        // ease in the dialog's child views (slide up & fade in)
+        // hide child views (offset down & fade out)
         if (endValues.view instanceof ViewGroup) {
             ViewGroup vg = (ViewGroup) endValues.view;
-            float offset = vg.getHeight() / 3;
             for (int i = 0; i < vg.getChildCount(); i++) {
                 View v = vg.getChildAt(i);
-                v.setTranslationY(offset);
-                v.setAlpha(0f);
-                v.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setDuration(150)
-                        .setStartDelay(150)
+                v.setVisibility(View.GONE);
+
+                //TODO: This clips the children to the final FAB size, so we only see the small part animate
+                /*v.animate()
+                        .alpha(0f)
+                        .translationY(v.getHeight() / 3)
+                        .setStartDelay(0L)
+                        .setDuration(50L)
                         .setInterpolator(AnimationUtils.loadInterpolator(vg.getContext(),
-                                android.R.interpolator.linear_out_slow_in));
-                offset *= 1.8f;
+                                android.R.interpolator.fast_out_linear_in))
+                        .start();*/
             }
         }
 
@@ -156,5 +146,4 @@ public class MorphFabToDialog extends ChangeBounds {
                 android.R.interpolator.fast_out_slow_in));
         return transition;
     }
-
 }
