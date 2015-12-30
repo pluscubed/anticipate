@@ -195,12 +195,14 @@ public class MainActivity extends AppCompatActivity {
         mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //TODO: Fix BottomSheetLayout listener
             mBottomSheetLayout.addOnSheetStateChangeListener(new BottomSheetLayout.OnSheetStateChangeListener() {
                 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onSheetStateChanged(BottomSheetLayout.State state) {
                     switch (state) {
-                        case PREPARING:
+                        case EXPANDED:
+                        case PEEKED:
                             getWindow().setStatusBarColor(ContextCompat.getColor(MainActivity.this, R.color.colorPrimarySuperDark));
                             break;
                         case HIDDEN:
