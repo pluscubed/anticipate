@@ -24,4 +24,5 @@
     <item name="view_mock_fab" type="id" />
     <item name="progressbar" type="id" />
     <item name="root" type="id" />
+    <item name="text_empty" type="id" />
 </resources>

@@ -20,6 +20,10 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class DbUtil {
+    public static final String DB = "Anticipate";
+    public static final String TABLE_BLACKLISTED_APPS = "BlacklistedApps";
+    public static final String TABLE_WHITELISTED_APPS = "WhitelistedApps";
+
     static final String[] DEFAULT_BLACKLISTED_APPS =
             {"com.android.systemui", "com.google.android.googlequicksearchbox",
                     CustomTabsHelper.STABLE_PACKAGE, CustomTabsHelper.BETA_PACKAGE,
@@ -36,7 +40,7 @@ public class DbUtil {
                 defaultBlacklistApps[i] = appInfo;
             }
 
-            Inquiry.get().insertInto(PerAppListActivity.TABLE_BLACKLISTED_APPS, AppInfo.class)
+            Inquiry.get().insertInto(TABLE_BLACKLISTED_APPS, AppInfo.class)
                     .values(defaultBlacklistApps)
                     .run();
 
@@ -50,7 +54,7 @@ public class DbUtil {
                     .flatMapObservable(new Func1<List<AppInfo>, Observable<?>>() {
                         @Override
                         public Observable<?> call(List<AppInfo> appInfos) {
-                            Inquiry.get().insertInto(PerAppListActivity.TABLE_WHITELISTED_APPS, AppInfo.class)
+                            Inquiry.get().insertInto(TABLE_WHITELISTED_APPS, AppInfo.class)
                                     .values(appInfos.toArray(new AppInfo[appInfos.size()]))
                                     .run();
 
@@ -74,7 +78,7 @@ public class DbUtil {
         return Single.create(new Single.OnSubscribe<List<AppInfo>>() {
             @Override
             public void call(SingleSubscriber<? super List<AppInfo>> singleSubscriber) {
-                String table = PrefUtils.isBlacklistMode(context) ? PerAppListActivity.TABLE_BLACKLISTED_APPS : PerAppListActivity.TABLE_WHITELISTED_APPS;
+                String table = PrefUtils.isBlacklistMode(context) ? TABLE_BLACKLISTED_APPS : TABLE_WHITELISTED_APPS;
 
                 AppInfo[] all = Inquiry.get().selectFrom(table, AppInfo.class)
                         .all();

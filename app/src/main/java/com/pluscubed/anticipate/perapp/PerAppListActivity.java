@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.afollestad.inquiry.Inquiry;
 import com.bumptech.glide.Glide;
 import com.pluscubed.anticipate.R;
 import com.pluscubed.anticipate.transition.FabDialogMorphSetup;
@@ -35,10 +38,6 @@ public class PerAppListActivity extends AppCompatActivity {
     //static final int PAYLOAD_ICON = 32;
     public static final int REQUEST_ADD_APP = 1001;
 
-    public static final String DB = "Anticipate";
-    public static final String TABLE_BLACKLISTED_APPS = "BlacklistedApps";
-    public static final String TABLE_WHITELISTED_APPS = "WhitelistedApps";
-
     ProgressBar mProgressBar;
 
     List<AppInfo> mPerAppList;
@@ -47,6 +46,8 @@ public class PerAppListActivity extends AppCompatActivity {
     boolean mBlacklistMode;
 
     FloatingActionButton mFab;
+    RecyclerView mRecyclerView;
+    TextView mEmptyText;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -57,8 +58,15 @@ public class PerAppListActivity extends AppCompatActivity {
 
             Collections.sort(mPerAppList);
 
+            invalidateEmpty();
+
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    void invalidateEmpty() {
+        mEmptyText.setText(mBlacklistMode ? R.string.no_blacklisted_apps : R.string.no_whitelisted_apps);
+        mEmptyText.setVisibility(mPerAppList.size() == 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -74,11 +82,41 @@ public class PerAppListActivity extends AppCompatActivity {
 
         setTitle(mBlacklistMode ? getString(R.string.blacklisted_apps) : getString(R.string.whitelisted_apps));
 
-
-        RecyclerView view = (RecyclerView) findViewById(R.id.recyclerview);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mAdapter = new AppAdapter();
-        view.setAdapter(mAdapter);
-        view.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START | ItemTouchHelper.END) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                final AppInfo appInfo = mPerAppList.get(viewHolder.getAdapterPosition());
+                Inquiry.get()
+                        .deleteFrom(mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS, AppInfo.class)
+                        .where("package_name = ?", appInfo.packageName)
+                        .run();
+                mPerAppList.remove(viewHolder.getAdapterPosition());
+
+                Snackbar undoSnackbar = Snackbar.make(mRecyclerView, String.format(getString(R.string.app_removed), appInfo.name), Snackbar.LENGTH_LONG);
+                undoSnackbar.setAction(R.string.undo, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mPerAppList.add(appInfo);
+                        Collections.sort(mPerAppList);
+                        invalidateEmpty();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+                undoSnackbar.show();
+
+                invalidateEmpty();
+            }
+        }).attachToRecyclerView(mRecyclerView);
 
         final View mockFab = findViewById(R.id.view_mock_fab);
 
@@ -97,6 +135,8 @@ public class PerAppListActivity extends AppCompatActivity {
         });
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+
+        mEmptyText = (TextView) findViewById(R.id.text_empty);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -125,6 +165,8 @@ public class PerAppListActivity extends AppCompatActivity {
 
                         //TODO: Calling this while the view hasn't been laid out causes jank
                         mAdapter.notifyDataSetChanged();
+
+                        invalidateEmpty();
                     }
 
                     @Override
@@ -181,13 +223,6 @@ public class PerAppListActivity extends AppCompatActivity {
                 icon = (ImageView) itemView.findViewById(R.id.image_app);
                 title = (TextView) itemView.findViewById(R.id.text_name);
                 desc = (TextView) itemView.findViewById(R.id.text_desc);
-
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                });
             }
         }
     }

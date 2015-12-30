@@ -154,7 +154,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         if (getAdapterPosition() != RecyclerView.NO_POSITION) {
                             String table = PrefUtils.isBlacklistMode(AddAppDialogActivity.this) ?
-                                    PerAppListActivity.TABLE_BLACKLISTED_APPS : PerAppListActivity.TABLE_WHITELISTED_APPS;
+                                    DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
                             AppInfo appInfo = mAppList.get(getAdapterPosition());
                             Inquiry.get().insertInto(table, AppInfo.class)
                                     .values(appInfo)
