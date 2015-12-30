@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     PopupMenu mTryPopup;
     DispatchBackEditText mTryEditText;
+    Button mConfigurePerApp;
     private Button mEnableServiceButton;
     private ImageView mEnabledImage;
     private Button mSetDefaultButton;
@@ -174,9 +175,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 PrefUtils.setBlacklistMode(MainActivity.this, position==0);
-                if (position == 1) {
-                    DbUtil.initializeWhitelist(MainActivity.this);
-                }
             }
 
             @Override
@@ -186,8 +184,8 @@ public class MainActivity extends AppCompatActivity {
         });
         spinner.setSelection(PrefUtils.isBlacklistMode(this)?0:1);
 
-        Button configure = (Button) findViewById(R.id.button_configure_perapp);
-        configure.setOnClickListener(new View.OnClickListener() {
+        mConfigurePerApp = (Button) findViewById(R.id.button_configure_perapp);
+        mConfigurePerApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, PerAppListActivity.class));

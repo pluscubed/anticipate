@@ -48,26 +48,6 @@ public class DbUtil {
         }
     }
 
-    public static Observable<Object> initializeWhitelist(final Context context) {
-        if (!PrefUtils.isWhitelistInitialized(context)) {
-            return getInstalledApps(context)
-                    .flatMapObservable(new Func1<List<AppInfo>, Observable<?>>() {
-                        @Override
-                        public Observable<?> call(List<AppInfo> appInfos) {
-                            Inquiry.get().insertInto(TABLE_WHITELISTED_APPS, AppInfo.class)
-                                    .values(appInfos.toArray(new AppInfo[appInfos.size()]))
-                                    .run();
-
-                            PrefUtils.setWhitelistInitialized(context, true);
-
-                            return Observable.empty();
-                        }
-                    });
-        } else {
-            return Observable.empty();
-        }
-    }
-
     /**
      * Returns sorted list of AppInfos.
      * <p>
