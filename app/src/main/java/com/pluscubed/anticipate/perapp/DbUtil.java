@@ -120,4 +120,18 @@ public class DbUtil {
                 })
                 .toSortedList().toSingle();
     }
+
+    static void insertApp(AppInfo appInfo, String tableName) {
+        Inquiry.get()
+                .insertInto(tableName, AppInfo.class)
+                .values(appInfo)
+                .run();
+    }
+
+    static void deleteApp(AppInfo appInfo, String tableName) {
+        Inquiry.get()
+                .deleteFrom(tableName, AppInfo.class)
+                .where("package_name = ?", appInfo.packageName)
+                .run();
+    }
 }

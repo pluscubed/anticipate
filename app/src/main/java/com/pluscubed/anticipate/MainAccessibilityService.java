@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import rx.Observable;
+import rx.SingleSubscriber;
 import rx.functions.Func1;
 
 public class MainAccessibilityService extends AccessibilityService {
@@ -29,13 +30,18 @@ public class MainAccessibilityService extends AccessibilityService {
     public static final String LINK_REG_EX = "((?:[a-z][\\w-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
 
     private static MainAccessibilityService sSharedService;
+    List<String> mPerAppList;
+    boolean mBlacklistMode;
     private CustomTabActivityHelper mCustomTabActivityHelper;
-
-    private List<String> mPerAppList;
-    private boolean mBlacklistMode;
 
     public static MainAccessibilityService get() {
         return sSharedService;
+    }
+
+    public static void updateBlackWhitelist() {
+        if (MainAccessibilityService.get() != null) {
+            MainAccessibilityService.get().updateBlackWhitelistInternal();
+        }
     }
 
     public CustomTabActivityHelper getCustomTabActivityHelper() {
@@ -82,6 +88,10 @@ public class MainAccessibilityService extends AccessibilityService {
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "====onAccessibilityEvent===");
             Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
+        }
+
+        if (mPerAppList == null) {
+            return;
         }
 
 
@@ -147,8 +157,8 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
-    public void updateBlackWhitelist() {
-        mPerAppList = DbUtil.getPerAppListApps(this).flatMapObservable(new Func1<List<AppInfo>, Observable<AppInfo>>() {
+    void updateBlackWhitelistInternal() {
+        DbUtil.getPerAppListApps(this).flatMapObservable(new Func1<List<AppInfo>, Observable<AppInfo>>() {
             @Override
             public Observable<AppInfo> call(List<AppInfo> appInfos) {
                 return Observable.from(appInfos);
@@ -158,9 +168,22 @@ public class MainAccessibilityService extends AccessibilityService {
             public String call(AppInfo appInfo) {
                 return appInfo.packageName;
             }
-        }).toList().toBlocking().first();
+        }).toList().toSingle()
+                .subscribe(new SingleSubscriber<List<String>>() {
 
-        mBlacklistMode = PrefUtils.isBlacklistMode(this);
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(List<String> strings) {
+                        mPerAppList = strings;
+                        mBlacklistMode = PrefUtils.isBlacklistMode(MainAccessibilityService.this);
+                    }
+                });
+
+
     }
 
     private String getAllText(AccessibilityNodeInfo source) {

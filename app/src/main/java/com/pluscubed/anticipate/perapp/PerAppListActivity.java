@@ -19,8 +19,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.afollestad.inquiry.Inquiry;
 import com.bumptech.glide.Glide;
+import com.pluscubed.anticipate.MainAccessibilityService;
 import com.pluscubed.anticipate.R;
 import com.pluscubed.anticipate.transition.FabDialogMorphSetup;
 import com.pluscubed.anticipate.util.PrefUtils;
@@ -54,12 +54,17 @@ public class PerAppListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_ADD_APP) {
-            mPerAppList.add((AppInfo) data.getSerializableExtra(EXTRA_ADDED));
+            final String tableName = mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
+
+            AppInfo appInfo = (AppInfo) data.getSerializableExtra(EXTRA_ADDED);
+            DbUtil.insertApp(appInfo, tableName);
+
+            mPerAppList.add(appInfo);
+
+            MainAccessibilityService.updateBlackWhitelist();
 
             Collections.sort(mPerAppList);
-
             invalidateEmpty();
-
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -97,20 +102,18 @@ public class PerAppListActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final AppInfo appInfo = mPerAppList.get(viewHolder.getAdapterPosition());
                 final String tableName = mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
-                Inquiry.get()
-                        .deleteFrom(tableName, AppInfo.class)
-                        .where("package_name = ?", appInfo.packageName)
-                        .run();
+                DbUtil.deleteApp(appInfo, tableName);
                 mPerAppList.remove(viewHolder.getAdapterPosition());
+
+                MainAccessibilityService.updateBlackWhitelist();
 
                 Snackbar undoSnackbar = Snackbar.make(mRecyclerView, String.format(getString(R.string.app_removed), appInfo.name), Snackbar.LENGTH_LONG);
                 undoSnackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Inquiry.get()
-                                .insertInto(tableName, AppInfo.class)
-                                .values(appInfo)
-                                .run();
+                        DbUtil.insertApp(appInfo, tableName);
+
+                        MainAccessibilityService.updateBlackWhitelist();
 
                         mPerAppList.add(appInfo);
                         Collections.sort(mPerAppList);

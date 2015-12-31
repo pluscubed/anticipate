@@ -15,11 +15,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.afollestad.inquiry.Inquiry;
 import com.bumptech.glide.Glide;
 import com.pluscubed.anticipate.R;
 import com.pluscubed.anticipate.transition.FabDialogMorphSetup;
-import com.pluscubed.anticipate.util.PrefUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,14 +151,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (getAdapterPosition() != RecyclerView.NO_POSITION) {
-                            String table = PrefUtils.isBlacklistMode(AddAppDialogActivity.this) ?
-                                    DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
                             AppInfo appInfo = mAppList.get(getAdapterPosition());
-                            Inquiry.get().insertInto(table, AppInfo.class)
-                                    .values(appInfo)
-                                    .run();
-
-                            //appInfo.icon = null;
 
                             Intent intent = new Intent();
                             intent.putExtra(PerAppListActivity.EXTRA_ADDED, appInfo);

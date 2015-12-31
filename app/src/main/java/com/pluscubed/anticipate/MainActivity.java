@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         DbUtil.initializeBlacklist(this);
-
+        MainAccessibilityService.updateBlackWhitelist();
 
         invalidateStates();
 
