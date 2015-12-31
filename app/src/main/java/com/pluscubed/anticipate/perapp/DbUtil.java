@@ -26,6 +26,7 @@ public class DbUtil {
 
     static final String[] DEFAULT_BLACKLISTED_APPS =
             {"com.android.systemui", "com.google.android.googlequicksearchbox",
+                    "com.teslacoilsw.launcher", "com.actionlauncher.playstore",
                     CustomTabsHelper.STABLE_PACKAGE, CustomTabsHelper.BETA_PACKAGE,
                     CustomTabsHelper.DEV_PACKAGE, CustomTabsHelper.LOCAL_PACKAGE};
 
