@@ -36,10 +36,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".perapp.PerAppListActivity" />
+        <activity android:name=".filter.FilterListActivity" />
 
         <activity
-            android:name=".perapp.AddAppDialogActivity"
+            android:name=".filter.AddAppDialogActivity"
             android:theme="@style/Theme.Anticipate.Dialog" />
 
         <service

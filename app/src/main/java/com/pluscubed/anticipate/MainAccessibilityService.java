@@ -11,8 +11,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.pluscubed.anticipate.customtabs.util.CustomTabActivityHelper;
-import com.pluscubed.anticipate.perapp.AppInfo;
-import com.pluscubed.anticipate.perapp.DbUtil;
+import com.pluscubed.anticipate.filter.AppInfo;
+import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.util.PrefUtils;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class MainAccessibilityService extends AccessibilityService {
     public static final String LINK_REG_EX = "((?:[a-z][\\w-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
 
     private static MainAccessibilityService sSharedService;
-    List<String> mPerAppList;
+    List<String> mFilterList;
     boolean mBlacklistMode;
     private CustomTabActivityHelper mCustomTabActivityHelper;
 
@@ -38,7 +38,7 @@ public class MainAccessibilityService extends AccessibilityService {
         return sSharedService;
     }
 
-    public static void updateBlackWhitelist() {
+    public static void updateFilterList() {
         if (MainAccessibilityService.get() != null) {
             MainAccessibilityService.get().updateBlackWhitelistInternal();
         }
@@ -69,7 +69,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
         DbUtil.initializeBlacklist(this);
 
-        updateBlackWhitelist();
+        updateFilterList();
 
     }
 
@@ -90,7 +90,7 @@ public class MainAccessibilityService extends AccessibilityService {
             Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
         }
 
-        if (mPerAppList == null) {
+        if (mFilterList == null) {
             return;
         }
 
@@ -103,8 +103,8 @@ public class MainAccessibilityService extends AccessibilityService {
             if (BuildConfig.DEBUG)
                 Log.i(TAG, "=appId: " + appId);
 
-            if ((mBlacklistMode && mPerAppList.contains(appId)) ||
-                    (!mBlacklistMode && !mPerAppList.contains(appId))) {
+            if ((mBlacklistMode && mFilterList.contains(appId)) ||
+                    (!mBlacklistMode && !mFilterList.contains(appId))) {
                 if (BuildConfig.DEBUG)
                     Log.i(TAG, "=excluded");
                 return;
@@ -178,7 +178,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
                     @Override
                     public void onSuccess(List<String> strings) {
-                        mPerAppList = strings;
+                        mFilterList = strings;
                         mBlacklistMode = PrefUtils.isBlacklistMode(MainAccessibilityService.this);
                     }
                 });

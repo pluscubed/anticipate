@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate.perapp;
+package com.pluscubed.anticipate.filter;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,7 +31,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
 
     // static final int PAYLOAD_ICON = 32;
 
-    List<AppInfo> mAppList;
+    List<AppInfo> mFilterList;
     AppAdapter mAdapter;
 
     ProgressBar mProgressBar;
@@ -59,7 +59,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
         view.setAdapter(mAdapter);
         view.setLayoutManager(new LinearLayoutManager(this));
 
-        mAppList = new ArrayList<>();
+        mFilterList = new ArrayList<>();
 
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
 
@@ -78,7 +78,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
                 .subscribe(new SingleSubscriber<List<AppInfo>>() {
                     @Override
                     public void onSuccess(List<AppInfo> value) {
-                        mAppList = value;
+                        mFilterList = value;
 
                         mProgressBar.setVisibility(View.GONE);
 
@@ -111,7 +111,7 @@ public class AddAppDialogActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            final AppInfo app = mAppList.get(position);
+            final AppInfo app = mFilterList.get(position);
 
             Glide.with(AddAppDialogActivity.this)
                     .load(app)
@@ -127,12 +127,12 @@ public class AddAppDialogActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return mAppList.size();
+            return mFilterList.size();
         }
 
         @Override
         public long getItemId(int position) {
-            return mAppList.get(position).id;
+            return mFilterList.get(position).id;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -151,10 +151,10 @@ public class AddAppDialogActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (getAdapterPosition() != RecyclerView.NO_POSITION) {
-                            AppInfo appInfo = mAppList.get(getAdapterPosition());
+                            AppInfo appInfo = mFilterList.get(getAdapterPosition());
 
                             Intent intent = new Intent();
-                            intent.putExtra(PerAppListActivity.EXTRA_ADDED, appInfo);
+                            intent.putExtra(FilterListActivity.EXTRA_ADDED, appInfo);
                             setResult(Activity.RESULT_OK, intent);
                             supportFinishAfterTransition();
                         }

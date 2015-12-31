@@ -4,9 +4,9 @@ import android.app.Application;
 
 import com.afollestad.inquiry.Inquiry;
 import com.bumptech.glide.Glide;
+import com.pluscubed.anticipate.filter.AppInfo;
+import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.glide.AppIconLoader;
-import com.pluscubed.anticipate.perapp.AppInfo;
-import com.pluscubed.anticipate.perapp.DbUtil;
 
 import java.io.InputStream;
 

@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate.perapp;
+package com.pluscubed.anticipate.filter;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;

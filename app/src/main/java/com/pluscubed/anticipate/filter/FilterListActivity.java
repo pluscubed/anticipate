@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate.perapp;
+package com.pluscubed.anticipate.filter;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,7 +32,7 @@ import java.util.List;
 import rx.SingleSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
-public class PerAppListActivity extends AppCompatActivity {
+public class FilterListActivity extends AppCompatActivity {
 
     public static final String EXTRA_ADDED = "com.pluscubed.anticipate.ADDED_APP";
     //static final int PAYLOAD_ICON = 32;
@@ -40,7 +40,7 @@ public class PerAppListActivity extends AppCompatActivity {
 
     ProgressBar mProgressBar;
 
-    List<AppInfo> mPerAppList;
+    List<AppInfo> mFilterList;
     AppAdapter mAdapter;
 
     boolean mBlacklistMode;
@@ -59,11 +59,11 @@ public class PerAppListActivity extends AppCompatActivity {
             AppInfo appInfo = (AppInfo) data.getSerializableExtra(EXTRA_ADDED);
             DbUtil.insertApp(appInfo, tableName);
 
-            mPerAppList.add(appInfo);
+            mFilterList.add(appInfo);
 
-            MainAccessibilityService.updateBlackWhitelist();
+            MainAccessibilityService.updateFilterList();
 
-            Collections.sort(mPerAppList);
+            Collections.sort(mFilterList);
             invalidateEmpty();
             mAdapter.notifyDataSetChanged();
         }
@@ -71,7 +71,7 @@ public class PerAppListActivity extends AppCompatActivity {
 
     void invalidateEmpty() {
         mEmptyText.setText(mBlacklistMode ? R.string.no_blacklisted_apps : R.string.no_whitelisted_apps);
-        mEmptyText.setVisibility(mPerAppList.size() == 0 ? View.VISIBLE : View.GONE);
+        mEmptyText.setVisibility(mFilterList.size() == 0 ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class PerAppListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
 
-        mPerAppList = new ArrayList<>();
+        mFilterList = new ArrayList<>();
         mBlacklistMode = PrefUtils.isBlacklistMode(this);
 
         setTitle(mBlacklistMode ? getString(R.string.blacklisted_apps) : getString(R.string.whitelisted_apps));
@@ -100,12 +100,12 @@ public class PerAppListActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                final AppInfo appInfo = mPerAppList.get(viewHolder.getAdapterPosition());
+                final AppInfo appInfo = mFilterList.get(viewHolder.getAdapterPosition());
                 final String tableName = mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
                 DbUtil.deleteApp(appInfo, tableName);
-                mPerAppList.remove(viewHolder.getAdapterPosition());
+                mFilterList.remove(viewHolder.getAdapterPosition());
 
-                MainAccessibilityService.updateBlackWhitelist();
+                MainAccessibilityService.updateFilterList();
 
                 Snackbar undoSnackbar = Snackbar.make(mRecyclerView, String.format(getString(R.string.app_removed), appInfo.name), Snackbar.LENGTH_LONG);
                 undoSnackbar.setAction(R.string.undo, new View.OnClickListener() {
@@ -113,10 +113,10 @@ public class PerAppListActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         DbUtil.insertApp(appInfo, tableName);
 
-                        MainAccessibilityService.updateBlackWhitelist();
+                        MainAccessibilityService.updateFilterList();
 
-                        mPerAppList.add(appInfo);
-                        Collections.sort(mPerAppList);
+                        mFilterList.add(appInfo);
+                        Collections.sort(mFilterList);
                         invalidateEmpty();
                         mAdapter.notifyDataSetChanged();
                     }
@@ -133,12 +133,12 @@ public class PerAppListActivity extends AppCompatActivity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(PerAppListActivity.this, AddAppDialogActivity.class);
+                Intent intent = new Intent(FilterListActivity.this, AddAppDialogActivity.class);
 
                 intent.putExtra(FabDialogMorphSetup.EXTRA_SHARED_ELEMENT_START_COLOR,
-                        ContextCompat.getColor(PerAppListActivity.this, R.color.colorAccent));
+                        ContextCompat.getColor(FilterListActivity.this, R.color.colorAccent));
                 Bundle options = ActivityOptionsCompat
-                        .makeSceneTransitionAnimation(PerAppListActivity.this, mockFab, getString(R.string.transition_fab_add)).toBundle();
+                        .makeSceneTransitionAnimation(FilterListActivity.this, mockFab, getString(R.string.transition_fab_add)).toBundle();
                 startActivityForResult(intent, REQUEST_ADD_APP, options);
             }
         });
@@ -168,7 +168,7 @@ public class PerAppListActivity extends AppCompatActivity {
                 .subscribe(new SingleSubscriber<List<AppInfo>>() {
                     @Override
                     public void onSuccess(List<AppInfo> newList) {
-                        mPerAppList = newList;
+                        mFilterList = newList;
 
                         mProgressBar.setVisibility(View.GONE);
 
@@ -200,9 +200,9 @@ public class PerAppListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final AppInfo appInfo = mPerAppList.get(position);
+            final AppInfo appInfo = mFilterList.get(position);
 
-            Glide.with(PerAppListActivity.this)
+            Glide.with(FilterListActivity.this)
                     .load(appInfo)
                     .crossFade()
                     .into(holder.icon);
@@ -213,12 +213,12 @@ public class PerAppListActivity extends AppCompatActivity {
 
         @Override
         public int getItemCount() {
-            return mPerAppList.size();
+            return mFilterList.size();
         }
 
         @Override
         public long getItemId(int position) {
-            return mPerAppList.get(position).dbId;
+            return mFilterList.get(position).dbId;
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

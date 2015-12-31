@@ -13,7 +13,7 @@ import com.bumptech.glide.load.model.GenericLoaderFactory;
 import com.bumptech.glide.load.model.ModelLoader;
 import com.bumptech.glide.load.model.ModelLoaderFactory;
 import com.pluscubed.anticipate.R;
-import com.pluscubed.anticipate.perapp.AppInfo;
+import com.pluscubed.anticipate.filter.AppInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

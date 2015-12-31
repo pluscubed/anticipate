@@ -45,8 +45,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.crashlytics.android.Crashlytics;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.customtabs.CustomTabDummyActivity;
-import com.pluscubed.anticipate.perapp.DbUtil;
-import com.pluscubed.anticipate.perapp.PerAppListActivity;
+import com.pluscubed.anticipate.filter.DbUtil;
+import com.pluscubed.anticipate.filter.FilterListActivity;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
 import com.pluscubed.anticipate.widget.IntentPickerSheetView;
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         mConfigurePerApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, PerAppListActivity.class));
+                startActivity(new Intent(MainActivity.this, FilterListActivity.class));
             }
         });
 
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         DbUtil.initializeBlacklist(this);
-        MainAccessibilityService.updateBlackWhitelist();
+        MainAccessibilityService.updateFilterList();
 
         invalidateStates();
 
@@ -279,8 +279,8 @@ public class MainActivity extends AppCompatActivity {
                 .positiveText(R.string.dismiss)
                 .content(Html.fromHtml(getString(R.string.about_body)))
                 .iconRes(R.mipmap.ic_launcher)
-                .linkColor(ContextCompat.getColor(this, R.color.blue_800))
-                .positiveColor(ContextCompat.getColor(this, R.color.blue_800))
+                .linkColorRes(R.color.blue_800)
+                .positiveColorRes(R.color.blue_800)
                 .show();
     }
 
@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity {
             new MaterialDialog.Builder(MainActivity.this)
                     .content(R.string.dialog_clear_defaults)
                     .positiveText(R.string.open_settings)
+                    .positiveColorRes(R.color.blue_800)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
                         public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {

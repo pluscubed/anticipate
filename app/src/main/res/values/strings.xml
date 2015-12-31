@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Anticipate</string>
-    <string name="desc">To detect links on-screen and pre-load them, Anticipate requires its accessibility service to be enabled</string>
+    <string name="desc">To detect links on-screen and prepare for them, Anticipate requires its accessibility service to be enabled</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
 
     <string name="desc_default">To open all links using Anticipate, you may set it as the default browser</string>
@@ -12,16 +12,16 @@
     <string name="open_settings">Open Settings</string>
     <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser</string>
     <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled. Please enable to pre-load links.</string>
-    <string name="floating_window_checkbox">Floating window to monitor pre-loaded URLs</string>
+    <string name="floating_window_checkbox">Floating window to monitor warmed-up URLs</string>
     <string name="anticipate_url_monitor">Anticipate URL Monitor</string>
     <string name="notification_tap_to_close">Tap to close floating window</string>
     <string name="about_dialog_title">Anticipate v%s</string>
     <string name="dismiss">Dismiss</string>
 
     <string name="about_body"><![CDATA[
-        <b>Anticipate</b> is a web pre-loading browser tool that looks for links on-screen.
+        <b>Anticipate</b> is a web browsing tool that detects and warms-up for links on-screen.
         <br/><br/>
-        It uses Chrome Custom Tabs to resolve the main DNS and pre-fetch resources in advance so your web pages are ready
+        It uses Chrome Custom Tabs to pre-resolve domains and pre-fetch resources in advance so your web pages are ready
         to view as soon as possible.<br/><br/>
 
         Developed by <b>Daniel Ciao</b><br/>

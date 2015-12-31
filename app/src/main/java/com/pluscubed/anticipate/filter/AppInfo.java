@@ -1,4 +1,4 @@
-package com.pluscubed.anticipate.perapp;
+package com.pluscubed.anticipate.filter;
 
 import android.support.annotation.NonNull;
 
