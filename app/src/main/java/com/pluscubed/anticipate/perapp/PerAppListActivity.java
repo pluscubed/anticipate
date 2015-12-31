@@ -96,8 +96,9 @@ public class PerAppListActivity extends AppCompatActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final AppInfo appInfo = mPerAppList.get(viewHolder.getAdapterPosition());
+                final String tableName = mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
                 Inquiry.get()
-                        .deleteFrom(mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS, AppInfo.class)
+                        .deleteFrom(tableName, AppInfo.class)
                         .where("package_name = ?", appInfo.packageName)
                         .run();
                 mPerAppList.remove(viewHolder.getAdapterPosition());
@@ -106,6 +107,11 @@ public class PerAppListActivity extends AppCompatActivity {
                 undoSnackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        Inquiry.get()
+                                .insertInto(tableName, AppInfo.class)
+                                .values(appInfo)
+                                .run();
+
                         mPerAppList.add(appInfo);
                         Collections.sort(mPerAppList);
                         invalidateEmpty();
