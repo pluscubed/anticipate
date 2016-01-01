@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.pluscubed.anticipate.customtabs.util.CustomTabActivityHelper;
+import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.util.PrefUtils;
@@ -32,7 +32,7 @@ public class MainAccessibilityService extends AccessibilityService {
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
     boolean mBlacklistMode;
-    private CustomTabActivityHelper mCustomTabActivityHelper;
+    private CustomTabConnectionHelper mCustomTabActivityHelper;
 
     public static MainAccessibilityService get() {
         return sSharedService;
@@ -44,7 +44,12 @@ public class MainAccessibilityService extends AccessibilityService {
         }
     }
 
-    public CustomTabActivityHelper getCustomTabActivityHelper() {
+    private static void log(String info) {
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, info);
+    }
+
+    public CustomTabConnectionHelper getCustomTabActivityHelper() {
         return mCustomTabActivityHelper;
     }
 
@@ -53,19 +58,21 @@ public class MainAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
         sSharedService = this;
 
-        mCustomTabActivityHelper = new CustomTabActivityHelper();
-        mCustomTabActivityHelper.setConnectionCallback(null);
-        mCustomTabActivityHelper.bindCustomTabsService(this, new CustomTabsCallback() {
+        mCustomTabActivityHelper = new CustomTabConnectionHelper();
+        mCustomTabActivityHelper.setConnectionCallback(new CustomTabConnectionHelper.ConnectionCallback() {
             @Override
-            public void onNavigationEvent(int navigationEvent, Bundle extras) {
-                super.onNavigationEvent(navigationEvent, extras);
+            public void onCustomTabsConnected() {
+
             }
 
             @Override
-            public void extraCallback(String callbackName, Bundle args) {
-                super.extraCallback(callbackName, args);
+            public void onCustomTabsDisconnected() {
+
             }
         });
+        mCustomTabActivityHelper.setCustomTabsCallback(new CustomTabsCallback());
+        boolean success = mCustomTabActivityHelper.bindCustomTabsService(this);
+        log("onServiceConnected: " + success);
 
         DbUtil.initializeBlacklist(this);
 
@@ -85,10 +92,8 @@ public class MainAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         sSharedService = this;
 
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "====onAccessibilityEvent===");
-            Log.i(TAG, "=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
-        }
+        log("====onAccessibilityEvent===");
+        log("=type: " + AccessibilityEvent.eventTypeToString(event.getEventType()));
 
         if (mFilterList == null) {
             return;
@@ -100,13 +105,11 @@ public class MainAccessibilityService extends AccessibilityService {
         if (packageName != null) {
             String appId = packageName.toString();
 
-            if (BuildConfig.DEBUG)
-                Log.i(TAG, "=appId: " + appId);
+            log("=appId: " + appId);
 
             if ((mBlacklistMode && mFilterList.contains(appId)) ||
                     (!mBlacklistMode && !mFilterList.contains(appId))) {
-                if (BuildConfig.DEBUG)
-                    Log.i(TAG, "=excluded");
+                log("=excluded");
                 return;
             }
         }
@@ -118,40 +121,42 @@ public class MainAccessibilityService extends AccessibilityService {
         Matcher matcher = pattern.matcher(allText);
 
 
-        Uri top = null;
-        String list = "";
+        Uri firstUrl = null;
+        String floatingWindowText = "";
         List<Bundle> possibleUrls = new ArrayList<>();
 
         while (matcher.find()) {
             String url = matcher.group(0);
 
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                url = "http://" + url;
+            }
+
             Uri uri = Uri.parse(url);
 
-            if (top == null) {
-                top = uri;
+            if (firstUrl == null) {
+                firstUrl = uri;
 
-                list += uri;
+                floatingWindowText += uri;
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(CustomTabsService.KEY_URL, uri);
 
-                list += "\n" + uri;
+                floatingWindowText += "\n" + uri;
             }
 
-            if (BuildConfig.DEBUG)
-                Log.i(TAG, "Preload URL: " + url);
+            log("Preload URL: " + url);
         }
 
 
-        if (top != null) {
-            boolean success = mCustomTabActivityHelper.mayLaunchUrl(top, null, possibleUrls);
+        if (firstUrl != null) {
+            boolean success = mCustomTabActivityHelper.mayLaunchUrl(firstUrl, null, possibleUrls);
 
             if (success && FloatingWindowService.get() != null) {
-                FloatingWindowService.get().setText(list);
+                FloatingWindowService.get().setText(floatingWindowText);
             }
 
-            if (BuildConfig.DEBUG)
-                Log.i(TAG, "Preload URL: " + success);
+            log("Preload URL: " + success);
         }
 
 
@@ -200,8 +205,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
             string += text + " ";
 
-            if (BuildConfig.DEBUG)
-                Log.i(TAG, "Text: " + text);
+            log("Text: " + text);
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {

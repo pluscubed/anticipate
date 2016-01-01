@@ -29,13 +29,12 @@ import java.util.List;
 /**
  * This is a helper class to manage the connection to the Custom Tabs Service.
  */
-public class CustomTabActivityHelper implements ServiceConnectionCallback {
-    private CustomTabsSession mCustomTabsSession;
-    private CustomTabsClient mClient;
+public class CustomTabConnectionHelper {
+    CustomTabsSession mCustomTabsSession;
+    CustomTabsClient mClient;
+    ConnectionCallback mConnectionCallback;
     private CustomTabsServiceConnection mConnection;
-    private ConnectionCallback mConnectionCallback;
-
-    private CustomTabsCallback mCallback;
+    private CustomTabsCallback mCustomTabsCallback;
 
     /**
      * Opens the URL on a Custom Tab if possible. Otherwise fallsback to opening it on a WebView.
@@ -85,18 +84,20 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
         if (mClient == null) {
             mCustomTabsSession = null;
         } else if (mCustomTabsSession == null) {
-            mCustomTabsSession = mClient.newSession(mCallback);
+            mCustomTabsSession = mClient.newSession(mCustomTabsCallback);
         }
         return mCustomTabsSession;
     }
 
     /**
      * Register a Callback to be called when connected or disconnected from the Custom Tabs Service.
-     *
-     * @param connectionCallback
      */
     public void setConnectionCallback(ConnectionCallback connectionCallback) {
         this.mConnectionCallback = connectionCallback;
+    }
+
+    public void setCustomTabsCallback(CustomTabsCallback customTabsCallback) {
+        mCustomTabsCallback = customTabsCallback;
     }
 
     /**
@@ -104,17 +105,31 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
      *
      * @param activity the activity to be binded to the service.
      */
-    public void bindCustomTabsService(Context activity, CustomTabsCallback callback) {
-        if (mClient != null) return;
+    public boolean bindCustomTabsService(Context activity) {
+        if (mClient != null) return false;
 
         String packageName = CustomTabsHelper.getPackageNameToUse(activity);
-        if (packageName == null) return;
+        if (packageName == null) return false;
 
-        mConnection = new ServiceConnection(this);
-        CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
+        mConnection = new ServiceConnection(new ServiceConnectionCallback() {
+            @Override
+            public void onServiceConnected(CustomTabsClient client) {
+                mClient = client;
+                mClient.warmup(0L);
+                if (mConnectionCallback != null) mConnectionCallback.onCustomTabsConnected();
 
-        mCallback = callback;
-        getSession();
+                getSession();
+            }
+
+            @Override
+            public void onServiceDisconnected() {
+                mClient = null;
+                mCustomTabsSession = null;
+                if (mConnectionCallback != null) mConnectionCallback.onCustomTabsDisconnected();
+
+            }
+        });
+        return CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
     }
 
     /**
@@ -127,20 +142,6 @@ public class CustomTabActivityHelper implements ServiceConnectionCallback {
         CustomTabsSession session = getSession();
         return session != null && session.mayLaunchUrl(uri, extras, otherLikelyBundles);
 
-    }
-
-    @Override
-    public void onServiceConnected(CustomTabsClient client) {
-        mClient = client;
-        mClient.warmup(0L);
-        if (mConnectionCallback != null) mConnectionCallback.onCustomTabsConnected();
-    }
-
-    @Override
-    public void onServiceDisconnected() {
-        mClient = null;
-        mCustomTabsSession = null;
-        if (mConnectionCallback != null) mConnectionCallback.onCustomTabsDisconnected();
     }
 
     /**
