@@ -117,6 +117,8 @@ public class MainAccessibilityService extends AccessibilityService {
 
         String allText = getAllText(getRootInActiveWindow());
 
+        Log.v(TAG, allText);
+
         Pattern pattern = Pattern.compile(LINK_REG_EX);
         Matcher matcher = pattern.matcher(allText);
 

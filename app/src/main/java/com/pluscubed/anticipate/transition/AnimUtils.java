@@ -31,7 +31,8 @@ import java.util.ArrayList;
  */
 public class AnimUtils {
 
-    private AnimUtils() { }
+    private AnimUtils() {
+    }
 
     /**
      * Linear interpolate between a and b with parameter t.

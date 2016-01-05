@@ -21,7 +21,7 @@ import java.util.Collections;
 
 /**
  * A transition that morphs a circle into a rectangle, changing it's background color.
- *
+ * <p/>
  * Modified from Plaid
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)

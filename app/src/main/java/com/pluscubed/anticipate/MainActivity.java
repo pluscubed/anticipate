@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -28,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -42,8 +44,8 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.pluscubed.anticipate.customtabs.CustomTabDummyActivity;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.filter.FilterListActivity;
 import com.pluscubed.anticipate.util.PrefUtils;
@@ -52,7 +54,7 @@ import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback {
 
     public static final String TAG = "MainActivity";
 
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mSetDefaultButton;
     private ImageView mSetDefaultImage;
     private BottomSheetLayout mBottomSheetLayout;
+    private View mDefaultToolbarColorView;
 
     public static boolean isAccessibilityServiceEnabled(Context context) {
         int accessibilityEnabled = 0;
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(toolbar);
 
+        //SET ENABLE SERVICE
         mEnableServiceButton = (Button) findViewById(R.id.button_enable_service);
         mEnableServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
         mEnabledImage = (ImageView) findViewById(R.id.image_enabled);
 
+        //SET DEFAULT
         mSetDefaultButton = (Button) findViewById(R.id.button_set_default);
         mSetDefaultButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         mSetDefaultImage = (ImageView) findViewById(R.id.image_default);
 
 
+        //TRY
         final Button tryButton = (Button) findViewById(R.id.button_try);
         mTryEditText = (DispatchBackEditText) findViewById(R.id.edittext_try);
 
@@ -150,24 +156,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final Switch floatingWindowSwitch = (Switch) findViewById(R.id.checkbox_preload_window);
-        floatingWindowSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onFloatingWindowSwitchChange(floatingWindowSwitch);
-            }
-        });
 
-        floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
-
-        Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
+        //PER APP FILTER
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item,
                 new String[]{getString(R.string.blacklist), getString(R.string.whitelist)});
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                PrefUtils.setBlacklistMode(MainActivity.this, position==0);
+                PrefUtils.setBlacklistMode(MainActivity.this, position == 0);
             }
 
             @Override
@@ -175,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        spinner.setSelection(PrefUtils.isBlacklistMode(this)?0:1);
+        spinner.setSelection(PrefUtils.isBlacklistMode(this) ? 0 : 1);
+        spinner.setDropDownVerticalOffset(-100);
 
         mConfigurePerApp = (Button) findViewById(R.id.button_configure_perapp);
         mConfigurePerApp.setOnClickListener(new View.OnClickListener() {
@@ -184,6 +183,53 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, FilterListActivity.class));
             }
         });
+
+        //DEFAULT TOOLBAR COLOR
+        final ViewGroup defaultToolbarLinear = (ViewGroup) findViewById(R.id.linear_default_toolbar_color);
+        mDefaultToolbarColorView = defaultToolbarLinear.getChildAt(1);
+
+        defaultToolbarLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ColorChooserDialog.Builder(MainActivity.this, R.string.default_toolbar_color)
+                        .preselect(PrefUtils.getDefaultToolbarColor(MainActivity.this))
+                        .show();
+            }
+        });
+
+        mDefaultToolbarColorView.setBackgroundColor(PrefUtils.getDefaultToolbarColor(MainActivity.this));
+
+
+        //DYNAMIC TOOLBAR COLOR
+        final ViewGroup dynamicToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_toolbar_color);
+        final Switch dynamicToolbarSwitch = (Switch) dynamicToolbarLinear.getChildAt(1);
+
+        dynamicToolbarSwitch.setChecked(PrefUtils.isDynamicToolbar(this));
+
+        dynamicToolbarLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = !dynamicToolbarSwitch.isChecked();
+                PrefUtils.setDynamicToolbar(MainActivity.this, checked);
+                dynamicToolbarSwitch.setChecked(checked);
+            }
+        });
+
+        //FLOATING WINDOW SWITCH
+        final ViewGroup floatingWindowLinear = (ViewGroup) findViewById(R.id.linear_preload_window);
+        final Switch floatingWindowSwitch = (Switch) floatingWindowLinear.getChildAt(1);
+        floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
+
+        floatingWindowLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = onFloatingWindowSwitchChange(!floatingWindowSwitch.isChecked());
+                floatingWindowSwitch.setChecked(checked);
+            }
+        });
+
+
+        //
 
         mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
 
@@ -217,15 +263,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        if(intent.getData()!=null){
+        if (intent.getData() != null) {
             showBottomSheetFromUrlIntent(getViewUrlIntent(intent.getDataString()));
         }
     }
 
-    void onFloatingWindowSwitchChange(Switch floatingWindowSwitch) {
+    boolean onFloatingWindowSwitchChange(boolean checked) {
         Intent service = new Intent(MainActivity.this, FloatingWindowService.class);
 
-        if (floatingWindowSwitch.isChecked()) {
+        if (checked) {
             if (FloatingWindowService.get() == null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
@@ -239,13 +285,15 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             })
                             .show();
-                    floatingWindowSwitch.setChecked(false);
+                    return false;
                 } else {
                     startService(service);
                 }
             }
+            return true;
         } else {
             stopService(service);
+            return false;
         }
     }
 
@@ -295,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
         final Intent viewUrlIntent = getViewUrlIntent(input);
 
         if (item.getItemId() == R.id.menu_try_anticipate) {
-            viewUrlIntent.setClass(MainActivity.this, CustomTabDummyActivity.class);
+            viewUrlIntent.setClass(MainActivity.this, BrowserLauncherDummyActivity.class);
             startActivity(viewUrlIntent);
         } else if (item.getItemId() == R.id.menu_try_browser) {
             showBottomSheetFromUrlIntent(viewUrlIntent);
@@ -443,4 +491,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onColorSelection(@NonNull ColorChooserDialog dialog, @ColorInt int selectedColor) {
+        PrefUtils.setDefaultToolbarColor(MainActivity.this, selectedColor);
+
+        mDefaultToolbarColorView.setBackgroundColor(selectedColor);
+    }
 }

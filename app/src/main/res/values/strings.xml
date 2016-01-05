@@ -53,5 +53,9 @@
     <string name="no_whitelisted_apps">No whitelisted apps</string>
     <string name="swipe_to_remove">Swipe to remove</string>
     <string name="accessibility_service_not_active">Accessibility service not active</string>
+    <string name="use_chrome_custom_tabs">Use Chrome Custom Tabs</string>
+    <string name="toolbar_color_desc">Use the website-defined toolbar color (when available). This will work the second time a website is opened.</string>
+    <string name="dynamic_toolbar_color">Dynamic toolbar color</string>
+    <string name="default_toolbar_color">Default toolbar color</string>
 
 </resources>

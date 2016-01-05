@@ -39,7 +39,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <style name="Theme.Anticipate.NoDisplay" parent="android:Theme.NoDisplay">
+    <style name="Theme.Anticipate.NoDisplay" parent="android:Theme.Translucent.NoTitleBar">
     </style>
 
 </resources>

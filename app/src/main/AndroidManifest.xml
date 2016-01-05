@@ -8,7 +8,7 @@
 
     <application
         android:name=".App"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
         android:supportsRtl="true"
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".customtabs.CustomTabDummyActivity"
+            android:name=".BrowserLauncherDummyActivity"
             android:theme="@style/Theme.Anticipate.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -54,13 +54,19 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/service" />
         </service>
+
         <service
             android:name=".FloatingWindowService"
             android:exported="false" />
+
         <service
             android:name=".customtabs.util.KeepAliveService"
             android:exported="true"
             tools:ignore="ExportedService" />
+
+        <service
+            android:name=".toolbarcolor.WebsiteService"
+            android:exported="false" />
 
     </application>
 

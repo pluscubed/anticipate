@@ -79,7 +79,7 @@ public class CustomTabsHelper {
         List<ResolveInfo> resolvedActivityList;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             resolvedActivityList = pm.queryIntentActivities(activityIntent, PackageManager.MATCH_ALL);
-        }else {
+        } else {
             resolvedActivityList = pm.queryIntentActivities(activityIntent, PackageManager.MATCH_DEFAULT_ONLY);
         }
         List<String> packagesSupportingCustomTabs = new ArrayList<>();

@@ -10,7 +10,7 @@
     <item name="textinputlayout_try" type="id" />
     <item name="menu_try_anticipate" type="id" />
     <item name="menu_try_browser" type="id" />
-    <item name="checkbox_preload_window" type="id" />
+    <item name="linear_preload_window" type="id" />
     <item name="menu_main_about" type="id" />
     <item name="recyclerview" type="id" />
     <item name="fab_add_perapp" type="id" />
@@ -25,4 +25,7 @@
     <item name="progressbar" type="id" />
     <item name="root" type="id" />
     <item name="text_empty" type="id" />
+    <item name="checkbox_chrome_custom_tabs" type="id" />
+    <item name="linear_dynamic_toolbar_color" type="id" />
+    <item name="linear_default_toolbar_color" type="id" />
 </resources>

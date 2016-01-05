@@ -20,7 +20,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 public class DbUtil {
-    public static final String DB = "Anticipate";
+
     public static final String TABLE_BLACKLISTED_APPS = "BlacklistedApps";
     public static final String TABLE_WHITELISTED_APPS = "WhitelistedApps";
 
@@ -51,7 +51,7 @@ public class DbUtil {
 
     /**
      * Returns sorted list of AppInfos.
-     * <p>
+     * <p/>
      * AppInfo's drawable and id are null
      */
     @NonNull
@@ -93,7 +93,7 @@ public class DbUtil {
 
     /**
      * Returns sorted list of AppInfos.
-     * <p>
+     * <p/>
      * AppInfo's drawable and id are null
      */
     public static Single<List<AppInfo>> getInstalledApps(final Context context) {

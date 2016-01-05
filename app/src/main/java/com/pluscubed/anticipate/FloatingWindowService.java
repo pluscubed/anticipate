@@ -18,8 +18,8 @@ public class FloatingWindowService extends Service {
 
     private static FloatingWindowService sSharedService;
 
-    String mOldDisplayed="";
-    String mDisplayed="";
+    String mOldDisplayed = "";
+    String mDisplayed = "";
 
     TextView mTextView;
     private WindowManager mWindowManager;
@@ -30,9 +30,9 @@ public class FloatingWindowService extends Service {
 
     public void setText(final String url) {
         mOldDisplayed = mDisplayed;
-        mDisplayed=url;
+        mDisplayed = url;
 
-        if(!mOldDisplayed.equals(mDisplayed))
+        if (!mOldDisplayed.equals(mDisplayed))
             mTextView.setText(mDisplayed);
     }
 
@@ -40,7 +40,7 @@ public class FloatingWindowService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        Intent notificationIntent = new Intent(this, FloatingWindowService.class);
+        Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this)
@@ -65,7 +65,7 @@ public class FloatingWindowService extends Service {
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE| WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT);
 
         params.gravity = Gravity.BOTTOM | Gravity.START;
