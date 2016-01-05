@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 
 import com.pluscubed.anticipate.R;
 
-public class PrefUtils {
+public abstract class PrefUtils {
     public static final String PREF_BLACKLIST = "pref_blacklist";
     public static final String PREF_FIRSTRUN = "pref_firstrun";
 

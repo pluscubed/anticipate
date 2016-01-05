@@ -7,11 +7,7 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 
-public class Util {
-
-    private Util() {
-        throw new AssertionError("No Instances");
-    }
+public abstract class Util {
 
     /**
      * Convert a dp float value to pixels

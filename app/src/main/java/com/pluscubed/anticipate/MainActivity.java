@@ -49,6 +49,7 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.filter.FilterListActivity;
 import com.pluscubed.anticipate.util.PrefUtils;
+import com.pluscubed.anticipate.util.Util;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
 import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
@@ -159,13 +160,18 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //PER APP FILTER
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.support_simple_spinner_dropdown_item,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
                 new String[]{getString(R.string.blacklist), getString(R.string.whitelist)});
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 PrefUtils.setBlacklistMode(MainActivity.this, position == 0);
+                if (spinner.getSelectedItemPosition() == 1) {
+                    spinner.setDropDownVerticalOffset(Util.dp2px(MainActivity.this, -48));
+                } else {
+                    spinner.setDropDownVerticalOffset(0);
+                }
             }
 
             @Override
@@ -174,7 +180,11 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
         spinner.setSelection(PrefUtils.isBlacklistMode(this) ? 0 : 1);
-        spinner.setDropDownVerticalOffset(-100);
+        if (spinner.getSelectedItemPosition() == 1) {
+            spinner.setDropDownVerticalOffset(Util.dp2px(MainActivity.this, 48));
+        } else {
+            spinner.setDropDownVerticalOffset(0);
+        }
 
         mConfigurePerApp = (Button) findViewById(R.id.button_configure_perapp);
         mConfigurePerApp.setOnClickListener(new View.OnClickListener() {
