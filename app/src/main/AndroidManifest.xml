@@ -68,6 +68,8 @@
             android:name=".toolbarcolor.WebsiteService"
             android:exported="false" />
 
+        <receiver android:name=".BrowserLauncherDummyActivity$ShareBroadcastReceiver"/>
+
     </application>
 
 </manifest>

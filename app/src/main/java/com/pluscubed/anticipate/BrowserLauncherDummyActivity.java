@@ -1,6 +1,8 @@
 package com.pluscubed.anticipate;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -60,10 +62,13 @@ public class BrowserLauncherDummyActivity extends Activity {
                 builder.setToolbarColor(PrefUtils.getDefaultToolbarColor(this));
             }
 
+            Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, uri.toString());
 
             CustomTabsIntent customTabsIntent = builder
                     .enableUrlBarHiding()
                     .setShowTitle(true)
+                    .addMenuItem(getString(R.string.share), PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT))
                     .build();
             CustomTabsHelper.addKeepAliveExtra(BrowserLauncherDummyActivity.this, customTabsIntent.intent);
             CustomTabConnectionHelper.openCustomTab(
@@ -86,5 +91,17 @@ public class BrowserLauncherDummyActivity extends Activity {
         }
 
         finish();
+    }
+
+    public static class ShareBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, intent.getStringExtra(Intent.EXTRA_TEXT));
+            Intent chooserIntent = Intent.createChooser(shareIntent, context.getString(R.string.share));
+            chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(chooserIntent);
+        }
     }
 }
