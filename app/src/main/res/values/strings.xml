@@ -58,4 +58,6 @@
     <string name="dynamic_toolbar_color">Dynamic toolbar color</string>
     <string name="default_toolbar_color">Default toolbar color</string>
 
+    <string name="share">Share</string>
+
 </resources>
