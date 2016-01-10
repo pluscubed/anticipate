@@ -5,6 +5,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,10 +25,31 @@ public class BrowserLauncherDummyActivity extends Activity {
 
     private static final String TAG = "CustomTabDummyActivity";
 
+    private Bitmap backButtonBitmap;
+
+    private static Bitmap drawableToBitmap(Drawable drawable) {
+        Bitmap bitmap;
+
+        if(drawable instanceof BitmapDrawable) {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+            if (bitmapDrawable.getBitmap() != null) {
+                return bitmapDrawable.getBitmap();
+            }
+        }
+
+        bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+        return bitmap;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        cacheBitmaps();
 
         final Uri uri = getIntent().getData();
         if (getIntent() != null && uri != null) {
@@ -37,13 +62,10 @@ public class BrowserLauncherDummyActivity extends Activity {
                 builder = new CustomTabsIntent.Builder(service.getCustomTabActivityHelper().getSession());
             } else {
                 builder = new CustomTabsIntent.Builder();
-                if (!MainActivity.isAccessibilityServiceEnabled(this)) {
-                    Toast.makeText(this, R.string.accessibility_disabled, Toast.LENGTH_LONG).show();
-                } else {
+                if (MainActivity.isAccessibilityServiceEnabled(this)) {
                     Toast.makeText(this, R.string.accessibility_service_not_active, Toast.LENGTH_LONG).show();
                 }
             }
-
 
             String host = uri.toString().replaceAll(".*\\.(?=.*\\.)", "");
 
@@ -64,11 +86,20 @@ public class BrowserLauncherDummyActivity extends Activity {
 
             Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
 
-            CustomTabsIntent customTabsIntent = builder
-                    .enableUrlBarHiding()
-                    .setShowTitle(true)
-                    .addMenuItem(getString(R.string.share), PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT))
-                    .build();
+            builder.enableUrlBarHiding();
+            builder.setShowTitle(true);
+            builder.addMenuItem(getString(R.string.share), PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT));
+
+            if(PrefUtils.getAnimationStyle(this) == 0) {
+                builder.setStartAnimations(this, R.anim.slide_up_right, R.anim.slide_down_left);
+                builder.setExitAnimations(this, R.anim.slide_up_left, R.anim.slide_down_right);
+            } else if(PrefUtils.getAnimationStyle(this) == 1) {
+                builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.slide_out_left);
+                builder.setExitAnimations(this, R.anim.slide_in_left, R.anim.slide_out_right);
+            }
+            builder.setCloseButtonIcon(backButtonBitmap);
+
+            CustomTabsIntent customTabsIntent = builder.build();
             CustomTabsHelper.addKeepAliveExtra(BrowserLauncherDummyActivity.this, customTabsIntent.intent);
             CustomTabConnectionHelper.openCustomTab(
                     BrowserLauncherDummyActivity.this, customTabsIntent, uri,
@@ -90,6 +121,17 @@ public class BrowserLauncherDummyActivity extends Activity {
         }
 
         finish();
+    }
+
+    private void cacheBitmaps()
+    {
+        if(backButtonBitmap != null) {
+            if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                backButtonBitmap = drawableToBitmap(getDrawable(R.drawable.ic_arrow_back_white_24dp));
+            } else {
+                backButtonBitmap = drawableToBitmap(getResources().getDrawable(R.drawable.ic_arrow_back_white_24dp));
+            }
+        }
     }
 
     public static class ShareBroadcastReceiver extends BroadcastReceiver {

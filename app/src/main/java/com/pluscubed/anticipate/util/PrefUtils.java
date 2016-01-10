@@ -11,10 +11,9 @@ import com.pluscubed.anticipate.R;
 public abstract class PrefUtils {
     public static final String PREF_BLACKLIST = "pref_blacklist";
     public static final String PREF_FIRSTRUN = "pref_firstrun";
-
     public static final String PREF_DYNAMIC_TOOLBAR = "pref_dynamic_toolbar";
     public static final String PREF_DEFAULT_COLOR = "pref_default_toolbar_color";
-
+    public static final String PREF_ANIMATION_STYLE = "pref_animation_style";
 
     public static void setBlacklistMode(Context context, boolean blacklist) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -55,5 +54,15 @@ public abstract class PrefUtils {
     public static int getDefaultToolbarColor(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.getInt(PREF_DEFAULT_COLOR, ContextCompat.getColor(context, R.color.colorPrimary));
+    }
+
+    public static void setAnimationStyle(final Context context, final int animationStyle) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putInt(PREF_ANIMATION_STYLE, animationStyle).apply();
+    }
+
+    public static int getAnimationStyle(final Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getInt(PREF_ANIMATION_STYLE, 0);
     }
 }

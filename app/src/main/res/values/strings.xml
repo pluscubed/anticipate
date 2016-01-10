@@ -59,5 +59,9 @@
     <string name="default_toolbar_color">Default toolbar color</string>
 
     <string name="share">Share</string>
+    <string name="animation">Animation style</string>
+    <string name="slide_up">Slide up</string>
+    <string name="slide_left">Slide left</string>
+    <string name="off">Off</string>
 
 </resources>
