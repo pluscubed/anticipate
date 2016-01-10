@@ -25,11 +25,11 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
+        Inquiry.init(this, DB, 1);
+
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
-
-        Inquiry.init(this, DB, 1);
 
         Glide.get(this)
                 .register(AppInfo.class, InputStream.class, new AppIconLoader.Loader());
@@ -46,7 +46,6 @@ public class App extends Application {
             }
         });
 
-
         JobManager.instance().cancelAll();
 
         new JobRequest.Builder(CleanupJob.TAG)
@@ -54,6 +53,5 @@ public class App extends Application {
                 .setPeriodic(86400000)
                 .build()
                 .schedule();
-
     }
 }
