@@ -19,6 +19,7 @@
     <item name="text_name" type="id" />
     <item name="text_desc" type="id" />
     <item name="spinner_per_app_mode" type="id" />
+    <item name="spinner_animation" type="id" />
     <item name="button_configure_perapp" type="id" />
     <item name="bottom_sheet" type="id" />
     <item name="view_mock_fab" type="id" />

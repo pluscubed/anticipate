@@ -157,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
 
-
         //PER APP FILTER
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
@@ -194,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
 
+        animationStyle();
+
         //DEFAULT TOOLBAR COLOR
         final ViewGroup defaultToolbarLinear = (ViewGroup) findViewById(R.id.linear_default_toolbar_color);
         mDefaultToolbarColorView = defaultToolbarLinear.getChildAt(1);
@@ -208,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         });
 
         mDefaultToolbarColorView.setBackgroundColor(PrefUtils.getDefaultToolbarColor(MainActivity.this));
-
 
         //DYNAMIC TOOLBAR COLOR
         final ViewGroup dynamicToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_toolbar_color);
@@ -238,9 +238,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
 
-
-        //
-
         mBottomSheetLayout = (BottomSheetLayout) findViewById(R.id.bottom_sheet);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -267,6 +264,26 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         invalidateStates();
 
+    }
+
+    private void animationStyle()
+    {
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner_animation);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
+                new String[]{getString(R.string.slide_up), getString(R.string.slide_left), getString(R.string.off)});
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                PrefUtils.setAnimationStyle(MainActivity.this, position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                //Ignore
+            }
+        });
+        spinner.setSelection(PrefUtils.getAnimationStyle(MainActivity.this));
     }
 
     @Override
