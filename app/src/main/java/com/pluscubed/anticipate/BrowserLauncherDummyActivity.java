@@ -63,7 +63,6 @@ public class BrowserLauncherDummyActivity extends Activity {
             }
 
             Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, uri.toString());
 
             CustomTabsIntent customTabsIntent = builder
                     .enableUrlBarHiding()
@@ -98,7 +97,7 @@ public class BrowserLauncherDummyActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             final Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, intent.getStringExtra(Intent.EXTRA_TEXT));
+            shareIntent.putExtra(Intent.EXTRA_TEXT, intent.getDataString());
             Intent chooserIntent = Intent.createChooser(shareIntent, context.getString(R.string.share));
             chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(chooserIntent);
