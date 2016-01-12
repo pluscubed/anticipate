@@ -8,8 +8,12 @@ public class WebsiteToolbarDbUtil {
 
     public static final String TABLE_TOOLBAR_COLOR = "WebsiteToolbarColor";
 
-    public static void insertColor(WebsiteToolbarColor websiteToolbarColor) {
-        if (getColor(websiteToolbarColor.hostDomain) == -1) {
+    public static final int NO_COLOR = -1;
+    public static final int NOT_FOUND = -2;
+
+    public static void insertUpdateColor(WebsiteToolbarColor websiteToolbarColor) {
+        //noinspection ResourceType
+        if (getColor(websiteToolbarColor.hostDomain) == NOT_FOUND) {
             Inquiry.get()
                     .insertInto(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
                     .values(websiteToolbarColor)
@@ -29,7 +33,20 @@ public class WebsiteToolbarDbUtil {
                 .selectFrom(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
                 .where("host_domain = ?", url)
                 .one();
-        return websiteToolbarColor != null ? websiteToolbarColor.toolbarColor : -1;
+        if (websiteToolbarColor != null) {
+            return websiteToolbarColor.toolbarColor;
+        }
+
+        if (url.startsWith("www.")) {
+            url = url.substring(4);
+            return getColor(url);
+        } else {
+            websiteToolbarColor = Inquiry.get()
+                    .selectFrom(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
+                    .where("host_domain = ?", "www." + url)
+                    .one();
+            return websiteToolbarColor != null ? websiteToolbarColor.toolbarColor : NOT_FOUND;
+        }
     }
 
     public static void cleanup() {

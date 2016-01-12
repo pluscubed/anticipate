@@ -23,7 +23,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pluscubed.anticipate.util.Util;
+import com.pluscubed.anticipate.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +68,7 @@ public class IntentPickerSheetView extends FrameLayout {
             }
         });
 
-        ViewCompat.setElevation(this, Util.dp2px(getContext(), 16f));
+        ViewCompat.setElevation(this, Utils.dp2px(getContext(), 16f));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class IntentPickerSheetView extends FrameLayout {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         // Necessary for showing elevation on 5.0+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setOutlineProvider(new Util.ShadowOutline(w, h));
+            setOutlineProvider(new Utils.ShadowOutline(w, h));
         }
     }
 

@@ -3,6 +3,6 @@
     android:interpolator="@android:interpolator/fast_out_linear_in">
     <translate
         android:duration="300"
-        android:fromXDelta="0"
-        android:toXDelta="100%p" />
+        android:fromYDelta="0"
+        android:toYDelta="100%p" />
 </set>

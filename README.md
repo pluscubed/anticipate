@@ -6,7 +6,7 @@ An Android browsing tool that finds links on-screen and prepares to load them us
 
 ###License
 ```
-Copyright (C) 2015  Daniel Ciao
+Copyright (C) 2016  Daniel Ciao
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

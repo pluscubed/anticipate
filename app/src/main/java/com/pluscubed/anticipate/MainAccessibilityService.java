@@ -143,6 +143,7 @@ public class MainAccessibilityService extends AccessibilityService {
             } else {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(CustomTabsService.KEY_URL, uri);
+                possibleUrls.add(bundle);
 
                 floatingWindowText += "\n" + uri;
             }
@@ -154,7 +155,7 @@ public class MainAccessibilityService extends AccessibilityService {
         if (firstUrl != null) {
             boolean success = mCustomTabActivityHelper.mayLaunchUrl(firstUrl, null, possibleUrls);
 
-            if (success && FloatingWindowService.get() != null) {
+            if (FloatingWindowService.get() != null) {
                 FloatingWindowService.get().setText(floatingWindowText);
             }
 

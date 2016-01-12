@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.flipboard.bottomsheet.BottomSheetLayout android:id="@id/bottom_sheet"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.flipboard.bottomsheet.BottomSheetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -29,7 +29,8 @@
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:scrollbarStyle="outsideOverlay">
 
 
                 <LinearLayout
@@ -258,9 +259,12 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingRight="100dp"
                             android:text="@string/animation"
                             android:textSize="16sp" />
+
+                        <Space
+                            android:layout_width="16dp"
+                            android:layout_height="match_parent" />
 
                         <Spinner
                             android:id="@id/spinner_animation"

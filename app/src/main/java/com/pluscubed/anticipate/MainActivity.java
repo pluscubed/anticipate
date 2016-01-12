@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.TextUtils;
@@ -38,7 +39,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,7 +49,7 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.filter.FilterListActivity;
 import com.pluscubed.anticipate.util.PrefUtils;
-import com.pluscubed.anticipate.util.Util;
+import com.pluscubed.anticipate.util.Utils;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
 import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
@@ -166,11 +166,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 PrefUtils.setBlacklistMode(MainActivity.this, position == 0);
-                if (spinner.getSelectedItemPosition() == 1) {
-                    spinner.setDropDownVerticalOffset(Util.dp2px(MainActivity.this, -48));
-                } else {
-                    spinner.setDropDownVerticalOffset(0);
-                }
+                spinner.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinner.getSelectedItemPosition() * -48));
             }
 
             @Override
@@ -179,11 +175,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
         spinner.setSelection(PrefUtils.isBlacklistMode(this) ? 0 : 1);
-        if (spinner.getSelectedItemPosition() == 1) {
-            spinner.setDropDownVerticalOffset(Util.dp2px(MainActivity.this, 48));
-        } else {
-            spinner.setDropDownVerticalOffset(0);
-        }
+        spinner.setDropDownVerticalOffset(Utils.dp2px(this, spinner.getSelectedItemPosition() * -48));
 
         mConfigurePerApp = (Button) findViewById(R.id.button_configure_perapp);
         mConfigurePerApp.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //DYNAMIC TOOLBAR COLOR
         final ViewGroup dynamicToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_toolbar_color);
-        final Switch dynamicToolbarSwitch = (Switch) dynamicToolbarLinear.getChildAt(1);
+        final SwitchCompat dynamicToolbarSwitch = (SwitchCompat) dynamicToolbarLinear.getChildAt(1);
 
         dynamicToolbarSwitch.setChecked(PrefUtils.isDynamicToolbar(this));
 
@@ -227,7 +219,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //FLOATING WINDOW SWITCH
         final ViewGroup floatingWindowLinear = (ViewGroup) findViewById(R.id.linear_preload_window);
-        final Switch floatingWindowSwitch = (Switch) floatingWindowLinear.getChildAt(1);
+        final SwitchCompat floatingWindowSwitch = (SwitchCompat) floatingWindowLinear.getChildAt(1);
         floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
 
         floatingWindowLinear.setOnClickListener(new View.OnClickListener() {
@@ -266,16 +258,16 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
     }
 
-    private void animationStyle()
-    {
+    private void animationStyle() {
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_animation);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
-                new String[]{getString(R.string.slide_up), getString(R.string.slide_left), getString(R.string.off)});
+                new String[]{getString(R.string.slide_bottom), getString(R.string.slide_right), getString(R.string.none)});
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 PrefUtils.setAnimationStyle(MainActivity.this, position);
+                spinner.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinner.getSelectedItemPosition() * -48));
             }
 
             @Override
@@ -284,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
         spinner.setSelection(PrefUtils.getAnimationStyle(MainActivity.this));
+        spinner.setDropDownVerticalOffset(Utils.dp2px(this, spinner.getSelectedItemPosition() * -48));
     }
 
     @Override

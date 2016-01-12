@@ -27,7 +27,12 @@ public class WebsiteService extends IntentService {
         try {
             OkHttpClient client = new OkHttpClient();
 
-            Response response = client.newCall(new Request.Builder().url(url).build())
+            String loadUrl = url;
+            if (!loadUrl.startsWith("http://") && !loadUrl.startsWith("https://")) {
+                loadUrl = "http://" + loadUrl;
+            }
+
+            Response response = client.newCall(new Request.Builder().url(loadUrl).build())
                     .execute();
 
             BufferedReader stream = new BufferedReader(response.body().charStream());
@@ -62,7 +67,7 @@ public class WebsiteService extends IntentService {
         websiteToolbarColor.toolbarColor = color;
         websiteToolbarColor.expireTimestamp = System.currentTimeMillis() + 1296000000;
 
-        WebsiteToolbarDbUtil.insertColor(websiteToolbarColor);
+        WebsiteToolbarDbUtil.insertUpdateColor(websiteToolbarColor);
 
 
     }

@@ -12,6 +12,7 @@ import com.evernote.android.job.JobRequest;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.glide.AppIconLoader;
 import com.pluscubed.anticipate.toolbarcolor.CleanupJob;
+import com.squareup.leakcanary.LeakCanary;
 
 import java.io.InputStream;
 
@@ -25,11 +26,13 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Inquiry.init(this, DB, 1);
-
         if (!BuildConfig.DEBUG) {
             Fabric.with(this, new Crashlytics());
         }
+
+        LeakCanary.install(this);
+
+        Inquiry.init(this, DB, 1);
 
         Glide.get(this)
                 .register(AppInfo.class, InputStream.class, new AppIconLoader.Loader());
