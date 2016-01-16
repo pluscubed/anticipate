@@ -46,6 +46,8 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
+import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.filter.FilterListActivity;
 import com.pluscubed.anticipate.util.PrefUtils;
@@ -53,6 +55,8 @@ import com.pluscubed.anticipate.util.Utils;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
 import com.pluscubed.anticipate.widget.IntentPickerSheetView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback {
@@ -159,8 +163,39 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //PER APP FILTER
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_per_app_mode);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
-                new String[]{getString(R.string.blacklist), getString(R.string.whitelist)});
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_dropdown,
+                new String[]{getString(R.string.blacklist), getString(R.string.whitelist)}) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view;
+
+                if (convertView == null) {
+                    view = getLayoutInflater().inflate(R.layout.spinner_dropdown_icon, parent, false);
+                } else {
+                    view = convertView;
+                }
+
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                ImageView imageView = (ImageView) view.findViewById(R.id.image_app);
+
+                text.setText(getItem(position));
+                switch (position) {
+                    case 0:
+                        imageView.setImageResource(R.drawable.ic_remove_circle_black_24dp);
+                        break;
+                    case 1:
+                        imageView.setImageResource(R.drawable.ic_remove_circle_outline_black_24dp);
+                        break;
+                }
+
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                return getView(position, convertView, parent);
+            }
+        };
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -186,6 +221,122 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         });
 
         animationStyle();
+
+        //CHROME APP
+
+        List<String> customTabPackages = CustomTabsHelper.getCustomTabsSupportedPackages(this);
+        final List<AppInfo> packages = new ArrayList<>();
+        for (String packageName : customTabPackages) {
+            AppInfo appInfo = new AppInfo();
+            appInfo.packageName = packageName;
+            try {
+                appInfo.name = getPackageManager().getApplicationInfo(packageName, 0).loadLabel(getPackageManager()).toString();
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            packages.add(appInfo);
+        }
+        Collections.sort(packages);
+
+        final Spinner spinnerChrome = (Spinner) findViewById(R.id.spinner_browser);
+        final Button installChrome = (Button) findViewById(R.id.button_install_chrome);
+
+        installChrome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + CustomTabsHelper.STABLE_PACKAGE)));
+                } catch (android.content.ActivityNotFoundException anfe) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + CustomTabsHelper.STABLE_PACKAGE)));
+                }
+            }
+        });
+
+        if (packages.size() > 0) {
+            spinnerChrome.setVisibility(View.VISIBLE);
+            installChrome.setVisibility(View.GONE);
+
+            ArrayAdapter<AppInfo> adapterChrome = new ArrayAdapter<AppInfo>(this, R.layout.spinner_dropdown_icon, packages) {
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View view;
+
+                    if (convertView == null) {
+                        view = getLayoutInflater().inflate(R.layout.spinner_dropdown_icon, parent, false);
+                    } else {
+                        view = convertView;
+                    }
+
+                    TextView text = (TextView) view.findViewById(android.R.id.text1);
+                    ImageView imageView = (ImageView) view.findViewById(R.id.image_app);
+
+                    AppInfo appInfo = getItem(position);
+
+                    ApplicationInfo applicationInfo;
+                    try {
+                        applicationInfo = getPackageManager().getApplicationInfo(appInfo.packageName, 0);
+
+                        imageView.setImageDrawable(applicationInfo.loadIcon(getPackageManager()));
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                        imageView.setImageDrawable(null);
+                    }
+                    text.setText(appInfo.name);
+
+                    return view;
+                }
+
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                    return getView(position, convertView, parent);
+                }
+            };
+            spinnerChrome.setAdapter(adapterChrome);
+            spinnerChrome.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    PrefUtils.setChromeApp(MainActivity.this, packages.get(position).packageName);
+
+                    MainAccessibilityService mainAccessibilityService = MainAccessibilityService.get();
+                    if (mainAccessibilityService != null) {
+                        mainAccessibilityService.getCustomTabActivityHelper().bindCustomTabsService(mainAccessibilityService);
+                    }
+
+                    spinnerChrome.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinnerChrome.getSelectedItemPosition() * -48));
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+            String chromeApp = PrefUtils.getChromeApp(this);
+            boolean found = false;
+            int defaultIndex = 0;
+            String defaultPackage = CustomTabsHelper.getDefaultPackageFromAppInfos(packages);
+            for (int i = 0, customTabPackagesSize = packages.size(); i < customTabPackagesSize; i++) {
+                String info = packages.get(i).packageName;
+                if (info.equals(chromeApp)) {
+                    spinnerChrome.setSelection(i);
+                    found = true;
+                    break;
+                }
+                if (info.equals(defaultPackage)) {
+                    defaultIndex = i;
+                }
+            }
+
+            //No set app yet or set app isn't installed anymore
+            if (!found) {
+                spinnerChrome.setSelection(defaultIndex);
+            }
+
+            spinnerChrome.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinnerChrome.getSelectedItemPosition() * -48));
+        } else {
+            spinnerChrome.setVisibility(View.GONE);
+            installChrome.setVisibility(View.VISIBLE);
+        }
 
         //DEFAULT TOOLBAR COLOR
         final ViewGroup defaultToolbarLinear = (ViewGroup) findViewById(R.id.linear_default_toolbar_color);
@@ -260,8 +411,42 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
     private void animationStyle() {
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_animation);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_dropdown,
-                new String[]{getString(R.string.slide_bottom), getString(R.string.slide_right), getString(R.string.none)});
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_dropdown,
+                new String[]{getString(R.string.slide_bottom), getString(R.string.slide_right), getString(R.string.none)}) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view;
+
+                if (convertView == null) {
+                    view = getLayoutInflater().inflate(R.layout.spinner_dropdown_icon, parent, false);
+                } else {
+                    view = convertView;
+                }
+
+                TextView text = (TextView) view.findViewById(android.R.id.text1);
+                ImageView imageView = (ImageView) view.findViewById(R.id.image_app);
+
+                text.setText(getItem(position));
+                switch (position) {
+                    case 0:
+                        imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
+                        break;
+                    case 1:
+                        imageView.setImageResource(R.drawable.ic_chevron_left_black_24dp);
+                        break;
+                    case 2:
+                        imageView.setImageResource(R.drawable.ic_android_black_24dp);
+                        break;
+                }
+
+                return view;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                return getView(position, convertView, parent);
+            }
+        };
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -363,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         final Intent viewUrlIntent = getViewUrlIntent(input);
 
         if (item.getItemId() == R.id.menu_try_anticipate) {
-            viewUrlIntent.setClass(MainActivity.this, BrowserLauncherDummyActivity.class);
+            viewUrlIntent.setClass(MainActivity.this, BrowserLauncherActivity.class);
             startActivity(viewUrlIntent);
         } else if (item.getItemId() == R.id.menu_try_browser) {
             showBottomSheetFromUrlIntent(viewUrlIntent);

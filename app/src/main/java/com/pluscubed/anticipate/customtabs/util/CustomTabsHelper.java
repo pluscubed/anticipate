@@ -21,6 +21,8 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 
+import com.pluscubed.anticipate.filter.AppInfo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +41,6 @@ public class CustomTabsHelper {
     private static final String ACTION_CUSTOM_TABS_CONNECTION =
             "android.support.customtabs.action.CustomTabsService";
 
-    private static String sPackageNameToUse;
-
     private CustomTabsHelper() {
     }
 
@@ -50,19 +50,7 @@ public class CustomTabsHelper {
         intent.putExtra(EXTRA_CUSTOM_TABS_KEEP_ALIVE, keepAliveIntent);
     }
 
-    /**
-     * Goes through all apps that handle VIEW intents and have a warmup service. Picks
-     * the one chosen by the user if there is one, otherwise makes a best effort to return a
-     * valid package name.
-     * <p/>
-     * This is <strong>not</strong> threadsafe.
-     *
-     * @param context {@link Context} to use for accessing {@link PackageManager}.
-     * @return The package name recommended to use for connecting to custom tabs related components.
-     */
-    public static String getPackageNameToUse(Context context) {
-        if (sPackageNameToUse != null) return sPackageNameToUse;
-
+    public static List<String> getCustomTabsSupportedPackages(Context context) {
         PackageManager pm = context.getPackageManager();
         // Get default VIEW intent handler.
         Intent activityIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"));
@@ -84,23 +72,33 @@ public class CustomTabsHelper {
             }
         }
 
-        // Now packagesSupportingCustomTabs contains all apps that can handle both VIEW intents
-        // and service calls.
-        if (packagesSupportingCustomTabs.isEmpty()) {
-            sPackageNameToUse = null;
-        } else if (packagesSupportingCustomTabs.size() == 1) {
-            sPackageNameToUse = packagesSupportingCustomTabs.get(0);
-        } else if (packagesSupportingCustomTabs.contains(STABLE_PACKAGE)) {
-            sPackageNameToUse = STABLE_PACKAGE;
-        } else if (packagesSupportingCustomTabs.contains(BETA_PACKAGE)) {
-            sPackageNameToUse = BETA_PACKAGE;
-        } else if (packagesSupportingCustomTabs.contains(DEV_PACKAGE)) {
-            sPackageNameToUse = DEV_PACKAGE;
-        } else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE)) {
-            sPackageNameToUse = LOCAL_PACKAGE;
-        }
-        return sPackageNameToUse;
+        return packagesSupportingCustomTabs;
     }
+
+    public static String getDefaultPackageFromAppInfos(List<AppInfo> list) {
+        List<String> packageNames = new ArrayList<>();
+        for (AppInfo info : list) {
+            packageNames.add(info.packageName);
+        }
+        return getDefaultPackage(packageNames);
+    }
+
+    public static String getDefaultPackage(List<String> packageNames) {
+        if (packageNames.contains(STABLE_PACKAGE)) {
+            return STABLE_PACKAGE;
+        } else if (packageNames.contains(BETA_PACKAGE)) {
+            return BETA_PACKAGE;
+        } else if (packageNames.contains(DEV_PACKAGE)) {
+            return DEV_PACKAGE;
+        } else if (packageNames.contains(LOCAL_PACKAGE)) {
+            return LOCAL_PACKAGE;
+        } else if (packageNames.size() > 0) {
+            return packageNames.get(0);
+        } else {
+            return "";
+        }
+    }
+
 
     /**
      * @return All possible chrome package names that provide custom tabs feature.

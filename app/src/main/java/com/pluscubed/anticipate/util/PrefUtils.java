@@ -16,6 +16,8 @@ public abstract class PrefUtils {
     public static final String PREF_DEFAULT_COLOR = "pref_default_toolbar_color";
     public static final String PREF_ANIMATION_STYLE = "pref_animation_style";
     public static final String PREF_VERSION_CODE = "pref_version";
+    public static final String PREF_CHROME_APP = "pref_chrome_app";
+
 
     public static final String PREF_ACCESSIBILITY_OFF_WARNED = "pref_warned";
 
@@ -84,5 +86,13 @@ public abstract class PrefUtils {
 
     public static boolean isAccessibilityOffWarned(Context context) {
         return getSharedPreferences(context).getBoolean(PREF_ACCESSIBILITY_OFF_WARNED, false);
+    }
+
+    public static void setChromeApp(Context context, String packageName) {
+        edit(context).putString(PREF_CHROME_APP, packageName).apply();
+    }
+
+    public static String getChromeApp(Context context) {
+        return getSharedPreferences(context).getString(PREF_CHROME_APP, "");
     }
 }

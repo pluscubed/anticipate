@@ -29,4 +29,6 @@
     <item name="checkbox_chrome_custom_tabs" type="id" />
     <item name="linear_dynamic_toolbar_color" type="id" />
     <item name="linear_default_toolbar_color" type="id" />
+    <item name="spinner_browser" type="id" />
+    <item name="button_install_chrome" type="id" />
 </resources>

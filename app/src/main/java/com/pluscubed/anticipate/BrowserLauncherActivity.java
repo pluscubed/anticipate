@@ -13,13 +13,12 @@ import android.widget.Toast;
 
 import com.afollestad.inquiry.Inquiry;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
-import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteToolbarDbUtil;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.Utils;
 
-public class BrowserLauncherDummyActivity extends Activity {
+public class BrowserLauncherActivity extends Activity {
 
     public static final int SHARE_ACTION_ID = 0;
     private static final String TAG = "CustomTabDummyActivity";
@@ -65,7 +64,7 @@ public class BrowserLauncherDummyActivity extends Activity {
                 if (color != WebsiteToolbarDbUtil.NO_COLOR && color != WebsiteToolbarDbUtil.NOT_FOUND) {
                     builder.setToolbarColor(color);
                 } else {
-                    Intent serviceIntent = new Intent(BrowserLauncherDummyActivity.this, WebsiteService.class);
+                    Intent serviceIntent = new Intent(BrowserLauncherActivity.this, WebsiteService.class);
                     serviceIntent.putExtra(WebsiteService.EXTRA_HOST, host);
                     startService(serviceIntent);
 
@@ -99,17 +98,17 @@ public class BrowserLauncherDummyActivity extends Activity {
             builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
-            CustomTabsHelper.addKeepAliveExtra(BrowserLauncherDummyActivity.this, customTabsIntent.intent);
+            //CustomTabsHelper.addKeepAliveExtra(BrowserLauncherDummyActivity.this, customTabsIntent.intent);
             CustomTabConnectionHelper.openCustomTab(
-                    BrowserLauncherDummyActivity.this, customTabsIntent, uri,
+                    BrowserLauncherActivity.this, customTabsIntent, uri,
                     new CustomTabConnectionHelper.CustomTabFallback() {
                         @Override
                         public void openUri(Context activity, Uri uri) {
-                            Toast.makeText(BrowserLauncherDummyActivity.this,
+                            Toast.makeText(BrowserLauncherActivity.this,
                                     getString(R.string.unable_to_launch),
                                     Toast.LENGTH_LONG).show();
 
-                            Intent intent = new Intent(BrowserLauncherDummyActivity.this, MainActivity.class);
+                            Intent intent = new Intent(BrowserLauncherActivity.this, MainActivity.class);
                             intent.setData(uri);
                             startActivity(intent);
                         }

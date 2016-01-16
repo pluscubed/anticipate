@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp"
+    android:orientation="horizontal">
+
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:id="@id/image_app"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical" />
+
+    <TextView
+        android:id="@android:id/text1"
+        style="?attr/spinnerDropDownItemStyle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ellipsize="marquee"
+        android:singleLine="true" />
+
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

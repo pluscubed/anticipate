@@ -24,12 +24,15 @@ import android.support.customtabs.CustomTabsIntent;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.customtabs.CustomTabsSession;
 
+import com.pluscubed.anticipate.util.PrefUtils;
+
 import java.util.List;
 
 /**
  * This is a helper class to manage the connection to the Custom Tabs Service.
  */
 public class CustomTabConnectionHelper {
+    private static String sPackageName;
     CustomTabsSession mCustomTabsSession;
     CustomTabsClient mClient;
     ConnectionCallback mConnectionCallback;
@@ -48,17 +51,25 @@ public class CustomTabConnectionHelper {
                                      CustomTabsIntent customTabsIntent,
                                      Uri uri,
                                      CustomTabFallback fallback) {
-        String packageName = CustomTabsHelper.getPackageNameToUse(activity);
+        updatePackageName(activity);
 
         //If we cant find a package name, it means theres no browser that supports
         //Chrome Custom Tabs installed. So, we fallback to the webview
-        if (packageName == null) {
+        if (sPackageName.isEmpty()) {
             if (fallback != null) {
                 fallback.openUri(activity, uri);
             }
         } else {
-            customTabsIntent.intent.setPackage(packageName);
+            customTabsIntent.intent.setPackage(sPackageName);
             customTabsIntent.launchUrl(activity, uri);
+        }
+    }
+
+    private static void updatePackageName(Context activity) {
+        sPackageName = PrefUtils.getChromeApp(activity);
+        if (sPackageName.isEmpty()) {
+            sPackageName = CustomTabsHelper.getDefaultPackage(
+                    CustomTabsHelper.getCustomTabsSupportedPackages(activity));
         }
     }
 
@@ -108,8 +119,8 @@ public class CustomTabConnectionHelper {
     public boolean bindCustomTabsService(Context activity) {
         if (mClient != null) return false;
 
-        String packageName = CustomTabsHelper.getPackageNameToUse(activity);
-        if (packageName == null) return false;
+        updatePackageName(activity);
+        if (sPackageName.isEmpty()) return false;
 
         mConnection = new ServiceConnection(new ServiceConnectionCallback() {
             @Override
@@ -129,7 +140,7 @@ public class CustomTabConnectionHelper {
 
             }
         });
-        return CustomTabsClient.bindCustomTabsService(activity, packageName, mConnection);
+        return CustomTabsClient.bindCustomTabsService(activity, sPackageName, mConnection);
     }
 
     /**

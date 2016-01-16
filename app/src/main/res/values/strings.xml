@@ -36,14 +36,14 @@
     ]]></string>
 
     <string name="about">About</string>
-    <string name="per_app_filter_mode">Per-app filter mode:</string>
+    <string name="per_app_filter_mode">Per-app filter:</string>
     <string name="configure">Configure</string>
     <string name="blacklist">Blacklist</string>
     <string name="whitelist">Whitelist</string>
     <string name="blacklisted_apps">Blacklisted Apps</string>
     <string name="whitelisted_apps">Whitelisted Apps</string>
     <string name="open_with">Open with:</string>
-    <string name="unable_to_launch">Chrome isn\'t installed</string>
+    <string name="unable_to_launch">No Chrome Custom Tabs compatible browsers are installed</string>
     <string name="transition_fab_add">dialog_add</string>
     <string name="undo">Undo</string>
 
@@ -62,6 +62,8 @@
     <string name="animation">Animation: </string>
     <string name="slide_bottom">Slide in from bottom</string>
     <string name="slide_right">Slide in from right</string>
-    <string name="none">None</string>
+    <string name="none">None - system animation</string>
+    <string name="custom_tab_browser">Custom Tab Browser:</string>
+    <string name="install_chrome">Install Chrome</string>
 
 </resources>

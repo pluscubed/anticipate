@@ -39,6 +39,7 @@
                     android:animateLayoutChanges="true"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
+                    android:paddingBottom="8dp"
                     android:paddingTop="32dp">
 
                     <LinearLayout
@@ -173,7 +174,7 @@
                     <LinearLayout
                         android:id="@id/linear_default_toolbar_color"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="56dp"
                         android:background="?selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
@@ -246,15 +247,14 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
                         android:paddingRight="16dp"
                         android:theme="@style/Theme.Anticipate.DarkAccent"
                         android:weightSum="1"
-                        tools:ignore="UseCompoundDrawables"
-                        tools:layout_height="48dp">
+                        tools:ignore="UseCompoundDrawables">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -263,7 +263,7 @@
                             android:textSize="16sp" />
 
                         <Space
-                            android:layout_width="16dp"
+                            android:layout_width="8dp"
                             android:layout_height="match_parent" />
 
                         <Spinner
@@ -277,7 +277,45 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        android:theme="@style/Theme.Anticipate.DarkAccent"
+                        android:weightSum="1"
+                        tools:ignore="UseCompoundDrawables"
+                        tools:layout_height="48dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/custom_tab_browser"
+                            android:textSize="16sp" />
+
+                        <Space
+                            android:layout_width="8dp"
+                            android:layout_height="match_parent" />
+
+                        <Spinner
+                            android:id="@id/spinner_browser"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            tools:listitem="@layout/support_simple_spinner_dropdown_item"
+                            tools:visibility="gone" />
+
+                        <Button
+                            android:id="@id/button_install_chrome"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/install_chrome" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingLeft="16dp"
@@ -292,6 +330,10 @@
                             android:layout_height="wrap_content"
                             android:text="@string/per_app_filter_mode"
                             android:textSize="16sp" />
+
+                        <Space
+                            android:layout_width="8dp"
+                            android:layout_height="match_parent" />
 
                         <Spinner
                             android:id="@id/spinner_per_app_mode"

@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BrowserLauncherDummyActivity"
+            android:name=".BrowserLauncherActivity"
             android:theme="@style/Theme.Anticipate.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -68,7 +68,7 @@
             android:name=".toolbarcolor.WebsiteService"
             android:exported="false" />
 
-        <receiver android:name=".BrowserLauncherDummyActivity$ShareBroadcastReceiver"/>
+        <receiver android:name=".BrowserLauncherActivity$ShareBroadcastReceiver" />
 
     </application>
 
