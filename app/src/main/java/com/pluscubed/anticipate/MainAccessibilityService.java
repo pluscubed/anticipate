@@ -115,7 +115,7 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
 
-        String allText = getAllText(getRootInActiveWindow());
+        String allText = getAllText(getRootInActiveWindow(), 0);
 
         Log.v(TAG, allText);
 
@@ -194,7 +194,11 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
-    private String getAllText(AccessibilityNodeInfo source) {
+    private String getAllText(AccessibilityNodeInfo source, int depth) {
+        if (depth > 50) {
+            return "";
+        }
+
         String string = "";
 
         if (source == null) {
@@ -212,7 +216,7 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
-            string += getAllText(source.getChild(i));
+            string += getAllText(source.getChild(i), depth + 1);
         }
 
         source.recycle();
