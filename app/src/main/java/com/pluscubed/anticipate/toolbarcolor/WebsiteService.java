@@ -4,12 +4,12 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.graphics.Color;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class WebsiteService extends IntentService {
 
