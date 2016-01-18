@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 
-import com.pluscubed.anticipate.BuildConfig;
 import com.pluscubed.anticipate.R;
 
 public abstract class PrefUtils {
@@ -78,12 +77,7 @@ public abstract class PrefUtils {
 
     @ColorInt
     public static int getVersionCode(Context context) {
-        int versionCode = getSharedPreferences(context).getInt(PREF_VERSION_CODE, -1);
-        if (versionCode == -1) {
-            setVersionCode(context, BuildConfig.VERSION_CODE);
-            versionCode = BuildConfig.VERSION_CODE;
-        }
-        return versionCode;
+        return getSharedPreferences(context).getInt(PREF_VERSION_CODE, 0);
     }
 
     public static void setAccessibilityOffWarned(Context context) {

@@ -16,8 +16,11 @@
 #   public *;
 #}
 
--keepattributes SourceFile,LineNumberTable
+-keepattributes SourceFile,LineNumberTable,*Annotation*
 
+#Crashlytics
+-keep class com.crashlytics.** { *; }
+-keep class com.crashlytics.android.**
 
 #RxAndroid/RxJava
 -dontwarn sun.misc.**

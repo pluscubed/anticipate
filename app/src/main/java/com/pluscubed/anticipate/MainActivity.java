@@ -408,6 +408,10 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             });
         }
 
+        if (PrefUtils.isFirstRun(this)) {
+            PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
+        }
+
         DbUtil.initializeBlacklist(this);
         MainAccessibilityService.updateFilterList();
 
