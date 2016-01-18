@@ -1,0 +1,78 @@
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">为了检测屏幕上的链接以及准备载入，请打开Anticipate的无障碍服务</string>
+    <string name="enable_accessibility_service">启用无障碍服务</string>
+
+    <string name="desc_default">为了用Anticipate打开所有连接，可以设此应用为默认浏览器</string>
+    <string name="set_as_default_browser">设为默认浏览器</string>
+    <string name="dialog_clear_defaults">另一个浏览器已被设为默认，请先清除默认浏览器</string>
+    <string name="try_it_out">试用</string>
+    <string name="enter_a_url">输入网址</string>
+    <string name="dialog_draw_overlay">为了在安卓6.0以上显示浮动窗口，请允许Anticipate在其它应用的上层显示</string>
+    <string name="open_settings">打开设置</string>
+    <string name="open_settings_failed_clear_deafults">无法自动打开设置。请手动清除默认浏览器</string>
+    <string name="accessibility_disabled">Anticipate的无障碍服务没有开启，为了准备载入连接请启用服务</string>
+    <string name="floating_window_checkbox">浮悬窗口 - 监视已预加载的链接</string>
+    <string name="anticipate_url_monitor">Anticipate链接监视</string>
+    <string name="notification_tap_to_close">点击关闭浮悬窗口</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">OK</string>
+
+    <string name="about_body"><![CDATA[
+        <b>Anticipate</b>是一个网页浏览工具，可以准备载入屏幕上出现的链接为了打开后得到更快的加载速度
+        <br/><br/>
+        此应用使用Chrome Custom Tabs预解析DNS地址以及预加载网页。<br/><br/>
+
+        开发者：<b>Daniel Ciao</b><br/>
+
+        <a href=\'http://pluscubed.com\'>网页</a>&nbsp;&nbsp;
+        <a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
+        <a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
+        <a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
+        <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
+
+        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - 源代码, 报告bug, 建议<br/><br/>
+    ]]></string>
+
+    <string name="about">关于</string>
+    <string name="per_app_filter_mode">在应用中开启:</string>
+    <string name="configure">配置</string>
+    <string name="blacklist">黑名单</string>
+    <string name="whitelist">白名单</string>
+    <string name="blacklisted_apps">黑名单应用</string>
+    <string name="whitelisted_apps">白名单应用</string>
+    <string name="open_with">打开使用:</string>
+    <string name="unable_to_launch">没有安装支持Custom Tabs的浏览器</string>
+    <string name="undo">复原</string>
+
+    <string name="app_removed">%s已被移除</string>
+
+    <string name="no_blacklisted_apps">无黑名单应用</string>
+    <string name="no_whitelisted_apps">无白名单应用</string>
+    <string name="swipe_to_remove">拖动移除应用</string>
+    <string name="accessibility_service_not_active">Anticipate无障碍选项已开启但服务意外关闭。请手动关闭再开启无障碍服务。</string>
+    <string name="use_chrome_custom_tabs">使用Chrome Custom Tabs</string>
+    <string name="toolbar_color_desc">使用网页指定的导航栏颜色(如果网页有指定)。打开一网站第二次时起效。</string>
+    <string name="dynamic_toolbar_color">动态导航栏颜色</string>
+    <string name="default_toolbar_color">默认导航栏颜色</string>
+
+    <string name="share">分享</string>
+    <string name="animation">打开关闭动画: </string>
+    <string name="slide_bottom">从下往上滑入</string>
+    <string name="slide_right">从右往左滑入</string>
+    <string name="none">无 - 系统动画</string>
+    <string name="custom_tab_browser">Custom Tab浏览器:</string>
+    <string name="install_chrome">安装Chrome</string>
+    <string name="error">错误</string>
+    <string name="changelog">更新日志</string>
+
+    <string name="custom">自定义</string>
+    <string name="done">完成</string>
+
+    <string name="using_anticipate">Anticipate</string>
+    <string name="using_browser">其它浏览器</string>
+
+    <string name="anticipate_update">Anticipate已更新到v</string>
+    <string name="anticipate_update_desc">点击查看新功能</string>
+
+</resources>

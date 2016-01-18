@@ -1,20 +1,20 @@
 <resources>
     <string name="app_name">Anticipate</string>
-    <string name="desc">To detect links on-screen and prepare for them, Anticipate requires its accessibility service to be enabled</string>
+    <string name="desc">To detect links on-screen and prepare for them, turn on Anticipate\'s accessibility service</string>
     <string name="enable_accessibility_service">Enable Accessibility Service</string>
 
     <string name="desc_default">To open all links using Anticipate, you may set it as the default browser</string>
     <string name="set_as_default_browser">Set as default browser</string>
-    <string name="dialog_clear_defaults">Another browser is currently set as default. You must clear its defaults first.</string>
+    <string name="dialog_clear_defaults">Another browser is currently set as default. Clear its defaults first to set Anticipate as default.</string>
     <string name="try_it_out">Try it out</string>
     <string name="enter_a_url">Enter a URL</string>
-    <string name="dialog_draw_overlay">On Marshmallow and up, the Draw Over Other Apps permission must be granted to show the floating window</string>
+    <string name="dialog_draw_overlay">To show the floating window on Android 6.0+, grant the "Draw Over Other Apps" permission</string>
     <string name="open_settings">Open Settings</string>
-    <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser</string>
+    <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser.</string>
     <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled. Please enable to pre-load links.</string>
     <string name="floating_window_checkbox">Floating window to monitor warmed-up URLs</string>
     <string name="anticipate_url_monitor">Anticipate URL Monitor</string>
-    <string name="notification_tap_to_close">Tap to close floating window</string>
+    <string name="notification_tap_to_close">Touch to close floating window</string>
     <string name="about_dialog_title">Anticipate v%s</string>
     <string name="dismiss">Dismiss</string>
 
@@ -44,7 +44,7 @@
     <string name="whitelisted_apps">Whitelisted Apps</string>
     <string name="open_with">Open with:</string>
     <string name="unable_to_launch">No Chrome Custom Tabs compatible browsers are installed</string>
-    <string name="transition_fab_add">dialog_add</string>
+    <string name="transition_fab_add" translatable="false">dialog_add</string>
     <string name="undo">Undo</string>
 
     <string name="app_removed">%s removed from list</string>
@@ -52,9 +52,9 @@
     <string name="no_blacklisted_apps">No blacklisted apps</string>
     <string name="no_whitelisted_apps">No whitelisted apps</string>
     <string name="swipe_to_remove">Swipe to remove</string>
-    <string name="accessibility_service_not_active">Accessibility service not active</string>
+    <string name="accessibility_service_not_active">Anticipate\'s accessibility service has become inactive. Please manually turn the accessibility service off and on again.</string>
     <string name="use_chrome_custom_tabs">Use Chrome Custom Tabs</string>
-    <string name="toolbar_color_desc">Use the website-defined toolbar color (when available). This will work the second time a website is opened.</string>
+    <string name="toolbar_color_desc">Use the website-defined toolbar color (when defined). This will work the second time a website is opened.</string>
     <string name="dynamic_toolbar_color">Dynamic toolbar color</string>
     <string name="default_toolbar_color">Default toolbar color</string>
 
@@ -65,5 +65,14 @@
     <string name="none">None - system animation</string>
     <string name="custom_tab_browser">Custom Tab Browser:</string>
     <string name="install_chrome">Install Chrome</string>
+    <string name="error">Error</string>
+    <string name="changelog">Changelog</string>
+
+    <string name="custom">Custom</string>
+    <string name="done">Done</string>
+    <string name="using_anticipate">using Anticipate</string>
+    <string name="using_browser">using browser</string>
+    <string name="anticipate_update">Anticipate updated to v</string>
+    <string name="anticipate_update_desc">Touch to check out the new features</string>
 
 </resources>

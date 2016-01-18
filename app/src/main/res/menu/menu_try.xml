@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@id/menu_try_anticipate"
-        android:title="using Anticipate" />
+        android:title="@string/using_anticipate" />
     <item
         android:id="@id/menu_try_browser"
-        android:title="using browser" />
+        android:title="@string/using_browser" />
 </menu>

@@ -98,7 +98,6 @@ public class BrowserLauncherActivity extends Activity {
             builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
-            //CustomTabsHelper.addKeepAliveExtra(BrowserLauncherDummyActivity.this, customTabsIntent.intent);
             CustomTabConnectionHelper.openCustomTab(
                     BrowserLauncherActivity.this, customTabsIntent, uri,
                     new CustomTabConnectionHelper.CustomTabFallback() {

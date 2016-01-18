@@ -1,6 +1,7 @@
 package com.pluscubed.anticipate;
 
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 public class FloatingWindowService extends Service {
 
+    public static final int NOTIFICATION_FLOATING_WINDOW = 1;
     private static FloatingWindowService sSharedService;
 
     String mOldDisplayed = "";
@@ -36,6 +38,7 @@ public class FloatingWindowService extends Service {
             mTextView.setText(mDisplayed);
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -51,13 +54,9 @@ public class FloatingWindowService extends Service {
                 .setContentIntent(pendingIntent)
                 .build();
 
-        startForeground(1, notification);
+        startForeground(NOTIFICATION_FLOATING_WINDOW, notification);
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-        /*ImageView chatHead = new ImageView(this);
-        chatHead.setImageResource(R.drawable.earth);*/
-
 
         mTextView = (TextView) LayoutInflater.from(this).inflate(R.layout.floating_monitor, null, false);
 
@@ -73,9 +72,6 @@ public class FloatingWindowService extends Service {
         params.y = 0;
 
         mWindowManager.addView(mTextView, params);
-
-
-        //mTextView.setTextColor(Color.BLACK);
 
 
         sSharedService = this;

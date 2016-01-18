@@ -1,6 +1,7 @@
 package com.pluscubed.anticipate;
 
 import android.annotation.TargetApi;
+import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.pluscubed.anticipate.changelog.ChangelogDialog;
 import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
@@ -220,7 +222,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
 
-        animationStyle();
+        //ANIMATION
+        setupAnimationStyle();
 
         //CHROME APP
 
@@ -347,6 +350,9 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             public void onClick(View v) {
                 new ColorChooserDialog.Builder(MainActivity.this, R.string.default_toolbar_color)
                         .preselect(PrefUtils.getDefaultToolbarColor(MainActivity.this))
+                        .customButton(R.string.custom)
+                        .doneButton(R.string.done)
+                        .cancelButton(android.R.string.cancel)
                         .show();
             }
         });
@@ -407,9 +413,16 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         invalidateStates();
 
+
+        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this)) {
+            showChangelog();
+
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.cancel(MainAccessibilityService.NOTIFICATION_CHANGELOG);
+        }
     }
 
-    private void animationStyle() {
+    private void setupAnimationStyle() {
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_animation);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_dropdown,
                 new String[]{getString(R.string.slide_bottom), getString(R.string.slide_right), getString(R.string.none)}) {
@@ -464,13 +477,10 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         spinner.setDropDownVerticalOffset(Utils.dp2px(this, spinner.getSelectedItemPosition() * -48));
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
+    private void showChangelog() {
+        ChangelogDialog.newInstance().show(getFragmentManager(), "CHANGELOG_DIALOG");
 
-        if (intent.getData() != null) {
-            showBottomSheetFromUrlIntent(getViewUrlIntent(intent.getDataString()));
-        }
+        PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
     }
 
     boolean onFloatingWindowSwitchChange(boolean checked) {
@@ -513,6 +523,9 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         switch (item.getItemId()) {
             case R.id.menu_main_about:
                 showAboutDialog();
+                return true;
+            case R.id.menu_main_changelog:
+                showChangelog();
                 return true;
         }
 

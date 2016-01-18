@@ -1,11 +1,16 @@
 package com.pluscubed.anticipate;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -28,6 +33,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
     public static final String TAG = "Accesibility";
     public static final String LINK_REG_EX = "((?:[a-z][\\w-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
+    public static final int NOTIFICATION_CHANGELOG = 2;
 
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
@@ -77,6 +83,21 @@ public class MainAccessibilityService extends AccessibilityService {
         DbUtil.initializeBlacklist(this);
 
         updateFilterList();
+
+        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this)) {
+            Intent notificationIntent = new Intent(this, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setContentTitle(getString(R.string.anticipate_update) + BuildConfig.VERSION_NAME)
+                    .setContentText(getString(R.string.anticipate_update_desc))
+                    .setSmallIcon(R.drawable.ic_trending_up_black_24dp)
+                    .setContentIntent(pendingIntent)
+                    .build();
+
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            manager.notify(NOTIFICATION_CHANGELOG, notification);
+        }
 
     }
 

@@ -40,6 +40,12 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
+    <style name="Theme.Anticipate.Dialog.Changelog" parent="Theme.Anticipate.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
     <style name="Theme.Anticipate.NoDisplay" parent="android:Theme.Translucent.NoTitleBar">
     </style>
 

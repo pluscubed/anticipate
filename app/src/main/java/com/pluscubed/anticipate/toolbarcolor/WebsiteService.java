@@ -40,7 +40,7 @@ public class WebsiteService extends IntentService {
             String line;
             while ((line = stream.readLine()) != null) {
 
-                if (line.contains("<meta name=\"theme-color\" content=\"")) {
+                if (line.contains("<meta name=\"theme-color\" content=\"#")) {
                     String substring = line.substring(line.indexOf('#'), line.lastIndexOf('"'));
                     color = Color.parseColor(substring);
                     break;
