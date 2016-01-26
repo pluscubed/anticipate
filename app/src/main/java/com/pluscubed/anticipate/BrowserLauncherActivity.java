@@ -98,6 +98,10 @@ public class BrowserLauncherActivity extends Activity {
             builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            if (service != null) {
+                service.addQueuedWebsite(uri.toString());
+            }
             CustomTabConnectionHelper.openCustomTab(
                     BrowserLauncherActivity.this, customTabsIntent, uri,
                     new CustomTabConnectionHelper.CustomTabFallback() {

@@ -28,6 +28,10 @@ public abstract class Utils {
     public static Bitmap drawableToBitmap(Context context, int resId) {
         Drawable drawable = ContextCompat.getDrawable(context, resId);
 
+        return drawableToBitmap(drawable);
+    }
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
         Bitmap bitmap;
 
         if (drawable instanceof BitmapDrawable) {

@@ -100,6 +100,10 @@ public class CustomTabConnectionHelper {
         return mCustomTabsSession;
     }
 
+    public void newSession() {
+        mCustomTabsSession = mClient.newSession(mCustomTabsCallback);
+    }
+
     /**
      * Register a Callback to be called when connected or disconnected from the Custom Tabs Service.
      */

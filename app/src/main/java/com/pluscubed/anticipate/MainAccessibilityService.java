@@ -4,23 +4,34 @@ import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
+import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +49,12 @@ public class MainAccessibilityService extends AccessibilityService {
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
     boolean mBlacklistMode;
+    boolean mSwitchTask;
+    long mSwitchedTimestamp;
+    LimitedQueue<AppUsageEntry> mAppsUsed;
+    List<String> mQueuedWebsites;
     private CustomTabConnectionHelper mCustomTabActivityHelper;
+    private WindowManager mWindowManager;
 
     public static MainAccessibilityService get() {
         return sSharedService;
@@ -59,10 +75,18 @@ public class MainAccessibilityService extends AccessibilityService {
         return mCustomTabActivityHelper;
     }
 
+    public void addQueuedWebsite(String url) {
+        mQueuedWebsites.add(url);
+    }
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         sSharedService = this;
+
+        mAppsUsed = new LimitedQueue<>(10);
+
+        mQueuedWebsites = new ArrayList<>();
 
         mCustomTabActivityHelper = new CustomTabConnectionHelper();
         mCustomTabActivityHelper.setConnectionCallback(new CustomTabConnectionHelper.ConnectionCallback() {
@@ -76,7 +100,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
             }
         });
-        mCustomTabActivityHelper.setCustomTabsCallback(new CustomTabsCallback());
+        mCustomTabActivityHelper.setCustomTabsCallback(new TabsNavigationCallback());
         boolean success = mCustomTabActivityHelper.bindCustomTabsService(this);
         log("onServiceConnected: " + success);
 
@@ -99,6 +123,27 @@ public class MainAccessibilityService extends AccessibilityService {
             manager.notify(NOTIFICATION_CHANGELOG, notification);
         }
 
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        ImageView imageView = new ImageView(this);
+        imageView.setImageResource(R.mipmap.ic_launcher);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainAccessibilityService.this, BrowserLauncherActivity.class);
+                int last = mQueuedWebsites.size() - 1;
+                intent.setData(Uri.parse(mQueuedWebsites.get(last)));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mQueuedWebsites.remove(last);
+                startActivity(intent);
+            }
+        });
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                0,
+                PixelFormat.TRANSLUCENT);
+        //mWindowManager.addView(imageView, params);
+
     }
 
     @Override
@@ -120,11 +165,54 @@ public class MainAccessibilityService extends AccessibilityService {
             return;
         }
 
+        /*if(mSwitchTask && Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN_MR2){
+            List<AccessibilityNodeInfo> accessibilityNodeInfosByViewId = getRootInActiveWindow().findAccessibilityNodeInfosByViewId("com.android.systemui:id/activity_description");
+
+            AccessibilityNodeInfo secondToLast;
+            if(accessibilityNodeInfosByViewId.size()>0
+                    && (secondToLast=accessibilityNodeInfosByViewId.get(accessibilityNodeInfosByViewId.size()-2))!=null){
+                final String text = secondToLast.getText().toString();
+                while(!secondToLast.isClickable()){
+                    secondToLast = secondToLast.getParent();
+                }
+                final boolean performed = secondToLast.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if(performed){
+                    mSwitchTask = false;
+                    mSwitchedTimestamp = System.currentTimeMillis();
+                }
+                Handler h = new Handler(getMainLooper());
+                h.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainAccessibilityService.this, text + ": "+performed,Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }else{
+
+            }
+        }*/
+
 
         CharSequence packageName = event.getPackageName();
 
         if (packageName != null) {
             String appId = packageName.toString();
+
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+                String activityName = event.getClassName().toString();
+
+                boolean redundant = false;
+                if (mAppsUsed.size() > 0) {
+                    String lastPackageName = mAppsUsed.peekLast().packageName;
+                    redundant = appId.equals(lastPackageName);
+                }
+                if (!redundant) {
+                    AppUsageEntry entry = new AppUsageEntry();
+                    entry.activityName = activityName;
+                    entry.packageName = appId;
+                    mAppsUsed.add(entry);
+                }
+            }
 
             log("=appId: " + appId);
 
@@ -250,4 +338,98 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
+    @Nullable
+    private AppUsageEntry startLastOpenApp() {
+        List<AppUsageEntry> viable = new ArrayList<>();
+        String firstViablePackageName = null;
+        for (Iterator<AppUsageEntry> iterator = mAppsUsed.descendingIterator(); iterator.hasNext(); ) {
+            AppUsageEntry entry = iterator.next();
+
+            if (!entry.packageName.equals(PrefUtils.getChromeApp(MainAccessibilityService.this)) &&
+                    !entry.packageName.equals("com.android.systemui") &&
+                    !entry.packageName.equals("android")) {
+                if (viable.size() == 0) {
+                    firstViablePackageName = entry.packageName;
+                }
+                if (firstViablePackageName != null && firstViablePackageName.equals(entry.packageName)) {
+                    viable.add(entry);
+                }
+            }
+        }
+
+        AppUsageEntry startedEntry = null;
+        for (AppUsageEntry entry : viable) {
+            Intent intent = new Intent();
+            intent.setComponent(new ComponentName(entry.packageName, entry.activityName));
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            try {
+                startActivity(intent/*, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()*/);
+                startedEntry = entry;
+                break;
+            } catch (ActivityNotFoundException e) {
+                //ignore
+            }
+        }
+        return startedEntry;
+    }
+
+    private class AppUsageEntry {
+        String packageName;
+        String activityName;
+
+        AppUsageEntry() {
+        }
+    }
+
+    private class TabsNavigationCallback extends CustomTabsCallback {
+        TabsNavigationCallback() {
+        }
+
+        @Override
+        public void onNavigationEvent(int navigationEvent, Bundle extras) {
+            super.onNavigationEvent(navigationEvent, extras);
+
+            if (navigationEvent == CustomTabsCallback.TAB_SHOWN) {
+                Handler h = new Handler(getMainLooper());
+                h.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast.makeText(MainAccessibilityService.this, "Tab shown", Toast.LENGTH_SHORT).show();
+
+                        AppUsageEntry startedEntry = startLastOpenApp();
+
+                        if (startedEntry != null) {
+                            Toast.makeText(MainAccessibilityService.this, "Started: " + startedEntry.packageName + "/" + startedEntry.activityName, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainAccessibilityService.this, "No viable entry started", Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        /*performGlobalAction(GLOBAL_ACTION_RECENTS);
+                        mSwitchTask = true;*/
+                    }
+                });
+            } else if (navigationEvent == CustomTabsCallback.TAB_HIDDEN) {
+                Handler h = new Handler(getMainLooper());
+                h.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        Toast.makeText(MainAccessibilityService.this, "Tab hidden", Toast.LENGTH_SHORT).show();
+
+                        startLastOpenApp();
+
+                        /*if(mSwitchedTimestamp>System.currentTimeMillis()+3000) {
+                            performGlobalAction(GLOBAL_ACTION_RECENTS);
+                            //Switch back to app when user exits
+                            mSwitchTask=true;
+                        }*/
+
+                    }
+                });
+            }
+        }
+    }
 }
