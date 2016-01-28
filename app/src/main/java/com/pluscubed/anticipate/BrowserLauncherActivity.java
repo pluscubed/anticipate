@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
@@ -15,12 +16,14 @@ import com.afollestad.inquiry.Inquiry;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteToolbarDbUtil;
+import com.pluscubed.anticipate.util.AnimationStyle;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.Utils;
 
 public class BrowserLauncherActivity extends Activity {
 
-    public static final int SHARE_ACTION_ID = 0;
+    public static final int BROWSER_SHORTCUT = 4;
+    public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
     private static final String TAG = "CustomTabDummyActivity";
 
     @Override
@@ -51,13 +54,7 @@ public class BrowserLauncherActivity extends Activity {
             }
 
             String host = uri.toString();
-            if (host.startsWith("http://") || host.startsWith("https://")) {
-                host = host.substring(host.indexOf("/") + 2);
-            }
-
-            int endOfTld = host.indexOf("/");
-            if (endOfTld != -1)
-                host = host.substring(0, endOfTld);
+            host = Utils.getHost(host);
 
             if (PrefUtils.isDynamicToolbar(this)) {
                 int color = WebsiteToolbarDbUtil.getColor(host);
@@ -81,25 +78,40 @@ public class BrowserLauncherActivity extends Activity {
                     .setShowTitle(true)
                     .setActionButton(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_share_black_24dp),
                             getString(R.string.share),
-                            shareBroadcast);
-                    /*.addActionButton(SHARE_ACTION_ID,
-                            mShareButtonBitmap,
+                            shareBroadcast)
+                    /*.addActionBarItem(BROWSER_SHORTCUT,
+                            Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
                             getString(R.string.share),
-                            shareBroadcast)*/
-            ;
+                            shareBroadcast)*/;
 
-            if (PrefUtils.getAnimationStyle(this) == 0) {
-                builder.setStartAnimations(this, R.anim.slide_in_bottom, R.anim.fade_out);
-                builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_bottom);
-            } else if (PrefUtils.getAnimationStyle(this) == 1) {
-                builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.fade_out);
-                builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_right);
+            int animationStyleId = PrefUtils.getAnimationStyle(this);
+            AnimationStyle animationStyle = AnimationStyle.valueWithId(animationStyleId);
+            if (animationStyle != null) {
+                switch (animationStyle) {
+                    case BOTTOM:
+                        builder.setStartAnimations(this, R.anim.slide_in_bottom, R.anim.fade_out);
+                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_bottom);
+                        break;
+                    case RIGHT:
+                        builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.fade_out);
+                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_right);
+                        break;
+                    case LOLLIPOP:
+                        builder.setStartAnimations(this, R.anim.activity_slide_in, R.anim.fade_out);
+                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.activity_slide_out);
+                        break;
+                }
             }
             builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            if (service != null) {
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            } else {
+                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            if (service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true)) {
                 service.addQueuedWebsite(uri.toString());
             }
             CustomTabConnectionHelper.openCustomTab(

@@ -60,6 +60,7 @@
 
     <string name="share">Share</string>
     <string name="animation">Animation: </string>
+    <string name="slide_bottom_android">Lollipop+ slide in</string>
     <string name="slide_bottom">Slide in from bottom</string>
     <string name="slide_right">Slide in from right</string>
     <string name="none">None - system animation</string>

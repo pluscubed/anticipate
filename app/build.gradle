@@ -41,7 +41,7 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.release
@@ -81,7 +81,7 @@ dependencies {
     compile 'com.github.afollestad:inquiry:2.0.1'
     compile 'com.flipboard:bottomsheet-core:1.5.0'
     compile 'com.flipboard:bottomsheet-commons:1.5.0'
-    compile 'com.github.bumptech.glide:glide:3.6.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.squareup.okhttp3:okhttp:3.0.1'
     compile 'com.evernote:android-job:1.0.2'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {

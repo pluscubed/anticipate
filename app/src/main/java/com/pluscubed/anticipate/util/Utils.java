@@ -49,6 +49,17 @@ public abstract class Utils {
         return bitmap;
     }
 
+    public static String getHost(String host) {
+        if (host.startsWith("http://") || host.startsWith("https://")) {
+            host = host.substring(host.indexOf("/") + 2);
+        }
+
+        int endOfTld = host.indexOf("/");
+        if (endOfTld != -1)
+            host = host.substring(0, endOfTld);
+        return host;
+    }
+
     /**
      * A helper class for providing a shadow on sheets
      */

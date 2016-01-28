@@ -52,6 +52,7 @@ import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.filter.FilterListActivity;
+import com.pluscubed.anticipate.util.AnimationStyle;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.Utils;
 import com.pluscubed.anticipate.widget.DispatchBackEditText;
@@ -428,8 +429,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
     private void setupAnimationStyle() {
         final Spinner spinner = (Spinner) findViewById(R.id.spinner_animation);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_dropdown,
-                new String[]{getString(R.string.slide_bottom), getString(R.string.slide_right), getString(R.string.none)}) {
+        ArrayAdapter<AnimationStyle> adapter = new ArrayAdapter<AnimationStyle>(this,
+                R.layout.spinner_dropdown, AnimationStyle.values()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view;
@@ -443,18 +444,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                 TextView text = (TextView) view.findViewById(android.R.id.text1);
                 ImageView imageView = (ImageView) view.findViewById(R.id.image_app);
 
-                text.setText(getItem(position));
-                switch (position) {
-                    case 0:
-                        imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
-                        break;
-                    case 1:
-                        imageView.setImageResource(R.drawable.ic_chevron_left_black_24dp);
-                        break;
-                    case 2:
-                        imageView.setImageResource(R.drawable.ic_android_black_24dp);
-                        break;
-                }
+                text.setText(getItem(position).name);
+                imageView.setImageResource(getItem(position).icon);
 
                 return view;
             }
@@ -463,12 +454,17 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             public View getDropDownView(int position, View convertView, ViewGroup parent) {
                 return getView(position, convertView, parent);
             }
+
+            @Override
+            public long getItemId(int position) {
+                return getItem(position).id;
+            }
         };
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                PrefUtils.setAnimationStyle(MainActivity.this, position);
+                PrefUtils.setAnimationStyle(MainActivity.this, AnimationStyle.valueWithId((int) id));
                 spinner.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinner.getSelectedItemPosition() * -48));
             }
 
@@ -477,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                 //Ignore
             }
         });
-        spinner.setSelection(PrefUtils.getAnimationStyle(MainActivity.this));
+        spinner.setSelection(AnimationStyle.valueWithId(PrefUtils.getAnimationStyle(MainActivity.this)).ordinal());
         spinner.setDropDownVerticalOffset(Utils.dp2px(this, spinner.getSelectedItemPosition() * -48));
     }
 

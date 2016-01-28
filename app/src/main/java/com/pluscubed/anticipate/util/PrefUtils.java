@@ -63,12 +63,12 @@ public abstract class PrefUtils {
         return getSharedPreferences(context).getInt(PREF_DEFAULT_COLOR, ContextCompat.getColor(context, R.color.colorPrimary));
     }
 
-    public static void setAnimationStyle(final Context context, final int animationStyle) {
-        edit(context).putInt(PREF_ANIMATION_STYLE, animationStyle).apply();
+    public static void setAnimationStyle(final Context context, AnimationStyle style) {
+        edit(context).putInt(PREF_ANIMATION_STYLE, style.id).apply();
     }
 
     public static int getAnimationStyle(final Context context) {
-        return getSharedPreferences(context).getInt(PREF_ANIMATION_STYLE, 2);
+        return getSharedPreferences(context).getInt(PREF_ANIMATION_STYLE, AnimationStyle.NONE.id);
     }
 
     public static void setVersionCode(Context context, int versionCode) {
