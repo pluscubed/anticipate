@@ -24,7 +24,8 @@
         </activity>
         <activity
             android:name=".BrowserLauncherActivity"
-            android:launchMode="singleInstance"
+            android:documentLaunchMode="intoExisting"
+            android:excludeFromRecents="true"
             android:theme="@style/Theme.Anticipate.NoDisplay">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

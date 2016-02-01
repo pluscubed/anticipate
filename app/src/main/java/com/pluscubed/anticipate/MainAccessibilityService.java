@@ -1,41 +1,40 @@
 package com.pluscubed.anticipate;
 
 import android.accessibilityservice.AccessibilityService;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
-import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
-import com.pluscubed.anticipate.util.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -54,11 +53,15 @@ public class MainAccessibilityService extends AccessibilityService {
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
     boolean mBlacklistMode;
-    boolean mSwitchTask;
+    /*boolean mSwitchTask;
     long mSwitchedTimestamp;
-    LimitedQueue<AppUsageEntry> mAppsUsed;
+    LimitedQueue<AppUsageEntry> mAppsUsed;*/
+
     Map<String, ImageView> mQueuedWebsites;
+
+
     WindowManager mWindowManager;
+    Handler mMainHandler;
     private CustomTabConnectionHelper mCustomTabActivityHelper;
 
     public static MainAccessibilityService get() {
@@ -83,7 +86,8 @@ public class MainAccessibilityService extends AccessibilityService {
     public void addQueuedWebsite(String url) {
         if (!mQueuedWebsites.containsKey(url)) {
             addBubble(url);
-            Handler handler = new Handler();
+
+            /*Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -97,8 +101,17 @@ public class MainAccessibilityService extends AccessibilityService {
                         performGlobalAction(GLOBAL_ACTION_RECENTS);
                         mSwitchTask = true;
                     }
+
+                    ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+                    for (int i = 0; i < recentTasks.size(); i++) {
+                        if (recentTasks.get(i).baseActivity.toShortString().contains(BuildConfig.APPLICATION_ID)) {
+                            activityManager.moveTaskToFront(recentTasks.get(i).id, 1);
+                        }
+                    }
+
                 }
-            }, 500);
+            }, 500);*/
         } else {
             mWindowManager.removeView(mQueuedWebsites.get(url));
             mQueuedWebsites.remove(url);
@@ -110,22 +123,12 @@ public class MainAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
         sSharedService = this;
 
-        mAppsUsed = new LimitedQueue<>(10);
+        mMainHandler = new Handler(getMainLooper());
 
+        /*mAppsUsed = new LimitedQueue<>(10);*/
         mQueuedWebsites = new HashMap<>();
 
         mCustomTabActivityHelper = new CustomTabConnectionHelper();
-        mCustomTabActivityHelper.setConnectionCallback(new CustomTabConnectionHelper.ConnectionCallback() {
-            @Override
-            public void onCustomTabsConnected() {
-
-            }
-
-            @Override
-            public void onCustomTabsDisconnected() {
-
-            }
-        });
         mCustomTabActivityHelper.setCustomTabsCallback(new TabsNavigationCallback());
         boolean success = mCustomTabActivityHelper.bindCustomTabsService(this);
         log("onServiceConnected: " + success);
@@ -167,6 +170,8 @@ public class MainAccessibilityService extends AccessibilityService {
 
             long startClickTime;
 
+            boolean isClick;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) v.getLayoutParams();
@@ -180,15 +185,26 @@ public class MainAccessibilityService extends AccessibilityService {
                         initialY = params.y;
 
                         startClickTime = System.currentTimeMillis();
+
+                        isClick = true;
                         return true;
                     case MotionEvent.ACTION_MOVE:
-                        params.x = (int) ((event.getRawX() - initialTouchX) + initialX);
-                        params.y = (int) ((event.getRawY() - initialTouchY) + initialY);
+                        float dX = event.getRawX() - initialTouchX;
+                        float dY = event.getRawY() - initialTouchY;
+                        if ((isClick && (Math.abs(dX) > 10 || Math.abs(dY) > 10))
+                                || System.currentTimeMillis() - startClickTime > ViewConfiguration.getLongPressTimeout()) {
+                            isClick = false;
+                        }
 
-                        mWindowManager.updateViewLayout(v, params);
+                        if (!isClick) {
+                            params.x = (int) (dX + initialX);
+                            params.y = (int) (dY + initialY);
+
+                            mWindowManager.updateViewLayout(v, params);
+                        }
                         return true;
                     case MotionEvent.ACTION_UP:
-                        if (System.currentTimeMillis() - startClickTime < 200) {
+                        if (isClick && System.currentTimeMillis() - startClickTime <= ViewConfiguration.getLongPressTimeout()) {
                             Intent intent = new Intent(MainAccessibilityService.this, BrowserLauncherActivity.class);
                             intent.setData(Uri.parse(url));
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -196,26 +212,101 @@ public class MainAccessibilityService extends AccessibilityService {
                             mQueuedWebsites.remove(url);
                             mWindowManager.removeView(imageView);
                             startActivity(intent);
+                        } else {
+                            animateViewToSideSlot((ImageView) v);
                         }
                         return true;
                 }
                 return false;
             }
         });
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(getResources().getDimensionPixelSize(R.dimen.floating_size),
-                getResources().getDimensionPixelSize(R.dimen.floating_size),
+        final int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.floating_size);
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                bubbleWidth,
+                bubbleWidth,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
 
         Glide.with(this)
-                .load(Uri.parse("http://" + Utils.getHost(url) + "/favicon.ico"))
-                .error(R.drawable.earth)
+                .load(Uri.parse("http://www.google.com/s2/favicons?domain_url=" + url))
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
                 .into(imageView);
+
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+
+        final Point size = new Point();
+        mWindowManager.getDefaultDisplay().getSize(size);
+        params.x = size.x;
+        params.y = size.y / 3;
 
         mWindowManager.addView(imageView, params);
 
         mQueuedWebsites.put(url, imageView);
+
+
+        int endX = size.x - bubbleWidth * 4 / 5;
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(params.x, endX)
+                .setDuration(300);
+        valueAnimator.setInterpolator(new OvershootInterpolator());
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) imageView.getLayoutParams();
+                params.x = (int) animation.getAnimatedValue();
+
+                mWindowManager.updateViewLayout(imageView, params);
+            }
+        });
+        valueAnimator.start();
+
+    }
+
+    void animateViewToSideSlot(final ImageView view) {
+        int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.floating_size);
+
+        Point size = new Point();
+        mWindowManager.getDefaultDisplay().getSize(size);
+
+        WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+        int endX;
+        if (params.x + bubbleWidth / 2 >= size.x / 2) {
+            endX = size.x - bubbleWidth * 4 / 5;
+        } else {
+            endX = -bubbleWidth / 5;
+        }
+
+        int endY;
+        endY = params.y;
+
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(params.x, endX)
+                .setDuration(300);
+        valueAnimator.setInterpolator(new OvershootInterpolator());
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+                params.x = (int) animation.getAnimatedValue();
+            }
+        });
+
+        ValueAnimator valueAnimator2 = ValueAnimator.ofInt(params.y, endY)
+                .setDuration(300);
+        valueAnimator2.setInterpolator(new OvershootInterpolator());
+        valueAnimator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+                params.y = (int) animation.getAnimatedValue();
+
+                mWindowManager.updateViewLayout(view, params);
+            }
+        });
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(valueAnimator, valueAnimator2);
+        set.start();
     }
 
     @Override
@@ -237,7 +328,7 @@ public class MainAccessibilityService extends AccessibilityService {
             return;
         }
 
-        if (mSwitchTask && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && getRootInActiveWindow() != null) {
+        /*if (mSwitchTask && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && getRootInActiveWindow() != null) {
             List<AccessibilityNodeInfo> accessibilityNodeInfosByViewId =
                     getRootInActiveWindow().findAccessibilityNodeInfosByViewId("com.android.systemui:id/activity_description");
 
@@ -253,17 +344,14 @@ public class MainAccessibilityService extends AccessibilityService {
                     mSwitchTask = false;
                     mSwitchedTimestamp = System.currentTimeMillis();
                 }
-                Handler h = new Handler(getMainLooper());
-                h.post(new Runnable() {
+                mMainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainAccessibilityService.this, text + ": "+performed,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainAccessibilityService.this, text + ": recents switch - "+performed,Toast.LENGTH_SHORT).show();
                     }
                 });
-            }else{
-                Toast.makeText(MainAccessibilityService.this, "Switch using recents failed", Toast.LENGTH_SHORT).show();
             }
-        }
+        }*/
 
 
         CharSequence packageName = event.getPackageName();
@@ -275,7 +363,7 @@ public class MainAccessibilityService extends AccessibilityService {
             if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
                 String activityName = event.getClassName().toString();
 
-                boolean redundant = false;
+                /*boolean redundant = false;
                 if (mAppsUsed.size() > 0) {
                     String lastPackageName = mAppsUsed.peekLast().packageName;
                     redundant = appId.equals(lastPackageName);
@@ -285,7 +373,7 @@ public class MainAccessibilityService extends AccessibilityService {
                     entry.activityName = activityName;
                     entry.packageName = appId;
                     mAppsUsed.add(entry);
-                }
+                }*/
 
                 log("=activityName: " + activityName);
             }
@@ -392,9 +480,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
         if (source.getText() != null) {
             String text = source.getText().toString();
-
             text = text.replace("\n", " ");
-
             string += text + " ";
 
             log("Text: " + text);
@@ -414,7 +500,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
-    @Nullable
+   /* @Nullable
     AppUsageEntry startLastOpenApp() {
         List<AppUsageEntry> viable = new ArrayList<>();
         String firstViablePackageName = null;
@@ -440,7 +526,7 @@ public class MainAccessibilityService extends AccessibilityService {
             intent.setAction(Intent.ACTION_VIEW);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             try {
-                startActivity(intent/*, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()*/);
+                startActivity(intent*//*, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()*//*);
                 startedEntry = entry;
                 break;
             } catch (Exception e) {
@@ -448,7 +534,7 @@ public class MainAccessibilityService extends AccessibilityService {
             }
         }
         return startedEntry;
-    }
+    }*/
 
     private class AppUsageEntry {
         String packageName;
@@ -462,40 +548,46 @@ public class MainAccessibilityService extends AccessibilityService {
         TabsNavigationCallback() {
         }
 
-        @Override
+        /*@Override
         public void onNavigationEvent(int navigationEvent, Bundle extras) {
             super.onNavigationEvent(navigationEvent, extras);
 
-            if (navigationEvent == CustomTabsCallback.TAB_SHOWN) {
-                Handler h = new Handler(getMainLooper());
-                h.post(new Runnable() {
-                    @Override
-                    public void run() {
+            switch(navigationEvent){
+                case TAB_SHOWN:
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainAccessibilityService.this, "Tab shown", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    break;
+                case TAB_HIDDEN:
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainAccessibilityService.this, "Tab hidden", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 
-                        Toast.makeText(MainAccessibilityService.this, "Tab shown", Toast.LENGTH_SHORT).show();
-
-
-                    }
-                });
-            } else if (navigationEvent == CustomTabsCallback.TAB_HIDDEN) {
-                Handler h = new Handler(getMainLooper());
-                h.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        Toast.makeText(MainAccessibilityService.this, "Tab hidden", Toast.LENGTH_SHORT).show();
-
-                        startLastOpenApp();
-
-                        /*if(mSwitchedTimestamp>System.currentTimeMillis()+3000) {
-                            performGlobalAction(GLOBAL_ACTION_RECENTS);
-                            //Switch back to app when user exits
-                            mSwitchTask=true;
-                        }*/
-
-                    }
-                });
+                    startLastOpenApp();
+                    break;
+                case NAVIGATION_FINISHED:
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainAccessibilityService.this, "Page finished", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    break;
+                case NAVIGATION_STARTED:
+                    mMainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainAccessibilityService.this, "Page started", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    break;
             }
-        }
+        }*/
     }
 }

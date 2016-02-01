@@ -6,8 +6,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.widget.Toast;
@@ -29,6 +29,12 @@ public class BrowserLauncherActivity extends Activity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Launched by bubble
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
 
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
@@ -105,15 +111,7 @@ public class BrowserLauncherActivity extends Activity {
             builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            } else {
-                customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }
-            if (service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true)) {
-                service.addQueuedWebsite(uri.toString());
-            }
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             CustomTabConnectionHelper.openCustomTab(
                     BrowserLauncherActivity.this, customTabsIntent, uri,
                     new CustomTabConnectionHelper.CustomTabFallback() {
@@ -129,11 +127,23 @@ public class BrowserLauncherActivity extends Activity {
                         }
                     });
 
+            boolean addToQueue = service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
+            if (addToQueue) {
+                service.addQueuedWebsite(uri.toString());
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        moveTaskToBack(true);
+                        finish();
+                    }
+                }, 400);
+            } else {
+                finish();
+            }
         } else {
             Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
         }
-
-        finish();
     }
 
     public static class ShareBroadcastReceiver extends BroadcastReceiver {
