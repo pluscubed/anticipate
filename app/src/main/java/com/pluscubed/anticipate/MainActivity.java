@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                 if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
                             .positiveText(android.R.string.ok)
-                            .content(R.string.enable_service_appbased_toolbar)
+                            .content(R.string.enable_service_page_toolbar)
                             .show();
                 } else {
                     PrefUtils.setDynamicAppBasedToolbar(MainActivity.this, checked);

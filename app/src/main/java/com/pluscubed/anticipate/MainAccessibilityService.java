@@ -15,10 +15,12 @@ import android.content.res.TypedArray;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.Gravity;
@@ -322,12 +324,16 @@ public class MainAccessibilityService extends AccessibilityService {
                     } catch (PackageManager.NameNotFoundException e) {
                         return defaultToolbarColor;
                     }
-                    attrs = new int[]{
-                            /** AppCompat attr */
-                            res.getIdentifier("colorPrimary", "attr", firstViablePackageName),
-                            /** Framework attr */
-                            android.R.attr.colorPrimary
-                    };
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        attrs = new int[]{
+                                res.getIdentifier("colorPrimary", "attr", firstViablePackageName),
+                                android.R.attr.colorPrimary
+                        };
+                    } else {
+                        attrs = new int[]{
+                                res.getIdentifier("colorPrimary", "attr", firstViablePackageName)
+                        };
+                    }
 
                 }
 
@@ -339,10 +345,14 @@ public class MainAccessibilityService extends AccessibilityService {
 
                         // Obtain the colorPrimary color from the attrs
                         TypedArray a = theme.obtainStyledAttributes(attrs);
-                        // Do something with the color
-                        final int colorPrimary = a.getColor(0, a.getColor(1, defaultToolbarColor));
-                        // Make sure you recycle the TypedArray
+                        int colorPrimary = a.getColor(0, a.getColor(1, defaultToolbarColor));
                         a.recycle();
+
+                        if (colorPrimary == ContextCompat.getColor(this, R.color.primary_material_light)
+                                || colorPrimary == ContextCompat.getColor(this, R.color.primary_material_dark)) {
+                            //Assume the primary color was left as default, therefore use user default color
+                            colorPrimary = defaultToolbarColor;
+                        }
 
                         return colorPrimary;
                     }
