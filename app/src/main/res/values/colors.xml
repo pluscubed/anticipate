@@ -14,4 +14,6 @@
     <color name="floating_background">#80000000</color>
 
     <color name="scrim">#99323232</color>
+
+    <color name="toolbar_light_icon">#5A5A5A</color>
 </resources>

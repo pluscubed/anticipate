@@ -5,11 +5,17 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.widget.Toast;
 
 import com.afollestad.inquiry.Inquiry;
@@ -17,6 +23,7 @@ import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteToolbarDbUtil;
 import com.pluscubed.anticipate.util.AnimationStyle;
+import com.pluscubed.anticipate.util.ColorUtils;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.Utils;
 
@@ -87,14 +94,20 @@ public class BrowserLauncherActivity extends Activity {
             builder.setToolbarColor(color);
 
 
-            Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
+            boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(color);
 
+            Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
             PendingIntent shareBroadcast = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
             builder.enableUrlBarHiding()
                     .setShowTitle(true)
-                    .setActionButton(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_share_black_24dp),
+                    .setActionButton(
+                            Utils.drawableToBitmap(this, R.drawable.ic_share_black_24dp),
                             getString(R.string.share),
-                            shareBroadcast)
+                            shareBroadcast,
+                            true)
+                    .setCloseButtonIcon(
+                            getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
                             getString(R.string.share),
@@ -118,7 +131,6 @@ public class BrowserLauncherActivity extends Activity {
                         break;
                 }
             }
-            builder.setCloseButtonIcon(Utils.drawableToBitmap(getApplicationContext(), R.drawable.ic_arrow_back_white_24dp));
 
             CustomTabsIntent customTabsIntent = builder.build();
             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -154,6 +166,16 @@ public class BrowserLauncherActivity extends Activity {
         } else {
             Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private Bitmap getToolbarIcon(@DrawableRes int resId, boolean lightToolbar) {
+        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), resId);
+        Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
+        if (lightToolbar) {
+            DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.SRC_IN);
+            DrawableCompat.setTint(wrappedDrawable, ContextCompat.getColor(this, R.color.toolbar_light_icon));
+        }
+        return Utils.drawableToBitmap(wrappedDrawable);
     }
 
     public static class ShareBroadcastReceiver extends BroadcastReceiver {
