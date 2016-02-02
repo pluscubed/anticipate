@@ -47,38 +47,43 @@
     <string name="transition_fab_add" translatable="false">dialog_add</string>
     <string name="undo">Undo</string>
 
-    <string name="app_removed">%s removed from list</string>
+    <string name="app_removed">%s removed from the list</string>
 
     <string name="no_blacklisted_apps">No blacklisted apps</string>
     <string name="no_whitelisted_apps">No whitelisted apps</string>
     <string name="swipe_to_remove">Swipe to remove</string>
+
     <string name="accessibility_service_not_active">Anticipate\'s accessibility service has become inactive. Please manually turn the accessibility service off and on again.</string>
-    <string name="use_chrome_custom_tabs">Use Chrome Custom Tabs</string>
 
-    <string name="dynamic_toolbar_color">Dynamic site-based toolbar color</string>
+    <string name="dynamic_appbased_toolbar_color">App-based toolbar color (BETA)</string>
+    <string name="appbased_toolbar_color_desc">Use the primary color from the originating app as the toolbar color.</string>
+    <string name="enable_service_appbased_toolbar">The accessibility service must be enabled to use app-based toolbar color.</string>
+
+    <string name="dynamic_toolbar_color">Site-based toolbar color</string>
     <string name="toolbar_color_desc">Use the website-defined toolbar color (when defined). This will work the second time a website is opened.</string>
-
-    <string name="dynamic_app_toolbar_color">Dynamic app-based toolbar color</string>
-    <string name="app_toolbar_color_desc">Use the primary color from the originating app as the toolbar color.</string>
-
 
     <string name="default_toolbar_color">Default toolbar color</string>
 
     <string name="share">Share</string>
+
     <string name="animation">Animation: </string>
     <string name="slide_bottom_android">Lollipop+ slide in</string>
     <string name="slide_bottom">Slide in from bottom</string>
     <string name="slide_right">Slide in from right</string>
     <string name="none">None - system animation</string>
+
     <string name="custom_tab_browser">Custom Tab Browser:</string>
     <string name="install_chrome">Install Chrome</string>
+
     <string name="error">Error</string>
     <string name="changelog">Changelog</string>
 
     <string name="custom">Custom</string>
     <string name="done">Done</string>
+
     <string name="using_anticipate">using Anticipate</string>
     <string name="using_browser">using browser</string>
+
     <string name="anticipate_update">Anticipate updated to v</string>
     <string name="anticipate_update_desc">Touch to check out the new features</string>
 

@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
     PopupMenu mTryPopup;
     DispatchBackEditText mTryEditText;
     Button mConfigurePerApp;
+    SwitchCompat mAppBasedToolbarSwitch;
     private Button mEnableServiceButton;
     private ImageView mEnabledImage;
     private Button mSetDefaultButton;
@@ -376,17 +377,24 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         });
 
         //DYNAMIC APP-BASED TOOLBAR COLOR
-        final ViewGroup dynamicAppToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_app_toolbar_color);
-        final SwitchCompat dynamicAppToolbarSwitch = (SwitchCompat) dynamicAppToolbarLinear.getChildAt(1);
+        final ViewGroup appBasedToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_app_toolbar_color);
+        mAppBasedToolbarSwitch = (SwitchCompat) appBasedToolbarLinear.getChildAt(1);
 
-        dynamicAppToolbarSwitch.setChecked(PrefUtils.isDynamicToolbar(this));
+        //state set in invalidateStates
 
-        dynamicAppToolbarLinear.setOnClickListener(new View.OnClickListener() {
+        appBasedToolbarLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean checked = !dynamicAppToolbarSwitch.isChecked();
-                PrefUtils.setDynamicAppBasedToolbar(MainActivity.this, checked);
-                dynamicAppToolbarSwitch.setChecked(checked);
+                boolean checked = !mAppBasedToolbarSwitch.isChecked();
+                if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .positiveText(android.R.string.ok)
+                            .content(R.string.enable_service_appbased_toolbar)
+                            .show();
+                } else {
+                    PrefUtils.setDynamicAppBasedToolbar(MainActivity.this, checked);
+                    mAppBasedToolbarSwitch.setChecked(checked);
+                }
             }
         });
 
@@ -688,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         final boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(this);
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
+        mAppBasedToolbarSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isDynamicAppBasedToolbar(this));
 
 
         boolean isSetAsDefault = isSetAsDefault();

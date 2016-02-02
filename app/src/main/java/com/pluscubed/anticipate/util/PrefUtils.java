@@ -61,7 +61,7 @@ public abstract class PrefUtils {
     }
 
     public static boolean isDynamicAppBasedToolbar(Context context) {
-        return getSharedPreferences(context).getBoolean(PREF_DYNAMIC_APP_TOOLBAR, true);
+        return getSharedPreferences(context).getBoolean(PREF_DYNAMIC_APP_TOOLBAR, false);
     }
 
     public static void setDefaultToolbarColor(Context context, @ColorInt int defaultToolbarColor) {
