@@ -375,6 +375,21 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             }
         });
 
+        //DYNAMIC APP-BASED TOOLBAR COLOR
+        final ViewGroup dynamicAppToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_app_toolbar_color);
+        final SwitchCompat dynamicAppToolbarSwitch = (SwitchCompat) dynamicAppToolbarLinear.getChildAt(1);
+
+        dynamicAppToolbarSwitch.setChecked(PrefUtils.isDynamicToolbar(this));
+
+        dynamicAppToolbarLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = !dynamicAppToolbarSwitch.isChecked();
+                PrefUtils.setDynamicAppBasedToolbar(MainActivity.this, checked);
+                dynamicAppToolbarSwitch.setChecked(checked);
+            }
+        });
+
         //FLOATING WINDOW SWITCH
         final ViewGroup floatingWindowLinear = (ViewGroup) findViewById(R.id.linear_preload_window);
         final SwitchCompat floatingWindowSwitch = (SwitchCompat) floatingWindowLinear.getChildAt(1);

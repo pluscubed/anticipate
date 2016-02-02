@@ -32,4 +32,5 @@
     <item name="spinner_browser" type="id" />
     <item name="button_install_chrome" type="id" />
     <item name="menu_main_changelog" type="id" />
+    <item name="linear_dynamic_app_toolbar_color" type="id" />
 </resources>

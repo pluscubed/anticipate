@@ -39,8 +39,7 @@ public class BrowserLauncherActivity extends Activity {
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
         final Uri uri = getIntent().getData();
-        if (getIntent() != null && uri != null) {
-
+        if (uri != null) {
             MainAccessibilityService service = MainAccessibilityService.get();
 
             final CustomTabsIntent.Builder builder;
@@ -62,20 +61,31 @@ public class BrowserLauncherActivity extends Activity {
             String host = uri.toString();
             host = Utils.getHost(host);
 
+            int color;
             if (PrefUtils.isDynamicToolbar(this)) {
-                int color = WebsiteToolbarDbUtil.getColor(host);
-                if (color != WebsiteToolbarDbUtil.NO_COLOR && color != WebsiteToolbarDbUtil.NOT_FOUND) {
-                    builder.setToolbarColor(color);
-                } else {
+                color = WebsiteToolbarDbUtil.getColor(host);
+                if (color == WebsiteToolbarDbUtil.NOT_FOUND) {
                     Intent serviceIntent = new Intent(BrowserLauncherActivity.this, WebsiteService.class);
                     serviceIntent.putExtra(WebsiteService.EXTRA_HOST, host);
                     startService(serviceIntent);
 
-                    builder.setToolbarColor(PrefUtils.getDefaultToolbarColor(this));
+                    color = -4;
+                } else if (color == WebsiteToolbarDbUtil.NO_COLOR) {
+                    color = -4;
                 }
             } else {
-                builder.setToolbarColor(PrefUtils.getDefaultToolbarColor(this));
+                color = -4;
             }
+            if (color == -4) {
+                if (PrefUtils.isDynamicAppBasedToolbar(this) && service != null) {
+                    color = service.getLastAppPrimaryColor();
+                } else {
+                    color = PrefUtils.getDefaultToolbarColor(this);
+                }
+            }
+
+            builder.setToolbarColor(color);
+
 
             Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
 

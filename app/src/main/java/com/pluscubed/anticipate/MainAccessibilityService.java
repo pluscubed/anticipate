@@ -6,8 +6,12 @@ import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
@@ -31,10 +35,12 @@ import com.bumptech.glide.Glide;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
+import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -53,9 +59,7 @@ public class MainAccessibilityService extends AccessibilityService {
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
     boolean mBlacklistMode;
-    /*boolean mSwitchTask;
-    long mSwitchedTimestamp;
-    LimitedQueue<AppUsageEntry> mAppsUsed;*/
+    LimitedQueue<AppUsageEntry> mAppsUsed;
 
     Map<String, ImageView> mQueuedWebsites;
 
@@ -86,32 +90,6 @@ public class MainAccessibilityService extends AccessibilityService {
     public void addQueuedWebsite(String url) {
         if (!mQueuedWebsites.containsKey(url)) {
             addBubble(url);
-
-            /*Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    AppUsageEntry startedEntry = startLastOpenApp();
-
-                    if (startedEntry != null) {
-                        Toast.makeText(MainAccessibilityService.this, "Started: " + startedEntry.packageName + "/" + startedEntry.activityName, Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MainAccessibilityService.this, "Attempt switching using recents", Toast.LENGTH_SHORT).show();
-
-                        performGlobalAction(GLOBAL_ACTION_RECENTS);
-                        mSwitchTask = true;
-                    }
-
-                    ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                    List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
-                    for (int i = 0; i < recentTasks.size(); i++) {
-                        if (recentTasks.get(i).baseActivity.toShortString().contains(BuildConfig.APPLICATION_ID)) {
-                            activityManager.moveTaskToFront(recentTasks.get(i).id, 1);
-                        }
-                    }
-
-                }
-            }, 500);*/
         } else {
             mWindowManager.removeView(mQueuedWebsites.get(url));
             mQueuedWebsites.remove(url);
@@ -125,7 +103,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
         mMainHandler = new Handler(getMainLooper());
 
-        /*mAppsUsed = new LimitedQueue<>(10);*/
+        mAppsUsed = new LimitedQueue<>(10);
         mQueuedWebsites = new HashMap<>();
 
         mCustomTabActivityHelper = new CustomTabConnectionHelper();
@@ -317,6 +295,66 @@ public class MainAccessibilityService extends AccessibilityService {
         return super.onUnbind(intent);
     }
 
+    public int getLastAppPrimaryColor() {
+        //http://stackoverflow.com/questions/27121919/is-it-possible-to-get-another-applications-primary-color-like-lollipops-recent
+
+        int defaultToolbarColor = PrefUtils.getDefaultToolbarColor(this);
+
+        PackageManager pm = getPackageManager();
+
+        String firstViablePackageName = null;
+        int[] attrs = null;
+        Resources res = null;
+
+        for (Iterator<AppUsageEntry> iterator = mAppsUsed.descendingIterator(); iterator.hasNext(); ) {
+            AppUsageEntry entry = iterator.next();
+
+            if (!entry.packageName.equals(PrefUtils.getChromeApp(MainAccessibilityService.this)) &&
+                    !entry.packageName.startsWith("com.android.systemui") &&
+                    !entry.packageName.startsWith("android")) {
+
+                if (firstViablePackageName == null) {
+                    firstViablePackageName = entry.packageName;
+
+                    // Retrieve the Resources from the app
+                    try {
+                        res = pm.getResourcesForApplication(firstViablePackageName);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        return defaultToolbarColor;
+                    }
+                    attrs = new int[]{
+                            /** AppCompat attr */
+                            res.getIdentifier("colorPrimary", "attr", firstViablePackageName),
+                            /** Framework attr */
+                            android.R.attr.colorPrimary
+                    };
+
+                }
+
+                try {
+                    if (firstViablePackageName != null && firstViablePackageName.equals(entry.packageName)) {
+                        final Resources.Theme theme = res.newTheme();
+                        ComponentName cn = ComponentName.unflattenFromString(firstViablePackageName + "/" + entry.activityName);
+                        theme.applyStyle(pm.getActivityInfo(cn, 0).theme, false);
+
+                        // Obtain the colorPrimary color from the attrs
+                        TypedArray a = theme.obtainStyledAttributes(attrs);
+                        // Do something with the color
+                        final int colorPrimary = a.getColor(0, a.getColor(1, defaultToolbarColor));
+                        // Make sure you recycle the TypedArray
+                        a.recycle();
+
+                        return colorPrimary;
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    //ignore, continue
+                }
+            }
+        }
+
+        return defaultToolbarColor;
+    }
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         sSharedService = this;
@@ -328,32 +366,6 @@ public class MainAccessibilityService extends AccessibilityService {
             return;
         }
 
-        /*if (mSwitchTask && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 && getRootInActiveWindow() != null) {
-            List<AccessibilityNodeInfo> accessibilityNodeInfosByViewId =
-                    getRootInActiveWindow().findAccessibilityNodeInfosByViewId("com.android.systemui:id/activity_description");
-
-            AccessibilityNodeInfo secondToLast;
-            if(accessibilityNodeInfosByViewId.size()>0
-                    && (secondToLast=accessibilityNodeInfosByViewId.get(accessibilityNodeInfosByViewId.size()-2))!=null){
-                final String text = secondToLast.getText().toString();
-                while(!secondToLast.isClickable()){
-                    secondToLast = secondToLast.getParent();
-                }
-                final boolean performed = secondToLast.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                if(performed){
-                    mSwitchTask = false;
-                    mSwitchedTimestamp = System.currentTimeMillis();
-                }
-                mMainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainAccessibilityService.this, text + ": recents switch - "+performed,Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }*/
-
-
         CharSequence packageName = event.getPackageName();
 
         if (packageName != null) {
@@ -363,7 +375,7 @@ public class MainAccessibilityService extends AccessibilityService {
             if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
                 String activityName = event.getClassName().toString();
 
-                /*boolean redundant = false;
+                boolean redundant = false;
                 if (mAppsUsed.size() > 0) {
                     String lastPackageName = mAppsUsed.peekLast().packageName;
                     redundant = appId.equals(lastPackageName);
@@ -372,8 +384,9 @@ public class MainAccessibilityService extends AccessibilityService {
                     AppUsageEntry entry = new AppUsageEntry();
                     entry.activityName = activityName;
                     entry.packageName = appId;
+
                     mAppsUsed.add(entry);
-                }*/
+                }
 
                 log("=activityName: " + activityName);
             }
@@ -499,42 +512,6 @@ public class MainAccessibilityService extends AccessibilityService {
     public void onInterrupt() {
 
     }
-
-   /* @Nullable
-    AppUsageEntry startLastOpenApp() {
-        List<AppUsageEntry> viable = new ArrayList<>();
-        String firstViablePackageName = null;
-        for (Iterator<AppUsageEntry> iterator = mAppsUsed.descendingIterator(); iterator.hasNext(); ) {
-            AppUsageEntry entry = iterator.next();
-
-            if (!entry.packageName.equals(PrefUtils.getChromeApp(MainAccessibilityService.this)) &&
-                    !entry.packageName.startsWith("com.android.systemui") &&
-                    !entry.packageName.startsWith("android")) {
-                if (viable.size() == 0) {
-                    firstViablePackageName = entry.packageName;
-                }
-                if (firstViablePackageName != null && firstViablePackageName.equals(entry.packageName)) {
-                    viable.add(entry);
-                }
-            }
-        }
-
-        AppUsageEntry startedEntry = null;
-        for (AppUsageEntry entry : viable) {
-            Intent intent = new Intent();
-            intent.setComponent(new ComponentName(entry.packageName, entry.activityName));
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            try {
-                startActivity(intent*//*, ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()*//*);
-                startedEntry = entry;
-                break;
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-        return startedEntry;
-    }*/
 
     private class AppUsageEntry {
         String packageName;

@@ -13,6 +13,8 @@ public abstract class PrefUtils {
     public static final String PREF_FIRSTRUN = "pref_firstrun";
 
     public static final String PREF_DYNAMIC_TOOLBAR = "pref_dynamic_toolbar";
+    public static final String PREF_DYNAMIC_APP_TOOLBAR = "pref_dynamic_app_toolbar";
+
     public static final String PREF_DEFAULT_COLOR = "pref_default_toolbar_color";
     public static final String PREF_ANIMATION_STYLE = "pref_animation_style";
     public static final String PREF_VERSION_CODE = "pref_version";
@@ -52,6 +54,14 @@ public abstract class PrefUtils {
 
     public static boolean isDynamicToolbar(Context context) {
         return getSharedPreferences(context).getBoolean(PREF_DYNAMIC_TOOLBAR, true);
+    }
+
+    public static void setDynamicAppBasedToolbar(Context context, boolean dynamicToolbar) {
+        edit(context).putBoolean(PREF_DYNAMIC_APP_TOOLBAR, dynamicToolbar).apply();
+    }
+
+    public static boolean isDynamicAppBasedToolbar(Context context) {
+        return getSharedPreferences(context).getBoolean(PREF_DYNAMIC_APP_TOOLBAR, true);
     }
 
     public static void setDefaultToolbarColor(Context context, @ColorInt int defaultToolbarColor) {
