@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@id/bubble_discard_bg_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_alignParentBottom="true"
+        tools:background="@android:color/black" />
+
+    <ImageView
+        android:id="@id/bubble_discard_bg_bubble"
+        android:layout_width="@dimen/floating_size"
+        android:layout_height="@dimen/floating_size"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="48dp"
+        android:src="@drawable/bubble_clear" />
+
+</RelativeLayout>

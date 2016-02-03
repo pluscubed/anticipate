@@ -1,6 +1,8 @@
 package com.pluscubed.anticipate;
 
 import android.accessibilityservice.AccessibilityService;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -31,6 +33,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -46,6 +49,7 @@ import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
+import com.pluscubed.anticipate.util.ScrimUtil;
 import com.pluscubed.anticipate.widget.ProgressWheel;
 
 import java.util.ArrayList;
@@ -71,10 +75,12 @@ public class MainAccessibilityService extends AccessibilityService {
     LimitedQueue<AppUsageEntry> mAppsUsed;
 
     LinkedHashMap<String, BubbleViewHolder> mQueuedWebsites;
+    View mDiscardLayout;
     WindowManager mWindowManager;
     boolean mPendingPageLoadStart;
-
     Handler mMainHandler;
+    private View mDiscardScrim;
+    private ImageView mDiscardBubble;
     private CustomTabConnectionHelper mCustomTabActivityHelper;
 
     public static MainAccessibilityService get() {
@@ -147,6 +153,26 @@ public class MainAccessibilityService extends AccessibilityService {
     private void addBubble(final String url) {
         LayoutInflater inflater = LayoutInflater.from(this);
 
+        if (mDiscardLayout == null) {
+            mDiscardLayout = inflater.inflate(R.layout.bubble_discard_bg, null);
+            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    PixelFormat.TRANSLUCENT);
+            params.gravity = Gravity.LEFT | Gravity.TOP;
+
+            mWindowManager.addView(mDiscardLayout, params);
+
+            mDiscardScrim = mDiscardLayout.findViewById(R.id.bubble_discard_bg_scrim);
+            mDiscardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
+
+            mDiscardBubble = (ImageView) mDiscardLayout.findViewById(R.id.bubble_discard_bg_bubble);
+
+            mDiscardLayout.setAlpha(0);
+        }
+
         final BubbleViewHolder holder = new BubbleViewHolder();
         holder.root = inflater.inflate(R.layout.bubble_quick_switch, null);
         holder.icon = (ImageView) holder.root.findViewById(R.id.bubble_quick_switch_icon);
@@ -154,67 +180,10 @@ public class MainAccessibilityService extends AccessibilityService {
 
         holder.progress.setBarColor(PrefUtils.getDefaultToolbarColor(this));
 
-        holder.root.setOnTouchListener(new View.OnTouchListener() {
-            float initialTouchX;
-            float initialTouchY;
-            int initialX;
-            int initialY;
-
-            long startClickTime;
-
-            boolean isClick;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                WindowManager.LayoutParams params = (WindowManager.LayoutParams) v.getLayoutParams();
-
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
-
-                        initialX = params.x;
-                        initialY = params.y;
-
-                        startClickTime = System.currentTimeMillis();
-
-                        isClick = true;
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        float dX = event.getRawX() - initialTouchX;
-                        float dY = event.getRawY() - initialTouchY;
-                        if ((isClick && (Math.abs(dX) > 10 || Math.abs(dY) > 10))
-                                || System.currentTimeMillis() - startClickTime > ViewConfiguration.getLongPressTimeout()) {
-                            isClick = false;
-                        }
-
-                        if (!isClick) {
-                            params.x = (int) (dX + initialX);
-                            params.y = (int) (dY + initialY);
-
-                            mWindowManager.updateViewLayout(v, params);
-                        }
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        if (isClick && System.currentTimeMillis() - startClickTime <= ViewConfiguration.getLongPressTimeout()) {
-                            Intent intent = new Intent(MainAccessibilityService.this, BrowserLauncherActivity.class);
-                            intent.setData(Uri.parse(url));
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.putExtra(BrowserLauncherActivity.EXTRA_ADD_QUEUE, false);
-                            mQueuedWebsites.remove(url);
-                            mWindowManager.removeView(v);
-                            startActivity(intent);
-                        } else {
-                            animateViewToSideSlot(v);
-                        }
-                        return true;
-                }
-                return false;
-            }
-        });
-
-
         final int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.floating_size);
+
+        holder.root.setOnTouchListener(new BubbleOnTouchListener(bubbleWidth, url));
+
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 bubbleWidth,
                 bubbleWidth,
@@ -607,6 +576,131 @@ public class MainAccessibilityService extends AccessibilityService {
                         mPendingPageLoadStart = false;
                     }
                     break;
+            }
+        }
+    }
+
+    private class BubbleOnTouchListener implements View.OnTouchListener {
+        private final int bubbleWidth;
+        private final String url;
+        float initialTouchX;
+        float initialTouchY;
+        int initialX;
+        int initialY;
+
+        long startClickTime;
+        boolean isClick;
+
+        boolean discardAnimatingIn;
+        boolean discardAnimatingOut;
+
+        public BubbleOnTouchListener(int bubbleWidth, String url) {
+            this.bubbleWidth = bubbleWidth;
+            this.url = url;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            WindowManager.LayoutParams params = (WindowManager.LayoutParams) v.getLayoutParams();
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    initialTouchX = event.getRawX();
+                    initialTouchY = event.getRawY();
+
+                    initialX = params.x;
+                    initialY = params.y;
+
+                    startClickTime = System.currentTimeMillis();
+
+                    isClick = true;
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    float dX = event.getRawX() - initialTouchX;
+                    float dY = event.getRawY() - initialTouchY;
+                    if ((isClick && (Math.abs(dX) > 10 || Math.abs(dY) > 10))
+                            || System.currentTimeMillis() - startClickTime > ViewConfiguration.getLongPressTimeout()) {
+                        isClick = false;
+                    }
+
+                    if (!isClick) {
+                        animateInDiscard();
+
+                        int[] discardLocation = new int[2];
+                        mDiscardBubble.getLocationOnScreen(discardLocation);
+
+                        if (isTouchInDiscard(event, discardLocation[0], discardLocation[1])) {
+                            //In discard bubble
+                            params.x = (int) mDiscardBubble.getX();
+                            params.y = (int) mDiscardBubble.getY();
+                        } else {
+                            params.x = (int) (dX + initialX);
+                            params.y = (int) (dY + initialY);
+                        }
+
+                        mWindowManager.updateViewLayout(v, params);
+                    }
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    int[] discardLocation = new int[2];
+                    mDiscardBubble.getLocationOnScreen(discardLocation);
+
+                    if (isClick && System.currentTimeMillis() - startClickTime <= ViewConfiguration.getLongPressTimeout()) {
+                        Intent intent = new Intent(MainAccessibilityService.this, BrowserLauncherActivity.class);
+                        intent.setData(Uri.parse(url));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(BrowserLauncherActivity.EXTRA_ADD_QUEUE, false);
+                        startActivity(intent);
+
+                        mQueuedWebsites.remove(url);
+                        mWindowManager.removeView(v);
+                    } else if (isTouchInDiscard(event, discardLocation[0], discardLocation[1])) {
+                        mQueuedWebsites.remove(url);
+                        mWindowManager.removeView(v);
+
+                        animateOutDiscard();
+                    } else {
+                        animateViewToSideSlot(v);
+
+                        animateOutDiscard();
+                    }
+                    return true;
+            }
+            return false;
+        }
+
+        private boolean isTouchInDiscard(MotionEvent event, float discardX, float discardY) {
+            return event.getRawX() >= discardX && event.getRawX() <= discardX + bubbleWidth
+                    && event.getRawY() >= discardY && event.getRawY() <= discardY + bubbleWidth;
+        }
+
+        private void animateInDiscard() {
+            if (!discardAnimatingIn) {
+                if (discardAnimatingOut) {
+                    mDiscardLayout.clearAnimation();
+                }
+                mDiscardLayout.animate().alpha(1).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        discardAnimatingIn = false;
+                    }
+                }).start();
+                discardAnimatingIn = true;
+            }
+        }
+
+        private void animateOutDiscard() {
+            if (!discardAnimatingOut) {
+                if (discardAnimatingIn) {
+                    mDiscardLayout.clearAnimation();
+                }
+                discardAnimatingOut = true;
+                mDiscardLayout.animate().alpha(0).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        discardAnimatingOut = false;
+                    }
+                }).start();
             }
         }
     }

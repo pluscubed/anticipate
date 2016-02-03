@@ -36,4 +36,6 @@
     <item name="linear_quick_switch_bubble" type="id" />
     <item name="bubble_quick_switch_icon" type="id" />
     <item name="bubble_quick_switch_progress" type="id" />
+    <item name="bubble_discard_bg_scrim" type="id" />
+    <item name="bubble_discard_bg_bubble" type="id" />
 </resources>
