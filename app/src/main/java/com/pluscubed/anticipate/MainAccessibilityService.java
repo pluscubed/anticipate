@@ -164,7 +164,7 @@ public class MainAccessibilityService extends AccessibilityService {
                     PixelFormat.TRANSLUCENT);
             params.gravity = Gravity.LEFT | Gravity.TOP;
 
-            mWindowManager.addView(mDiscardLayout, params);
+            mDiscardLayout.setLayoutParams(params);
 
             mDiscardScrim = mDiscardLayout.findViewById(R.id.bubble_discard_bg_scrim);
             mDiscardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
@@ -704,10 +704,11 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
         private void animateInDiscard() {
-            if (!discardAnimatingIn) {
+            if (mDiscardLayout.getAlpha() != 1 && !discardAnimatingIn) {
                 if (discardAnimatingOut) {
                     mDiscardLayout.clearAnimation();
                 }
+                mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
                 mDiscardLayout.animate().alpha(1).setDuration(200).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -719,7 +720,7 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
         private void animateOutDiscard() {
-            if (!discardAnimatingOut) {
+            if (mDiscardLayout.getAlpha() != 0 && !discardAnimatingOut) {
                 if (discardAnimatingIn) {
                     mDiscardLayout.clearAnimation();
                 }
@@ -728,6 +729,7 @@ public class MainAccessibilityService extends AccessibilityService {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         discardAnimatingOut = false;
+                        mWindowManager.removeView(mDiscardLayout);
                     }
                 }).start();
             }
