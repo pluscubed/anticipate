@@ -273,7 +273,9 @@ public class MainAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
                 params.y = (int) animation.getAnimatedValue();
 
-                mWindowManager.updateViewLayout(view, params);
+                if (view.isShown()) {
+                    mWindowManager.updateViewLayout(view, params);
+                }
             }
         });
 
@@ -713,7 +715,9 @@ public class MainAccessibilityService extends AccessibilityService {
                 if (discardAnimatingOut) {
                     mDiscardLayout.clearAnimation();
                 }
-                mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
+                if (!mDiscardLayout.isShown()) {
+                    mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
+                }
                 mDiscardLayout.animate().alpha(1).setDuration(200).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -734,7 +738,10 @@ public class MainAccessibilityService extends AccessibilityService {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         discardAnimatingOut = false;
-                        mWindowManager.removeView(mDiscardLayout);
+
+                        if (mDiscardLayout.isShown()) {
+                            mWindowManager.removeView(mDiscardLayout);
+                        }
                     }
                 }).start();
             }
