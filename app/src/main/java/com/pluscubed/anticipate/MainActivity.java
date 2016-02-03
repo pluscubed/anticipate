@@ -345,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             installChrome.setVisibility(View.VISIBLE);
         }
 
-        //DYNAMIC TOOLBAR COLOR
+        //QUICK SWITCH BUBBLE
         final ViewGroup quickSwitchLinear = (ViewGroup) findViewById(R.id.linear_quick_switch_bubble);
         mQuickSwitch = (SwitchCompat) quickSwitchLinear.getChildAt(1);
 
@@ -354,6 +354,11 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         quickSwitchLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    Toast.makeText(MainActivity.this, "This beta feature currently only works on Android 5.0+. Stay tuned to updates!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 boolean checked = !mQuickSwitch.isChecked();
                 if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)

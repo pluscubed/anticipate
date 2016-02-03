@@ -93,5 +93,6 @@
     <string name="quick_switch_bubble_desc">Starts loading links in Custom Tabs and resumes your previous app, with bubbles to open the loaded websites</string>
     <string name="enable_service_quick_switch">The accessibility service must be enabled to use quick-switch bubbles.</string>
     <string name="unable_to_launch_browser_error">Selected Custom Tabs browser reported an error</string>
+    <string name="anticipate_settings">Anticipate Settings</string>
 
 </resources>

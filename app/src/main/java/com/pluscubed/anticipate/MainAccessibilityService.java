@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -75,6 +76,7 @@ public class MainAccessibilityService extends AccessibilityService {
     LimitedQueue<AppUsageEntry> mAppsUsed;
 
     LinkedHashMap<String, BubbleViewHolder> mQueuedWebsites;
+    SparseBooleanArray mBubbleLocations;
     View mDiscardLayout;
     WindowManager mWindowManager;
     boolean mPendingPageLoadStart;
@@ -191,7 +193,7 @@ public class MainAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
 
-        Uri faviconUri = Uri.parse("http://www.google.com/s2/favicons?domain_url=" + url);
+        Uri faviconUri = Uri.parse("http://www.google.com/s2/favicons?domain_url=" + Uri.encode(url));
         Glide.with(this)
                 .load(faviconUri)
                 .placeholder(R.mipmap.ic_launcher)
@@ -513,6 +515,34 @@ public class MainAccessibilityService extends AccessibilityService {
     @Override
     public void onInterrupt() {
 
+    }
+
+    private int findEmptyBubbleLocation() {
+        final Point size = new Point();
+        mWindowManager.getDefaultDisplay().getSize(size);
+
+        int slotSize = getResources().getDimensionPixelSize(R.dimen.floating_size) + getResources().getDimensionPixelSize(R.dimen.floating_margin);
+        int totalSlots = size.y / slotSize * 2;
+
+        if (mBubbleLocations == null) {
+            mBubbleLocations = new SparseBooleanArray();
+        }
+
+        int slot = 0;
+
+        while (true) {
+            if (mBubbleLocations.get(slot)) {
+                slot++;
+            } else {
+                break;
+            }
+        }
+
+        if (slot >= totalSlots) {
+            slot = 0;
+        }
+
+        return slot * slotSize;
     }
 
     private class BubbleViewHolder {

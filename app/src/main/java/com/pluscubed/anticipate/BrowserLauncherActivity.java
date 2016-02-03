@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
@@ -112,6 +113,9 @@ public class BrowserLauncherActivity extends Activity {
 
             Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
             PendingIntent shareBroadcast = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+            Intent settingsIntent = new Intent(this, MainActivity.class);
+            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             builder.enableUrlBarHiding()
                     .setShowTitle(true)
@@ -120,6 +124,7 @@ public class BrowserLauncherActivity extends Activity {
                             getString(R.string.share),
                             shareBroadcast,
                             true)
+                    .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
                     .setCloseButtonIcon(
                             getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
@@ -134,14 +139,17 @@ public class BrowserLauncherActivity extends Activity {
                     case BOTTOM:
                         builder.setStartAnimations(this, R.anim.slide_in_bottom, R.anim.fade_out);
                         builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_bottom);
+                        overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
                         break;
                     case RIGHT:
                         builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.fade_out);
                         builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_right);
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
                         break;
                     case LOLLIPOP:
                         builder.setStartAnimations(this, R.anim.activity_slide_in, R.anim.fade_out);
                         builder.setExitAnimations(this, R.anim.fade_in, R.anim.activity_slide_out);
+                        overridePendingTransition(R.anim.activity_slide_in, R.anim.fade_out);
                         break;
                 }
             }
@@ -168,6 +176,20 @@ public class BrowserLauncherActivity extends Activity {
                     (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
             if (addToQueue) {
                 service.addQueuedWebsite(uri.toString());
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (sSharedInstance != null) {
+                            Toast.makeText(BrowserLauncherActivity.this,
+                                    "Either the web page is taking a long time to start loading, or Anticipate\'s Custom Tabs loading detection broke, in which case try turning the Accessibility Service off and on again.",
+                                    Toast.LENGTH_LONG).show();
+                            moveTaskToBack(true);
+                            finish();
+                        }
+                    }
+                }, 3000);
             } else {
                 finish();
             }
