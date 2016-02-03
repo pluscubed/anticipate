@@ -338,7 +338,11 @@ public class MainAccessibilityService extends AccessibilityService {
 
                         // Obtain the colorPrimary color from the attrs
                         TypedArray a = theme.obtainStyledAttributes(attrs);
-                        int colorPrimary = a.getColor(0, a.getColor(1, defaultToolbarColor));
+                        int fallback = defaultToolbarColor;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            fallback = a.getColor(1, defaultToolbarColor);
+                        }
+                        int colorPrimary = a.getColor(0, fallback);
                         a.recycle();
 
                         if (colorPrimary == ContextCompat.getColor(this, R.color.primary_material_light)
