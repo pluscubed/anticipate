@@ -58,7 +58,7 @@
         </service>
 
         <service
-            android:name=".FloatingWindowService"
+            android:name=".FloatingMonitorService"
             android:exported="false" />
 
         <service

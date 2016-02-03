@@ -19,7 +19,7 @@ public abstract class PrefUtils {
     public static final String PREF_ANIMATION_STYLE = "pref_animation_style";
     public static final String PREF_VERSION_CODE = "pref_version";
     public static final String PREF_CHROME_APP = "pref_chrome_app";
-
+    public static final String PREF_QUICK_SWITCH = "pref_quick_switch";
 
     public static final String PREF_ACCESSIBILITY_OFF_WARNED = "pref_warned";
 
@@ -62,6 +62,14 @@ public abstract class PrefUtils {
 
     public static boolean isDynamicAppBasedToolbar(Context context) {
         return getSharedPreferences(context).getBoolean(PREF_DYNAMIC_APP_TOOLBAR, false);
+    }
+
+    public static void setQuickSwitch(Context context, boolean quickSwitch) {
+        edit(context).putBoolean(PREF_QUICK_SWITCH, quickSwitch).apply();
+    }
+
+    public static boolean isQuickSwitch(Context context) {
+        return getSharedPreferences(context).getBoolean(PREF_QUICK_SWITCH, false);
     }
 
     public static void setDefaultToolbarColor(Context context, @ColorInt int defaultToolbarColor) {

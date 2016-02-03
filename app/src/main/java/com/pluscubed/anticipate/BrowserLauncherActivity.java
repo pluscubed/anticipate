@@ -10,7 +10,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
@@ -33,6 +32,15 @@ public class BrowserLauncherActivity extends Activity {
     public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
     private static final String TAG = "CustomTabDummyActivity";
 
+    private static BrowserLauncherActivity sSharedInstance;
+
+    public static void moveToBack() {
+        if (sSharedInstance != null) {
+            sSharedInstance.moveTaskToBack(true);
+            sSharedInstance.finish();
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +52,8 @@ public class BrowserLauncherActivity extends Activity {
         }
 
         Inquiry.init(getApplicationContext(), App.DB, 1);
+
+        sSharedInstance = this;
 
         final Uri uri = getIntent().getData();
         if (uri != null) {
@@ -149,23 +159,23 @@ public class BrowserLauncherActivity extends Activity {
                         }
                     });
 
-            boolean addToQueue = service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
+            boolean addToQueue = PrefUtils.isQuickSwitch(this) &&
+                    service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
             if (addToQueue) {
                 service.addQueuedWebsite(uri.toString());
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        moveTaskToBack(true);
-                        finish();
-                    }
-                }, 400);
             } else {
                 finish();
             }
         } else {
             Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        sSharedInstance = null;
     }
 
     private Bitmap getToolbarIcon(@DrawableRes int resId, boolean lightToolbar) {

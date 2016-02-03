@@ -172,6 +172,52 @@
                         android:layout_height="wrap_content" />-->
 
                     <LinearLayout
+                        android:id="@id/linear_quick_switch_bubble"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackground"
+                        android:baselineAligned="false"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingLeft="16dp"
+                        android:paddingRight="16dp"
+                        tools:ignore="UseCompoundDrawables">
+
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:paddingBottom="16dp"
+                            android:paddingTop="16dp">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="8dp"
+                                android:paddingRight="8dp"
+                                android:text="@string/open_in_quick_switch_bubble"
+                                android:textSize="16sp"
+                                tools:ignore="RtlSymmetry" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingEnd="8dp"
+                                android:paddingRight="8dp"
+                                android:text="@string/quick_switch_bubble_desc"
+                                android:textColor="?android:textColorSecondary"
+                                android:textSize="14sp"
+                                tools:ignore="RtlSymmetry" />
+
+                        </LinearLayout>
+
+                        <include layout="@layout/switch_layout" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@id/linear_default_toolbar_color"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"

@@ -69,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
     PopupMenu mTryPopup;
     DispatchBackEditText mTryEditText;
     Button mConfigurePerApp;
-    SwitchCompat mAppBasedToolbarSwitch;
+    SwitchCompat mPageBasedToolbarSwitch;
+    SwitchCompat mQuickSwitch;
     private Button mEnableServiceButton;
     private ImageView mEnabledImage;
     private Button mSetDefaultButton;
@@ -343,6 +344,28 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             installChrome.setVisibility(View.VISIBLE);
         }
 
+        //DYNAMIC TOOLBAR COLOR
+        final ViewGroup quickSwitchLinear = (ViewGroup) findViewById(R.id.linear_quick_switch_bubble);
+        mQuickSwitch = (SwitchCompat) quickSwitchLinear.getChildAt(1);
+
+        //state set in invalidateStates
+
+        quickSwitchLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean checked = !mQuickSwitch.isChecked();
+                if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .positiveText(android.R.string.ok)
+                            .content(R.string.enable_service_quick_switch)
+                            .show();
+                } else {
+                    PrefUtils.setQuickSwitch(MainActivity.this, checked);
+                    mQuickSwitch.setChecked(checked);
+                }
+            }
+        });
+
         //DEFAULT TOOLBAR COLOR
         final ViewGroup defaultToolbarLinear = (ViewGroup) findViewById(R.id.linear_default_toolbar_color);
         mDefaultToolbarColorView = defaultToolbarLinear.getChildAt(1);
@@ -378,14 +401,14 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //DYNAMIC APP-BASED TOOLBAR COLOR
         final ViewGroup appBasedToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_app_toolbar_color);
-        mAppBasedToolbarSwitch = (SwitchCompat) appBasedToolbarLinear.getChildAt(1);
+        mPageBasedToolbarSwitch = (SwitchCompat) appBasedToolbarLinear.getChildAt(1);
 
         //state set in invalidateStates
 
         appBasedToolbarLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean checked = !mAppBasedToolbarSwitch.isChecked();
+                boolean checked = !mPageBasedToolbarSwitch.isChecked();
                 if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
                             .positiveText(android.R.string.ok)
@@ -393,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                             .show();
                 } else {
                     PrefUtils.setDynamicAppBasedToolbar(MainActivity.this, checked);
-                    mAppBasedToolbarSwitch.setChecked(checked);
+                    mPageBasedToolbarSwitch.setChecked(checked);
                 }
             }
         });
@@ -401,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         //FLOATING WINDOW SWITCH
         final ViewGroup floatingWindowLinear = (ViewGroup) findViewById(R.id.linear_preload_window);
         final SwitchCompat floatingWindowSwitch = (SwitchCompat) floatingWindowLinear.getChildAt(1);
-        floatingWindowSwitch.setChecked(FloatingWindowService.get() != null);
+        floatingWindowSwitch.setChecked(FloatingMonitorService.get() != null);
 
         floatingWindowLinear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -507,10 +530,10 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
     }
 
     boolean onFloatingWindowSwitchChange(boolean checked) {
-        Intent service = new Intent(MainActivity.this, FloatingWindowService.class);
+        Intent service = new Intent(MainActivity.this, FloatingMonitorService.class);
 
         if (checked) {
-            if (FloatingWindowService.get() == null) {
+            if (FloatingMonitorService.get() == null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
                             .content(R.string.dialog_draw_overlay)
@@ -696,8 +719,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         final boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(this);
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
-        mAppBasedToolbarSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isDynamicAppBasedToolbar(this));
-
+        mPageBasedToolbarSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isDynamicAppBasedToolbar(this));
+        mQuickSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isQuickSwitch(this));
 
         boolean isSetAsDefault = isSetAsDefault();
 

@@ -33,4 +33,7 @@
     <item name="button_install_chrome" type="id" />
     <item name="menu_main_changelog" type="id" />
     <item name="linear_dynamic_app_toolbar_color" type="id" />
+    <item name="linear_quick_switch_bubble" type="id" />
+    <item name="bubble_quick_switch_icon" type="id" />
+    <item name="bubble_quick_switch_progress" type="id" />
 </resources>

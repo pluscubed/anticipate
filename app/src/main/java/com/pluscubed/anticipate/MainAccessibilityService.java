@@ -3,6 +3,7 @@ package com.pluscubed.anticipate;
 import android.accessibilityservice.AccessibilityService;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -18,12 +19,15 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -32,19 +36,22 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.github.florent37.glidepalette.BitmapPalette;
+import com.github.florent37.glidepalette.GlidePalette;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
+import com.pluscubed.anticipate.widget.ProgressWheel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,10 +70,10 @@ public class MainAccessibilityService extends AccessibilityService {
     boolean mBlacklistMode;
     LimitedQueue<AppUsageEntry> mAppsUsed;
 
-    Map<String, ImageView> mQueuedWebsites;
-
-
+    LinkedHashMap<String, BubbleViewHolder> mQueuedWebsites;
     WindowManager mWindowManager;
+    boolean mPendingPageLoadStart;
+
     Handler mMainHandler;
     private CustomTabConnectionHelper mCustomTabActivityHelper;
 
@@ -93,7 +100,7 @@ public class MainAccessibilityService extends AccessibilityService {
         if (!mQueuedWebsites.containsKey(url)) {
             addBubble(url);
         } else {
-            mWindowManager.removeView(mQueuedWebsites.get(url));
+            mWindowManager.removeView(mQueuedWebsites.get(url).root);
             mQueuedWebsites.remove(url);
         }
     }
@@ -106,7 +113,7 @@ public class MainAccessibilityService extends AccessibilityService {
         mMainHandler = new Handler(getMainLooper());
 
         mAppsUsed = new LimitedQueue<>(10);
-        mQueuedWebsites = new HashMap<>();
+        mQueuedWebsites = new LinkedHashMap<>();
 
         mCustomTabActivityHelper = new CustomTabConnectionHelper();
         mCustomTabActivityHelper.setCustomTabsCallback(new TabsNavigationCallback());
@@ -136,13 +143,18 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
+    @SuppressLint("InflateParams")
     private void addBubble(final String url) {
-        final ImageView imageView = new ImageView(this);
-        imageView.setBackgroundResource(R.drawable.bubble);
+        LayoutInflater inflater = LayoutInflater.from(this);
 
-        int padding = getResources().getDimensionPixelSize(R.dimen.floating_padding);
-        imageView.setPadding(padding, padding, padding, padding);
-        imageView.setOnTouchListener(new View.OnTouchListener() {
+        final BubbleViewHolder holder = new BubbleViewHolder();
+        holder.root = inflater.inflate(R.layout.bubble_quick_switch, null);
+        holder.icon = (ImageView) holder.root.findViewById(R.id.bubble_quick_switch_icon);
+        holder.progress = (ProgressWheel) holder.root.findViewById(R.id.bubble_quick_switch_progress);
+
+        holder.progress.setBarColor(PrefUtils.getDefaultToolbarColor(this));
+
+        holder.root.setOnTouchListener(new View.OnTouchListener() {
             float initialTouchX;
             float initialTouchY;
             int initialX;
@@ -190,16 +202,18 @@ public class MainAccessibilityService extends AccessibilityService {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             intent.putExtra(BrowserLauncherActivity.EXTRA_ADD_QUEUE, false);
                             mQueuedWebsites.remove(url);
-                            mWindowManager.removeView(imageView);
+                            mWindowManager.removeView(v);
                             startActivity(intent);
                         } else {
-                            animateViewToSideSlot((ImageView) v);
+                            animateViewToSideSlot(v);
                         }
                         return true;
                 }
                 return false;
             }
         });
+
+
         final int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.floating_size);
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 bubbleWidth,
@@ -208,11 +222,19 @@ public class MainAccessibilityService extends AccessibilityService {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
 
+        Uri faviconUri = Uri.parse("http://www.google.com/s2/favicons?domain_url=" + url);
         Glide.with(this)
-                .load(Uri.parse("http://www.google.com/s2/favicons?domain_url=" + url))
+                .load(faviconUri)
                 .placeholder(R.mipmap.ic_launcher)
                 .error(R.mipmap.ic_launcher)
-                .into(imageView);
+                .listener(GlidePalette.with(faviconUri.toString())
+                        .intoCallBack(new BitmapPalette.CallBack() {
+                            @Override
+                            public void onPaletteLoaded(@Nullable Palette palette) {
+                                holder.progress.setBarColor(palette.getVibrantColor(PrefUtils.getDefaultToolbarColor(MainAccessibilityService.this)));
+                            }
+                        }))
+                .into(holder.icon);
 
         params.gravity = Gravity.LEFT | Gravity.TOP;
 
@@ -221,9 +243,9 @@ public class MainAccessibilityService extends AccessibilityService {
         params.x = size.x;
         params.y = size.y / 3;
 
-        mWindowManager.addView(imageView, params);
+        mWindowManager.addView(holder.root, params);
 
-        mQueuedWebsites.put(url, imageView);
+        mQueuedWebsites.put(url, holder);
 
 
         int endX = size.x - bubbleWidth * 4 / 5;
@@ -233,17 +255,18 @@ public class MainAccessibilityService extends AccessibilityService {
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                WindowManager.LayoutParams params = (WindowManager.LayoutParams) imageView.getLayoutParams();
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) holder.root.getLayoutParams();
                 params.x = (int) animation.getAnimatedValue();
 
-                mWindowManager.updateViewLayout(imageView, params);
+                mWindowManager.updateViewLayout(holder.root, params);
             }
         });
         valueAnimator.start();
 
+        mPendingPageLoadStart = true;
     }
 
-    void animateViewToSideSlot(final ImageView view) {
+    void animateViewToSideSlot(final View view) {
         int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.floating_size);
 
         Point size = new Point();
@@ -451,8 +474,8 @@ public class MainAccessibilityService extends AccessibilityService {
         if (firstUrl != null) {
             boolean success = mCustomTabActivityHelper.mayLaunchUrl(firstUrl, null, possibleUrls);
 
-            if (FloatingWindowService.get() != null) {
-                FloatingWindowService.get().setText(floatingWindowText);
+            if (FloatingMonitorService.get() != null) {
+                FloatingMonitorService.get().setText(floatingWindowText);
             }
 
             log("Preload URL: " + success);
@@ -523,6 +546,16 @@ public class MainAccessibilityService extends AccessibilityService {
 
     }
 
+    private class BubbleViewHolder {
+        View root;
+        ImageView icon;
+        ProgressWheel progress;
+        boolean done;
+
+        BubbleViewHolder() {
+        }
+    }
+
     private class AppUsageEntry {
         String packageName;
         String activityName;
@@ -535,28 +568,14 @@ public class MainAccessibilityService extends AccessibilityService {
         TabsNavigationCallback() {
         }
 
-        /*@Override
+        @Override
         public void onNavigationEvent(int navigationEvent, Bundle extras) {
             super.onNavigationEvent(navigationEvent, extras);
 
             switch(navigationEvent){
                 case TAB_SHOWN:
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainAccessibilityService.this, "Tab shown", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                     break;
                 case TAB_HIDDEN:
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainAccessibilityService.this, "Tab hidden", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    startLastOpenApp();
                     break;
                 case NAVIGATION_FINISHED:
                     mMainHandler.post(new Runnable() {
@@ -565,6 +584,15 @@ public class MainAccessibilityService extends AccessibilityService {
                             Toast.makeText(MainAccessibilityService.this, "Page finished", Toast.LENGTH_SHORT).show();
                         }
                     });
+
+                    for (BubbleViewHolder holder : mQueuedWebsites.values()) {
+                        if (!holder.done) {
+                            ProgressWheel progress = holder.progress;
+                            progress.setProgress(1);
+                            holder.done = true;
+                            break;
+                        }
+                    }
                     break;
                 case NAVIGATION_STARTED:
                     mMainHandler.post(new Runnable() {
@@ -573,8 +601,13 @@ public class MainAccessibilityService extends AccessibilityService {
                             Toast.makeText(MainAccessibilityService.this, "Page started", Toast.LENGTH_SHORT).show();
                         }
                     });
+
+                    if (mPendingPageLoadStart) {
+                        BrowserLauncherActivity.moveToBack();
+                        mPendingPageLoadStart = false;
+                    }
                     break;
             }
-        }*/
+        }
     }
 }

@@ -15,10 +15,10 @@ import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-public class FloatingWindowService extends Service {
+public class FloatingMonitorService extends Service {
 
     public static final int NOTIFICATION_FLOATING_WINDOW = 1;
-    private static FloatingWindowService sSharedService;
+    private static FloatingMonitorService sSharedService;
 
     String mOldDisplayed = "";
     String mDisplayed = "";
@@ -26,7 +26,7 @@ public class FloatingWindowService extends Service {
     TextView mTextView;
     private WindowManager mWindowManager;
 
-    public static FloatingWindowService get() {
+    public static FloatingMonitorService get() {
         return sSharedService;
     }
 

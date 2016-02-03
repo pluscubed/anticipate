@@ -16,4 +16,6 @@
     <color name="scrim">#99323232</color>
 
     <color name="toolbar_light_icon">#5A5A5A</color>
+
+    <color name="bubble_rim">#a3a3a3</color>
 </resources>
