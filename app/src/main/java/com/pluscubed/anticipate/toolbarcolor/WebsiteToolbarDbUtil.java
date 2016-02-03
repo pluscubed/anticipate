@@ -3,6 +3,7 @@ package com.pluscubed.anticipate.toolbarcolor;
 import android.support.annotation.ColorInt;
 
 import com.afollestad.inquiry.Inquiry;
+import com.crashlytics.android.Crashlytics;
 
 public class WebsiteToolbarDbUtil {
 
@@ -29,24 +30,31 @@ public class WebsiteToolbarDbUtil {
 
     @ColorInt
     public static int getColor(String url) {
-        WebsiteToolbarColor websiteToolbarColor = Inquiry.get()
-                .selectFrom(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
-                .where("host_domain = ?", url)
-                .one();
-        if (websiteToolbarColor != null) {
-            return websiteToolbarColor.toolbarColor;
-        }
-
-        if (url.startsWith("www.")) {
-            url = url.substring(4);
-            return getColor(url);
-        } else {
-            websiteToolbarColor = Inquiry.get()
+        try {
+            WebsiteToolbarColor websiteToolbarColor = Inquiry.get()
                     .selectFrom(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
-                    .where("host_domain = ?", "www." + url)
+                    .where("host_domain = ?", url)
                     .one();
-            return websiteToolbarColor != null ? websiteToolbarColor.toolbarColor : NOT_FOUND;
+            if (websiteToolbarColor != null) {
+                return websiteToolbarColor.toolbarColor;
+            }
+
+            if (url.startsWith("www.")) {
+                url = url.substring(4);
+                return getColor(url);
+            } else {
+                websiteToolbarColor = Inquiry.get()
+                        .selectFrom(TABLE_TOOLBAR_COLOR, WebsiteToolbarColor.class)
+                        .where("host_domain = ?", "www." + url)
+                        .one();
+                //noinspection ResourceAsColor
+                return websiteToolbarColor != null ? websiteToolbarColor.toolbarColor : NOT_FOUND;
+            }
+        } catch (Exception e) {
+            Crashlytics.logException(e);
         }
+        //noinspection ResourceAsColor
+        return NOT_FOUND;
     }
 
     public static void cleanup() {

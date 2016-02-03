@@ -11,6 +11,7 @@
     <string name="dialog_draw_overlay">To show the floating window on Android 6.0+, grant the "Draw Over Other Apps" permission</string>
     <string name="open_settings">Open Settings</string>
     <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser.</string>
+    <string name="open_settings_failed_overlay">Open settings failed. Please manually enable the "Draw over other apps" setting for Anticipate.</string>
     <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled. Please enable to pre-load links.</string>
     <string name="floating_window_checkbox">Floating window to monitor warmed-up URLs</string>
     <string name="anticipate_url_monitor">Anticipate URL Monitor</string>
@@ -32,7 +33,8 @@
         <a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
         <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
 
-        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - source, issues, feature requests<br/><br/>
+        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - source, issues, feature requests<br/>
+        <a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> - help translation<br/><br/>
     ]]></string>
 
     <string name="about">About</string>
@@ -90,5 +92,6 @@
     <string name="open_in_quick_switch_bubble">Open in Quick-Switch Bubble (BETA)</string>
     <string name="quick_switch_bubble_desc">Starts loading links in Custom Tabs and resumes your previous app, with bubbles to open the loaded websites</string>
     <string name="enable_service_quick_switch">The accessibility service must be enabled to use quick-switch bubbles.</string>
+    <string name="unable_to_launch_browser_error">Selected Custom Tabs browser reported an error</string>
 
 </resources>

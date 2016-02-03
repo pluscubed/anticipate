@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
+import com.crashlytics.android.Crashlytics;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.changelog.ChangelogDialog;
 import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
@@ -373,12 +374,16 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         defaultToolbarLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ColorChooserDialog.Builder(MainActivity.this, R.string.default_toolbar_color)
-                        .preselect(PrefUtils.getDefaultToolbarColor(MainActivity.this))
-                        .customButton(R.string.custom)
-                        .doneButton(R.string.done)
-                        .cancelButton(android.R.string.cancel)
-                        .show();
+                try {
+                    new ColorChooserDialog.Builder(MainActivity.this, R.string.default_toolbar_color)
+                            .preselect(PrefUtils.getDefaultToolbarColor(MainActivity.this))
+                            .customButton(R.string.custom)
+                            .doneButton(R.string.done)
+                            .cancelButton(android.R.string.cancel)
+                            .show();
+                } catch (IllegalStateException e) {
+                    Crashlytics.logException(e);
+                }
             }
         });
 
@@ -542,7 +547,13 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                                 @TargetApi(Build.VERSION_CODES.M)
                                 @Override
                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    openSettings(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, BuildConfig.APPLICATION_ID);
+                                    try {
+                                        //Open the current default browswer App Info page
+                                        openSettings(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, BuildConfig.APPLICATION_ID);
+                                    } catch (ActivityNotFoundException ignored) {
+                                        Crashlytics.logException(ignored);
+                                        Toast.makeText(MainActivity.this, R.string.open_settings_failed_overlay, Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             })
                             .show();
@@ -658,6 +669,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                                 //Open the current default browswer App Info page
                                 openSettings(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, current);
                             } catch (ActivityNotFoundException ignored) {
+                                Crashlytics.logException(ignored);
                                 Toast.makeText(MainActivity.this, R.string.open_settings_failed_clear_deafults, Toast.LENGTH_LONG).show();
                             }
                         }

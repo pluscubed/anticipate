@@ -2,6 +2,7 @@ package com.pluscubed.anticipate;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.widget.Toast;
 
 import com.afollestad.inquiry.Inquiry;
+import com.crashlytics.android.Crashlytics;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteToolbarDbUtil;
@@ -144,20 +146,20 @@ public class BrowserLauncherActivity extends Activity {
 
             CustomTabsIntent customTabsIntent = builder.build();
             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            CustomTabConnectionHelper.openCustomTab(
-                    BrowserLauncherActivity.this, customTabsIntent, uri,
-                    new CustomTabConnectionHelper.CustomTabFallback() {
-                        @Override
-                        public void openUri(Context activity, Uri uri) {
-                            Toast.makeText(BrowserLauncherActivity.this,
-                                    getString(R.string.unable_to_launch),
-                                    Toast.LENGTH_LONG).show();
+            try {
+                CustomTabConnectionHelper.openCustomTab(
+                        BrowserLauncherActivity.this, customTabsIntent, uri,
+                        new CustomTabConnectionHelper.CustomTabFallback() {
+                            @Override
+                            public void openUri(Context activity, Uri uri) {
+                                fallbackLaunch(getString(R.string.unable_to_launch));
+                            }
+                        });
+            } catch (ActivityNotFoundException e) {
+                Crashlytics.logException(e);
 
-                            Intent intent = new Intent(BrowserLauncherActivity.this, MainActivity.class);
-                            intent.setData(uri);
-                            startActivity(intent);
-                        }
-                    });
+                fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
+            }
 
             boolean addToQueue = PrefUtils.isQuickSwitch(this) &&
                     service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
@@ -169,6 +171,13 @@ public class BrowserLauncherActivity extends Activity {
         } else {
             Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    void fallbackLaunch(String error) {
+        Toast.makeText(BrowserLauncherActivity.this, error, Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(BrowserLauncherActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 
     @Override
