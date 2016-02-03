@@ -360,6 +360,24 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                             .positiveText(android.R.string.ok)
                             .content(R.string.enable_service_quick_switch)
                             .show();
+                } else if (checked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .content(R.string.dialog_draw_overlay)
+                            .positiveText(R.string.open_settings)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @TargetApi(Build.VERSION_CODES.M)
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    try {
+                                        //Open the current default browswer App Info page
+                                        openSettings(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, BuildConfig.APPLICATION_ID);
+                                    } catch (ActivityNotFoundException ignored) {
+                                        Crashlytics.logException(ignored);
+                                        Toast.makeText(MainActivity.this, R.string.open_settings_failed_overlay, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            })
+                            .show();
                 } else {
                     PrefUtils.setQuickSwitch(MainActivity.this, checked);
                     mQuickSwitch.setChecked(checked);
@@ -732,7 +750,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
         mPageBasedToolbarSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isDynamicAppBasedToolbar(this));
-        mQuickSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isQuickSwitch(this));
+        mQuickSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isQuickSwitch(this) &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this)));
 
         boolean isSetAsDefault = isSetAsDefault();
 

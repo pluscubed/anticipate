@@ -10,7 +10,9 @@ import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
@@ -162,7 +164,8 @@ public class BrowserLauncherActivity extends Activity {
             }
 
             boolean addToQueue = PrefUtils.isQuickSwitch(this) &&
-                    service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
+                    service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true) &&
+                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
             if (addToQueue) {
                 service.addQueuedWebsite(uri.toString());
             } else {

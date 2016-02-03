@@ -8,8 +8,8 @@
     <string name="dialog_clear_defaults">Another browser is currently set as default. Clear its defaults first to set Anticipate as default.</string>
     <string name="try_it_out">Try it out</string>
     <string name="enter_a_url">Enter a URL</string>
-    <string name="dialog_draw_overlay">To show the floating window on Android 6.0+, grant the "Draw Over Other Apps" permission</string>
-    <string name="open_settings">Open Settings</string>
+    <string name="dialog_draw_overlay">To show floating elements on Android 6.0+, grant the "Draw Over Other Apps" permission</string>
+    <string name="open_settings">Open Settings Page</string>
     <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser.</string>
     <string name="open_settings_failed_overlay">Open settings failed. Please manually enable the "Draw over other apps" setting for Anticipate.</string>
     <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled. Please enable to pre-load links.</string>
@@ -34,7 +34,7 @@
         <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
 
         <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - source, issues, feature requests<br/>
-        <a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> - help translation<br/><br/>
+        <a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> - help translate the app<br/><br/>
     ]]></string>
 
     <string name="about">About</string>
