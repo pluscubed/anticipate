@@ -40,7 +40,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.github.florent37.glidepalette.BitmapPalette;
@@ -577,12 +576,12 @@ public class MainAccessibilityService extends AccessibilityService {
                 case TAB_HIDDEN:
                     break;
                 case NAVIGATION_FINISHED:
-                    mMainHandler.post(new Runnable() {
+                    /*mMainHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(MainAccessibilityService.this, "Page finished", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    });*/
 
                     for (BubbleViewHolder holder : mQueuedWebsites.values()) {
                         if (!holder.done) {
@@ -594,12 +593,12 @@ public class MainAccessibilityService extends AccessibilityService {
                     }
                     break;
                 case NAVIGATION_STARTED:
-                    mMainHandler.post(new Runnable() {
+                    /*mMainHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(MainAccessibilityService.this, "Page started", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    });*/
 
                     if (mPendingPageLoadStart) {
                         BrowserLauncherActivity.moveToBack();
