@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Para detectar links na tela e se preparar para eles, ativo o serviço de acessibilidade do Anticipate</string>
+    <string name="enable_accessibility_service">Ativar Serviço de Acessibilidade</string>
+    <string name="desc_default">Para abrir todos os links usando o Anticipate, você deve defini-lo como o navegador padrão</string>
+    <string name="set_as_default_browser">Definir como navegador padrão</string>
+    <string name="dialog_clear_defaults">Outro navegador está definido como padrão. Limpe seus padrões antes de definir Anticipate como padrão.</string>
+    <string name="try_it_out">Experimente</string>
+    <string name="enter_a_url">Digite uma URL</string>
+    <string name="dialog_draw_overlay">Para mostrar a janela flutuante no Android 6.0+, conceda a permissão \"Sobrepor a outros apps\"</string>
+    <string name="open_settings">Abrir Configurações</string>
+    <string name="open_settings_failed_clear_deafults">Falha ao abrir configurações. Por favor, limpe os padrões manualmente do seu navegador atual.</string>
+    <string name="accessibility_disabled">Serviço de acessibilidade do Anticipate está desativado. Por favor ative para pré-carregar os links.</string>
+    <string name="floating_window_checkbox">Janela flutuante para monitorar URLs preparadas</string>
+    <string name="anticipate_url_monitor">Monitor de URL do Anticipate</string>
+    <string name="notification_tap_to_close">Toque para fechar a janela flutuante</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">Dispensar</string>
+    <string name="about_body"><![CDATA[<b>Anticipate</b> é ferramenta de navegação na web que detecta e prepara os links que estão na sua tela. 
+<br/><br/>
+Isso usa o Chrome Custom Tabs para pré-carregar domínios e pré-buscar recursos com antecedência para suas páginas da web estarem prontas para serem visualizadas o mais rápido possível.<br/><br/>
+
+Desenvolvido por <b>Daniel Ciao</b><br/>
+
+<a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp; 
+<a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp; 
+<a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp; 
+<a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp; 
+<a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/> 
+
+<a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - fonte, problemas, pedidos de funcionalidades<br/><br/>]]></string>
+    <string name="about">Sobre</string>
+    <string name="per_app_filter_mode">Filtrar por app</string>
+    <string name="configure">Configurar</string>
+    <string name="blacklist">Lista negra</string>
+    <string name="whitelist">Lista branca</string>
+    <string name="blacklisted_apps">Aplicativos na Lista Negra</string>
+    <string name="whitelisted_apps">Aplicativos na Lista Branca</string>
+    <string name="open_with">Abrir com:</string>
+    <string name="unable_to_launch">Não há navegadores compatíveis com o Chrome Custom Tabs instalado</string>
+    <string name="undo">Desfazer</string>
+    <string name="app_removed">%s removido da lista</string>
+    <string name="no_blacklisted_apps">Sem aplicativos na lista negra</string>
+    <string name="no_whitelisted_apps">Sem aplicativos na lista branca</string>
+    <string name="swipe_to_remove">Deslize para remover</string>
+    <string name="accessibility_service_not_active">Serviço de acessibilidade do Anticipate ficou inativo. Por favor desative manualmente o serviço de acessibilidade e ative novamente.</string>
+    <string name="dynamic_toolbar_color">Cor dinâmica da barra de ferramentas</string>
+    <string name="toolbar_color_desc">Usar a cor definida na barra de ferramentas do website (quando definida).  Isso irá funcionar na segunda vez que um site é aberto.</string>
+    <string name="default_toolbar_color">Cor padrão da barra de ferramentas</string>
+    <string name="share">Compartilhar</string>
+    <string name="animation">Animação:</string>
+    <string name="slide_bottom">Deslizar vindo de baixo</string>
+    <string name="slide_right">Deslizar vindo da direita</string>
+    <string name="none">Nada - animação do sistema</string>
+    <string name="custom_tab_browser">Guia Personalizada do Navegador:</string>
+    <string name="install_chrome">Instalar Chrome</string>
+    <string name="error">Erro</string>
+    <string name="changelog">Notas de lançamento</string>
+    <string name="custom">Personalizado</string>
+    <string name="done">Feito</string>
+    <string name="using_anticipate">usando Anticipate</string>
+    <string name="using_browser">usando o Navegador</string>
+    <string name="anticipate_update">Anticipate atualizado para v</string>
+    <string name="anticipate_update_desc">Toque de verificar as novas funcionalidades</string>
+    <string name="use_chrome_custom_tabs">Usar Chrome Custom Tabs</string>
+</resources>

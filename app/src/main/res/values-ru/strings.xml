@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Для нахождения ссылок на экране и их предзагрузки, включите Anticipate в настройках</string>
+    <string name="enable_accessibility_service">Включить Anticipate в настройках</string>
+    <string name="desc_default">Чтобы открывать все ссылки используя Ancticipate, вы можете установить его браузером по умолчанию</string>
+    <string name="set_as_default_browser">Установить браузером по умолчанию</string>
+    <string name="dialog_clear_defaults">Другой браузер установлен по умолчанию. Очистите его настройки, чтобы установить Anticipate по умолчанию.</string>
+    <string name="try_it_out">Попробуйте</string>
+    <string name="enter_a_url">Введите URL</string>
+    <string name="dialog_draw_overlay">Чтобы показывать контент поверх других приложений в Android 6.0+, необходимо разрешение \"Наложение поверх других окон\"</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="open_settings_failed_clear_deafults">Не получилось открыть настройки. Очистите настройки по умолчания для текущего браузера самостоятельно.</string>
+    <string name="accessibility_disabled">Anticipate отключен в настройках. Включите его для предзагрузки ссылок.</string>
+    <string name="floating_window_checkbox">Перекрывающее окно для мониторинга предзагруженых URL</string>
+    <string name="anticipate_url_monitor">Anticipate URL монитор</string>
+    <string name="notification_tap_to_close">Коснитесь чтобы закрыть</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">Закрыть</string>
+    <string name="about_body"><![CDATA[ <b>Anticipate</b> это приложение для просмотра веб-страниц и предзагрузки ссылок на экране.
+        <br/><br/>
+        Оно использует Chrome Custom Tabs для определения домена и предзагрузки ресурсов заранее для того, чтобы веб-страницы
+        были готовы для отображения как можно быстрее.<br/><br/>
+
+        Разработчик <b>Daniel Ciao</b><br/>
+
+        <a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp;
+        <a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
+        <a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
+        <a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
+        <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
+
+        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - исходники, проблемы, предложения<br/><br/> ]]></string>
+    <string name="about">О приложении</string>
+    <string name="per_app_filter_mode">Фильтр прил.:</string>
+    <string name="configure">Настроить</string>
+    <string name="blacklist">Черный список</string>
+    <string name="whitelist">Белый список</string>
+    <string name="blacklisted_apps">Черный список</string>
+    <string name="whitelisted_apps">Белый список</string>
+    <string name="open_with">Открыть с помощью:</string>
+    <string name="unable_to_launch">Не установлено браузеров с поддержкой Chrome Custom Tabs</string>
+    <string name="undo">Отменить</string>
+    <string name="app_removed">%s удалено из списка</string>
+    <string name="no_blacklisted_apps">Нет приложений в черном списке</string>
+    <string name="no_whitelisted_apps">Нет приложений в белом списке</string>
+    <string name="swipe_to_remove">Смахните для удаления</string>
+    <string name="accessibility_service_not_active">Сервис Anticipate стал неактивным. Отключите и включите его снова</string>
+    <string name="dynamic_toolbar_color">Динамический цвет тулбара</string>
+    <string name="toolbar_color_desc">Использовать цвет тулбара заданного на сайте (если задан). Это будет работать, если сайт открыть во второй раз.</string>
+    <string name="default_toolbar_color">Стандартный цвет тулбара</string>
+    <string name="share">Поделиться</string>
+    <string name="animation">Анимация:</string>
+    <string name="slide_bottom">Слайд вверх</string>
+    <string name="slide_right">Слайд влево</string>
+    <string name="none">Системная</string>
+    <string name="custom_tab_browser">Используемый браузер:</string>
+    <string name="install_chrome">Установить Chrome</string>
+    <string name="error">Ошибка</string>
+    <string name="changelog">Список изменений</string>
+    <string name="custom">Ручной</string>
+    <string name="done">Готово</string>
+    <string name="using_anticipate">используя Anticipate</string>
+    <string name="using_browser">используя браузер</string>
+    <string name="anticipate_update">Anticipate обновился до версии</string>
+    <string name="anticipate_update_desc">Коснитесь для просмотра новых возможностей</string>
+    <string name="use_chrome_custom_tabs">Использовать Chrome Custom Tabs</string>
+</resources>

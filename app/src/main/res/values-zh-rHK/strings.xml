@@ -8,7 +8,7 @@
     <string name="dialog_clear_defaults">另一個瀏覽器已被設為默認，請先清除默認瀏覽器</string>
     <string name="try_it_out">試用</string>
     <string name="enter_a_url">輸入網址</string>
-    <string name="dialog_draw_overlay">為了在安卓6.0以上顯示浮動窗口，請允許Anticipate在其它應用的上層顯示</string>
+    <string name="dialog_draw_overlay">為了在安卓6.0以上顯示浮動界面，請允許Anticipate在其它應用的上層顯示</string>
     <string name="open_settings">打開設置</string>
     <string name="open_settings_failed_clear_deafults">無法自動打開設置。請手動清除默認瀏覽器</string>
     <string name="accessibility_disabled">Anticipate的無障礙服務沒有開啟，為了準備載入連接請啟用服務</string>
@@ -52,8 +52,8 @@
     <string name="swipe_to_remove">拖動移除應用</string>
     <string name="accessibility_service_not_active">Anticipate無障礙選項已開啟但服務意外關閉。請手動關閉再開啟無障礙服務。</string>
     <string name="use_chrome_custom_tabs">使用Chrome Custom Tabs</string>
-    <string name="toolbar_color_desc">使用網頁指定的導航欄顏色(如果網頁有指定)。打開一網站第二次時起效。</string>
-    <string name="dynamic_toolbar_color">動態導航欄顏色</string>
+    <string name="toolbar_color_desc">使用網頁指定的導航欄顏色(如果網頁有指定)。打開某一網站第二次時起效。</string>
+    <string name="dynamic_toolbar_color">網頁導航欄顏色</string>
     <string name="default_toolbar_color">默認導航欄顏色</string>
 
     <string name="share">分享</string>
@@ -74,5 +74,15 @@
 
     <string name="anticipate_update">Anticipate已更新到v</string>
     <string name="anticipate_update_desc">點擊查看新功能</string>
+    <string name="anticipate_settings">Anticipate設置</string>
+    <string name="dynamic_page_toolbar_color">前頁面導航欄顏色(BETA)</string>
+    <string name="dynamic_page_toolbar_color_desc">用打開Anticipate的App所有的導航欄顏色</string>
+    <string name="enable_service_page_toolbar">使用前頁面導航欄顏色需打開無障礙服務</string>
+    <string name="enable_service_quick_switch">使用快速切換泡泡需打開無障礙服務</string>
+    <string name="open_in_quick_switch_bubble">使用快速切換泡泡打開(BETA)</string>
+    <string name="open_settings_failed_overlay">無法自動打開設置。請手動允許Anticipate在其它應用的上層顯示</string>
+    <string name="quick_switch_bubble_desc">使用Custom Tabs開始加載、回到正在使用的app、及顯示快速切換泡泡</string>
+    <string name="slide_bottom_android">安卓5.0+頁面滑入</string>
+    <string name="unable_to_launch_browser_error">選擇的Custom Tabs瀏覽器未能打開連接</string>
 
 </resources>

@@ -20,8 +20,8 @@ android {
         applicationId "com.pluscubed.anticipate"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 3
-        versionName "1.0.2"
+        versionCode 4
+        versionName "1.1.0"
         manifestPlaceholders = [appName: "@string/app_name"]
     }
 
@@ -47,6 +47,10 @@ android {
                 signingConfig signingConfigs.release
             } else {
                 signingConfig signingConfigs.debug
+            }
+
+            lintOptions {
+                disable 'MissingTranslation'
             }
         }
 

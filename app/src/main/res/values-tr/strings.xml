@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Linklerin otomatik algılanması için lütfen Anticipate\'nin erişilebilirlik servisini etkinleştirin</string>
+    <string name="enable_accessibility_service">Erişilebilirlik Servisini Etkinleştir</string>
+    <string name="desc_default">Bütün linkleri Anticipate ile açmak için varsayılan tarayıcı olarak belirlemelisiniz</string>
+    <string name="set_as_default_browser">Varsayılan tarayıcı olarak belirle</string>
+    <string name="dialog_clear_defaults">Başka bir tarayıcı varsayılan olarak belirlenmiş. Anticipate\'yi varsayılan olarak ayarlamak için diğer tarayıcının varsayılanını kaldırın.</string>
+    <string name="try_it_out">Şimdi deneyin</string>
+    <string name="enter_a_url">URL\'yi girin</string>
+    <string name="dialog_draw_overlay">Kayan pencereyi Anroid 6.0+ bir sürümde kullanmak için \"Diğer Uygulamaların Üzerinde Görüntüleme\" iznini verin</string>
+    <string name="open_settings">Ayarları Aç</string>
+    <string name="open_settings_failed_clear_deafults">Ayarlar açılamadı. Lütfen şimdiki tarayıcınızın varsayılanlarını elle kaldırın.</string>
+    <string name="accessibility_disabled">Anticipate\'nin erişilebilirlik servisi devre dışı. Linkleri önyüklemek için aktifleştirin.</string>
+    <string name="floating_window_checkbox">Son algılanan linkleri kayan pencerede göster</string>
+    <string name="anticipate_url_monitor">Anticipate URL Monitörü</string>
+    <string name="notification_tap_to_close">Kayan pencereyi kapatmak için dokunun</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">Reddet</string>
+    <string name="about_body"><![CDATA[<b>Anticipate</b> ekrandaki linkleri tarayan ve hızla görüntülenmesini sağlayan bir web tarayıcıdır.
+<br/><br/>
+En kısa sürede siteyi açmak için Chrome Özel Sekmeleri özelliğini, alan adını çözmek ve siteyi açmak için kullanır.<br/><br/>
+
+<b>Daniel Ciao</b> tarafından geliştirilmiştir.
+
+<a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp;
+<a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
+<a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
+<a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
+<a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
+
+Kaynak kodu, hatalar ve yeni özellik istekleri için <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a><br/><br/>]]></string>
+    <string name="about">Hakkında</string>
+    <string name="per_app_filter_mode">Uygulama filtresi:</string>
+    <string name="configure">Yapılandır</string>
+    <string name="blacklist">Kara liste</string>
+    <string name="whitelist">Beyaz liste</string>
+    <string name="blacklisted_apps">Kara Listedeki Uygulamalar</string>
+    <string name="whitelisted_apps">Beyaz Listedeki Uygulamalar</string>
+    <string name="open_with">Birlikte aç:</string>
+    <string name="unable_to_launch">Chrome Özel Sekmeleri destekleyen bir tarayıcı bulunamadı</string>
+    <string name="undo">Geri al</string>
+    <string name="app_removed">%s listeden silindi</string>
+    <string name="no_blacklisted_apps">Kara listeye alınmış uygulama yok</string>
+    <string name="no_whitelisted_apps">Beyaz listeye alınmış uygulama yok</string>
+    <string name="swipe_to_remove">Silmek için kaydırın</string>
+    <string name="accessibility_service_not_active">Anticipate\'nin erişilebilirlik servisi inaktif. Lütfen elle kapatıp açın.</string>
+    <string name="dynamic_toolbar_color">Dinamik araç çubuğu rengi</string>
+    <string name="toolbar_color_desc">Websiteye özel araç çubuğu kullan (ayarlıysa). Site ikinci kez açıldığında aktifleşir.</string>
+    <string name="default_toolbar_color">Varsayılan araç çubuğu rengi</string>
+    <string name="share">Paylaş</string>
+    <string name="animation">Animasyon:</string>
+    <string name="slide_bottom">Aşağıdan kayarak</string>
+    <string name="slide_right">Sağdan kayarak</string>
+    <string name="none">Yok - sistem animasyonu</string>
+    <string name="custom_tab_browser">Özel Sekme Tarayıcısı:</string>
+    <string name="install_chrome">Chrome\'yi Yükle</string>
+    <string name="error">Hata</string>
+    <string name="changelog">Değişiklikler</string>
+    <string name="custom">Özel</string>
+    <string name="done">Bitir</string>
+    <string name="using_anticipate">Anticipate kullanarak</string>
+    <string name="using_browser">tarayıcı kullanarak</string>
+    <string name="anticipate_update">Anticipate %s versiyonuna yükseltildi</string>
+    <string name="anticipate_update_desc">Yeni özellikleri görmek için dokunun</string>
+    <string name="use_chrome_custom_tabs">Chrome Özel Sekmelerini Kullan</string>
+</resources>
