@@ -58,6 +58,8 @@ public class BrowserLauncherActivity extends Activity {
 
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
+        Utils.notifyChangelog(this);
+
         sSharedInstance = this;
 
         final Uri uri = getIntent().getData();

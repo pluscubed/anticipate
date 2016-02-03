@@ -6,11 +6,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -25,7 +21,6 @@ import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsCallback;
 import android.support.customtabs.CustomTabsService;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -50,6 +45,7 @@ import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.ScrimUtil;
+import com.pluscubed.anticipate.util.Utils;
 import com.pluscubed.anticipate.widget.ProgressWheel;
 
 import java.util.ArrayList;
@@ -67,7 +63,6 @@ public class MainAccessibilityService extends AccessibilityService {
 
     public static final String TAG = "Accesibility";
     public static final String LINK_REG_EX = "((?:[a-z][\\w-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))";
-    public static final int NOTIFICATION_CHANGELOG = 2;
 
     private static MainAccessibilityService sSharedService;
     List<String> mFilterList;
@@ -131,24 +126,12 @@ public class MainAccessibilityService extends AccessibilityService {
 
         updateFilterList();
 
-        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this)) {
-            Intent notificationIntent = new Intent(this, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-            Notification notification = new NotificationCompat.Builder(this)
-                    .setContentTitle(getString(R.string.anticipate_update) + BuildConfig.VERSION_NAME)
-                    .setContentText(getString(R.string.anticipate_update_desc))
-                    .setSmallIcon(R.drawable.ic_trending_up_black_24dp)
-                    .setContentIntent(pendingIntent)
-                    .build();
-
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.notify(NOTIFICATION_CHANGELOG, notification);
-        }
+        Utils.notifyChangelog(this);
 
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
     }
+
 
     @SuppressLint("InflateParams")
     private void addBubble(final String url) {
