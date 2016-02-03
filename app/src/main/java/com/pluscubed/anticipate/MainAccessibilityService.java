@@ -379,8 +379,9 @@ public class MainAccessibilityService extends AccessibilityService {
             String appId = packageName.toString();
             log("=appId: " + appId);
 
-            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-                String activityName = event.getClassName().toString();
+            CharSequence className = event.getClassName();
+            if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && className != null) {
+                String activityName = className.toString();
 
                 boolean redundant = false;
                 if (mAppsUsed.size() > 0) {
@@ -395,7 +396,7 @@ public class MainAccessibilityService extends AccessibilityService {
                     mAppsUsed.add(entry);
                 }
 
-                log("=activityName: " + activityName);
+                log("=activityName: " + className);
             }
 
 
