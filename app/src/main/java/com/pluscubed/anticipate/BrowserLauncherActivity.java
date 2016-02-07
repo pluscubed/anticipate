@@ -87,93 +87,94 @@ public class BrowserLauncherActivity extends Activity {
                         : quickSwitchService != null ? quickSwitchService.getCustomTabConnectionHelper()
                         : null;
 
-            final CustomTabsIntent.Builder builder;
+        final CustomTabsIntent.Builder builder;
         if (customTabConnectionHelper != null) {
             customTabConnectionHelper.mayLaunchUrl(uri, null, null);
             builder = new CustomTabsIntent.Builder(customTabConnectionHelper.getSession());
         } else {
-                builder = new CustomTabsIntent.Builder();
-                if (!MainActivity.isAccessibilityServiceEnabled(this)) {
-                    if (!PrefUtils.isAccessibilityOffWarned(this)) {
-                        Toast.makeText(this, R.string.accessibility_disabled, Toast.LENGTH_LONG).show();
-                        PrefUtils.setAccessibilityOffWarned(this);
-                    }
-                } else {
-                    Toast.makeText(this, R.string.accessibility_service_not_active, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            String host = uri.toString();
-            host = Utils.getHost(host);
-
-            int color;
-            if (PrefUtils.isDynamicToolbar(this)) {
-                color = WebsiteToolbarDbUtil.getColor(host);
-                if (color == WebsiteToolbarDbUtil.NOT_FOUND) {
-                    Intent serviceIntent = new Intent(BrowserLauncherActivity.this, WebsiteService.class);
-                    serviceIntent.putExtra(WebsiteService.EXTRA_HOST, host);
-                    startService(serviceIntent);
-
-                    color = -4;
-                } else if (color == WebsiteToolbarDbUtil.NO_COLOR) {
-                    color = -4;
+            builder = new CustomTabsIntent.Builder();
+            if (!MainActivity.isAccessibilityServiceEnabled(this)) {
+                if (!PrefUtils.isAccessibilityOffWarned(this)) {
+                    Toast.makeText(this, R.string.accessibility_disabled, Toast.LENGTH_LONG).show();
+                    PrefUtils.setAccessibilityOffWarned(this);
                 }
             } else {
+                Toast.makeText(this, R.string.accessibility_service_not_active, Toast.LENGTH_LONG).show();
+            }
+        }
+
+        String host = uri.toString();
+        host = Utils.getHost(host);
+
+        int color;
+        if (PrefUtils.isDynamicToolbar(this)) {
+            color = WebsiteToolbarDbUtil.getColor(host);
+            if (color == WebsiteToolbarDbUtil.NOT_FOUND) {
+                Intent serviceIntent = new Intent(BrowserLauncherActivity.this, WebsiteService.class);
+                serviceIntent.putExtra(WebsiteService.EXTRA_HOST, host);
+                startService(serviceIntent);
+
+                color = -4;
+            } else if (color == WebsiteToolbarDbUtil.NO_COLOR) {
                 color = -4;
             }
-            if (color == -4) {
-                if (PrefUtils.isDynamicAppBasedToolbar(this) && accessibilityService != null) {
-                    color = accessibilityService.getLastAppPrimaryColor();
-                } else {
-                    color = PrefUtils.getDefaultToolbarColor(this);
-                }
+        } else {
+            color = -4;
+        }
+        if (color == -4) {
+            if (PrefUtils.isDynamicAppBasedToolbar(this) && accessibilityService != null) {
+                color = accessibilityService.getLastAppPrimaryColor();
+            } else {
+                color = PrefUtils.getDefaultToolbarColor(this);
             }
+        }
 
-            builder.setToolbarColor(color);
+        builder.setToolbarColor(color);
 
 
-            boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(color);
+        boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(color);
 
-            Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
-            PendingIntent shareBroadcast = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-            Intent settingsIntent = new Intent(this, MainActivity.class);
-            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
+        PendingIntent sharePending = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent settingsIntent = new Intent(this, MainActivity.class);
+        settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-            builder.enableUrlBarHiding()
-                    .setShowTitle(true)
-                    .addMenuItem(getString(R.string.share), shareBroadcast)
-                    .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
-                    .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
+
+        builder.enableUrlBarHiding()
+                .setShowTitle(true)
+                .addMenuItem(getString(R.string.share), sharePending)
+                .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
+                .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
                             getString(R.string.share),
-                            shareBroadcast)*/;
+                            sharePending)*/;
 
-            int animationStyleId = PrefUtils.getAnimationStyle(this);
-            AnimationStyle animationStyle = AnimationStyle.valueWithId(animationStyleId);
-            if (animationStyle != null) {
-                switch (animationStyle) {
-                    case BOTTOM:
-                        builder.setStartAnimations(this, R.anim.slide_in_bottom, R.anim.fade_out);
-                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_bottom);
-                        overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
-                        break;
-                    case RIGHT:
-                        builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.fade_out);
-                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_right);
-                        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
-                        break;
-                    case LOLLIPOP:
-                        builder.setStartAnimations(this, R.anim.activity_slide_in, R.anim.fade_out);
-                        builder.setExitAnimations(this, R.anim.fade_in, R.anim.activity_slide_out);
-                        overridePendingTransition(R.anim.activity_slide_in, R.anim.fade_out);
-                        break;
-                }
+        int animationStyleId = PrefUtils.getAnimationStyle(this);
+        AnimationStyle animationStyle = AnimationStyle.valueWithId(animationStyleId);
+        if (animationStyle != null) {
+            switch (animationStyle) {
+                case BOTTOM:
+                    builder.setStartAnimations(this, R.anim.slide_in_bottom, R.anim.fade_out);
+                    builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_bottom);
+                    overridePendingTransition(R.anim.slide_in_bottom, R.anim.fade_out);
+                    break;
+                case RIGHT:
+                    builder.setStartAnimations(this, R.anim.slide_in_right, R.anim.fade_out);
+                    builder.setExitAnimations(this, R.anim.fade_in, R.anim.slide_out_right);
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
+                    break;
+                case LOLLIPOP:
+                    builder.setStartAnimations(this, R.anim.activity_slide_in, R.anim.fade_out);
+                    builder.setExitAnimations(this, R.anim.fade_in, R.anim.activity_slide_out);
+                    overridePendingTransition(R.anim.activity_slide_in, R.anim.fade_out);
+                    break;
             }
+        }
 
-            CustomTabsIntent customTabsIntent = builder.build();
-            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        CustomTabsIntent customTabsIntent = builder.build();
+        customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
 
         boolean openBubble = PrefUtils.isQuickSwitch(this) &&
@@ -186,52 +187,52 @@ public class BrowserLauncherActivity extends Activity {
             overridePendingTransition(0, 0);
         }
 
-            try {
-                CustomTabConnectionHelper.openCustomTab(
-                        BrowserLauncherActivity.this, customTabsIntent, uri,
-                        new CustomTabConnectionHelper.CustomTabFallback() {
-                            @Override
-                            public void openUri(Context activity, Uri uri) {
-                                fallbackLaunch(getString(R.string.unable_to_launch));
-                            }
-                        });
-            } catch (ActivityNotFoundException e) {
-                Crashlytics.logException(e);
+        try {
+            CustomTabConnectionHelper.openCustomTab(
+                    BrowserLauncherActivity.this, customTabsIntent, uri,
+                    new CustomTabConnectionHelper.CustomTabFallback() {
+                        @Override
+                        public void openUri(Context activity, Uri uri) {
+                            fallbackLaunch(getString(R.string.unable_to_launch));
+                        }
+                    });
+        } catch (ActivityNotFoundException e) {
+            Crashlytics.logException(e);
 
-                fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
-            }
+            fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
+        }
 
         if (openBubble) {
             Intent intent = new Intent(this, QuickSwitchService.class);
             intent.setData(uri);
             startService(intent);
 
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (sSharedInstance != null) {
-                            if (BuildConfig.DEBUG)
-                                Toast.makeText(BrowserLauncherActivity.this,
-                                        "Not properly launching",
-                                        Toast.LENGTH_LONG).show();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (sSharedInstance != null) {
+                        if (BuildConfig.DEBUG)
+                            Toast.makeText(BrowserLauncherActivity.this,
+                                    "Not properly launching",
+                                    Toast.LENGTH_LONG).show();
 
-                            if (customTabConnectionHelper != null && accessibilityService != null) {
-                                customTabConnectionHelper.unbindCustomTabsService(accessibilityService);
-                                customTabConnectionHelper.bindCustomTabsService(accessibilityService);
-                            } else if (customTabConnectionHelper != null) {
-                                customTabConnectionHelper.unbindCustomTabsService(quickSwitchService);
-                                customTabConnectionHelper.bindCustomTabsService(quickSwitchService);
-                            }
-
-                            moveTaskToBack(true);
-                            finish();
+                        if (customTabConnectionHelper != null && accessibilityService != null) {
+                            customTabConnectionHelper.unbindCustomTabsService(accessibilityService);
+                            customTabConnectionHelper.bindCustomTabsService(accessibilityService);
+                        } else if (customTabConnectionHelper != null) {
+                            customTabConnectionHelper.unbindCustomTabsService(quickSwitchService);
+                            customTabConnectionHelper.bindCustomTabsService(quickSwitchService);
                         }
+
+                        moveTaskToBack(true);
+                        finish();
                     }
-                }, 800);
-            } else {
-                finish();
-            }
+                }
+            }, 800);
+        } else {
+            finish();
+        }
     }
 
     void fallbackLaunch(String error) {

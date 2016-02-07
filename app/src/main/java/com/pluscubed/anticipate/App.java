@@ -42,17 +42,17 @@ public class App extends Application {
                 .register(Uri.class, InputStream.class, new FaviconLoader.Factory());
 
         JobManager.create(this)
-            .addJobCreator(new JobCreator() {
-                @Override
-                public Job create(String tag) {
-                    switch (tag) {
-                        case CleanupJob.TAG:
-                            return new CleanupJob();
-                        default:
-                            throw new RuntimeException("Cannot find job for tag " + tag);
+                .addJobCreator(new JobCreator() {
+                    @Override
+                    public Job create(String tag) {
+                        switch (tag) {
+                            case CleanupJob.TAG:
+                                return new CleanupJob();
+                            default:
+                                throw new RuntimeException("Cannot find job for tag " + tag);
+                        }
                     }
-                }
-            });
+                });
 
         JobManager.instance().cancelAll();
 

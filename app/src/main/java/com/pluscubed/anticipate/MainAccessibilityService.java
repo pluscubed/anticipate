@@ -232,7 +232,6 @@ public class MainAccessibilityService extends AccessibilityService {
             }
 
 
-
             if ((mBlacklistMode && mFilterList.contains(appId)) ||
                     (!mBlacklistMode && !mFilterList.contains(appId))) {
                 log("=excluded");
@@ -380,7 +379,7 @@ public class MainAccessibilityService extends AccessibilityService {
         public void onNavigationEvent(int navigationEvent, Bundle extras) {
             super.onNavigationEvent(navigationEvent, extras);
 
-            switch(navigationEvent){
+            switch (navigationEvent) {
                 case TAB_SHOWN:
                     break;
                 case TAB_HIDDEN:

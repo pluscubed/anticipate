@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 /**
  * Helper functions for working with colors.
- * <p>
+ * <p/>
  * Taken from Chromium source
  */
 public class ColorUtils {
