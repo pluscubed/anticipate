@@ -80,7 +80,7 @@ public class AppIconLoader implements ModelLoader<AppInfo, InputStream> {
         };
     }
 
-    public static class Loader implements ModelLoaderFactory<AppInfo, InputStream> {
+    public static class Factory implements ModelLoaderFactory<AppInfo, InputStream> {
 
         @Override
         public ModelLoader<AppInfo, InputStream> build(Context context, GenericLoaderFactory factories) {

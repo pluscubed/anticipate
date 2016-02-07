@@ -1,0 +1,343 @@
+package com.pluscubed.anticipate.quickswitch;
+
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Intent;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.support.customtabs.CustomTabsCallback;
+import android.support.v7.app.NotificationCompat;
+import android.support.v7.graphics.Palette;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
+
+import com.bumptech.glide.Glide;
+import com.github.florent37.glidepalette.BitmapPalette;
+import com.github.florent37.glidepalette.GlidePalette;
+import com.pluscubed.anticipate.BrowserLauncherActivity;
+import com.pluscubed.anticipate.MainAccessibilityService;
+import com.pluscubed.anticipate.R;
+import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
+import com.pluscubed.anticipate.util.PrefUtils;
+import com.pluscubed.anticipate.util.ScrimUtil;
+import com.pluscubed.anticipate.widget.ProgressWheel;
+
+import java.util.LinkedHashMap;
+
+public class QuickSwitchService extends Service {
+
+    public static final String EXTRA_STOP = "com.pluscubed.anticipate.EXTRA_STOP";
+    public static final String EXTRA_FINISH_LOADING = "com.pluscubed.anticipate.EXTRA_FINISH_LOADING";
+    public static final int NOTIFICATION_FLOATING_WINDOW = 23;
+
+    private static QuickSwitchService sSharedService;
+    LinkedHashMap<String, BubbleViewHolder> mQueuedWebsites;
+    WindowManager mWindowManager;
+    boolean mPendingPageLoadStart;
+    private View mDiscardLayout;
+    private ImageView mDiscardBubble;
+    private boolean mUsingAccessibility;
+    private CustomTabConnectionHelper mCustomTabConnectionHelper;
+
+    public static QuickSwitchService get() {
+        return sSharedService;
+    }
+
+    public WindowManager getWindowManager() {
+        return mWindowManager;
+    }
+
+    public View getDiscardLayout() {
+        return mDiscardLayout;
+    }
+
+    public CustomTabConnectionHelper getCustomTabConnectionHelper() {
+        return mCustomTabConnectionHelper;
+    }
+
+    @SuppressLint("InflateParams")
+    private void addBubble(final String url) {
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        if (mDiscardLayout == null) {
+            mDiscardLayout = inflater.inflate(R.layout.bubble_discard_bg, null);
+            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    PixelFormat.TRANSLUCENT);
+            params.gravity = Gravity.LEFT | Gravity.TOP;
+
+            mDiscardLayout.setLayoutParams(params);
+
+            View discardScrim = mDiscardLayout.findViewById(R.id.bubble_discard_bg_scrim);
+            discardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
+
+            mDiscardBubble = (ImageView) mDiscardLayout.findViewById(R.id.bubble_discard_bg_bubble);
+
+            mDiscardLayout.setAlpha(0);
+        }
+
+        final BubbleViewHolder holder = new BubbleViewHolder();
+        holder.root = inflater.inflate(R.layout.bubble_quick_switch, null);
+        holder.icon = (ImageView) holder.root.findViewById(R.id.bubble_quick_switch_icon);
+        holder.progress = (ProgressWheel) holder.root.findViewById(R.id.bubble_quick_switch_progress);
+
+        final int defaultToolbarColor = PrefUtils.getDefaultToolbarColor(this);
+        holder.progress.setBarColor(defaultToolbarColor);
+
+        final int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.bubble_size_padding);
+
+        holder.root.setOnTouchListener(new BubbleOnTouchListener(this, url));
+
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                bubbleWidth,
+                bubbleWidth,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                PixelFormat.TRANSLUCENT);
+
+        Uri faviconUri = Uri.parse(url);
+        Glide.with(this)
+                .load(faviconUri)
+                .placeholder(R.mipmap.ic_launcher)
+                .error(R.mipmap.ic_launcher)
+                .listener(GlidePalette.with(faviconUri.toString())
+                        .intoCallBack(new BitmapPalette.CallBack() {
+                            @Override
+                            public void onPaletteLoaded(@Nullable Palette palette) {
+                                holder.progress.setBarColor(palette.getVibrantColor(defaultToolbarColor));
+                            }
+                        }))
+                .into(holder.icon);
+
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+
+        final Point size = new Point();
+        mWindowManager.getDefaultDisplay().getSize(size);
+        params.x = size.x;
+        params.y = size.y / 3;
+
+        mWindowManager.addView(holder.root, params);
+
+        mQueuedWebsites.put(url, holder);
+
+
+        int endX = size.x - bubbleWidth * 7 / 10;
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(params.x, endX)
+                .setDuration(300);
+        valueAnimator.setInterpolator(new OvershootInterpolator(1.5f));
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) holder.root.getLayoutParams();
+                params.x = (int) animation.getAnimatedValue();
+
+                mWindowManager.updateViewLayout(holder.root, params);
+            }
+        });
+        valueAnimator.start();
+
+        if (MainAccessibilityService.get() == null) {
+            mPendingPageLoadStart = true;
+        } else {
+            MainAccessibilityService.get().pendLoadStart();
+        }
+    }
+
+    void animateViewToSideSlot(final View view) {
+        int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.bubble_size_padding);
+
+        Point size = new Point();
+        mWindowManager.getDefaultDisplay().getSize(size);
+
+        WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+        int endX;
+        if (params.x + bubbleWidth / 2 >= size.x / 2) {
+            endX = size.x - bubbleWidth * 7 / 10;
+        } else {
+            endX = -bubbleWidth * 3 / 10;
+        }
+
+        int endY;
+        endY = params.y;
+
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(params.x, endX)
+                .setDuration(300);
+        valueAnimator.setInterpolator(new OvershootInterpolator(1.5f));
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+                params.x = (int) animation.getAnimatedValue();
+            }
+        });
+
+        ValueAnimator valueAnimator2 = ValueAnimator.ofInt(params.y, endY)
+                .setDuration(300);
+        valueAnimator2.setInterpolator(new OvershootInterpolator(1.5f));
+        valueAnimator2.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                WindowManager.LayoutParams params = (WindowManager.LayoutParams) view.getLayoutParams();
+                params.y = (int) animation.getAnimatedValue();
+
+                if (view.isShown()) {
+                    mWindowManager.updateViewLayout(view, params);
+                }
+            }
+        });
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(valueAnimator, valueAnimator2);
+        set.start();
+    }
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        sSharedService = this;
+
+        mQueuedWebsites = new LinkedHashMap<>();
+        mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        Intent notificationIntent = new Intent(this, getClass());
+        notificationIntent.putExtra(EXTRA_STOP, true);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, notificationIntent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle(getString(R.string.bubble_notif))
+                .setContentText(getString(R.string.bubble_notif_desc))
+                .setPriority(Notification.PRIORITY_MIN)
+                .setSmallIcon(R.drawable.earth)
+                .setContentIntent(pendingIntent)
+                .build();
+
+        startForeground(NOTIFICATION_FLOATING_WINDOW, notification);
+
+        mUsingAccessibility = true;
+    }
+
+    private void updateUsingAccessibility() {
+        if (MainAccessibilityService.get() == null && mUsingAccessibility) {
+            mUsingAccessibility = false;
+            mCustomTabConnectionHelper = new CustomTabConnectionHelper();
+            mCustomTabConnectionHelper.setCustomTabsCallback(new TabsNavigationCallback());
+            mCustomTabConnectionHelper.bindCustomTabsService(this);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        sSharedService = null;
+
+        if (mCustomTabConnectionHelper != null) {
+            mCustomTabConnectionHelper.unbindCustomTabsService(this);
+        }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent.getBooleanExtra(EXTRA_STOP, false)) {
+            stopSelf();
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        updateUsingAccessibility();
+
+        if (intent.getBooleanExtra(EXTRA_FINISH_LOADING, false)) {
+            finishLoadingBubble();
+
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        String url = intent.getDataString();
+        if (!mQueuedWebsites.containsKey(url)) {
+            addBubble(url);
+        } else {
+            removeUrl(url);
+        }
+
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    void removeUrl(String url) {
+        mWindowManager.removeView(mQueuedWebsites.get(url).root);
+        mQueuedWebsites.remove(url);
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    public ImageView getDiscardBubble() {
+        return mDiscardBubble;
+    }
+
+    void finishLoadingBubble() {
+        for (BubbleViewHolder holder : mQueuedWebsites.values()) {
+            if (!holder.done) {
+                ProgressWheel progress = holder.progress;
+                progress.setProgress(1);
+                holder.done = true;
+                break;
+            }
+        }
+    }
+
+    private class BubbleViewHolder {
+        View root;
+        ImageView icon;
+        ProgressWheel progress;
+        boolean done;
+
+        BubbleViewHolder() {
+        }
+    }
+
+    private class TabsNavigationCallback extends CustomTabsCallback {
+        TabsNavigationCallback() {
+        }
+
+        @Override
+        public void onNavigationEvent(int navigationEvent, Bundle extras) {
+            super.onNavigationEvent(navigationEvent, extras);
+
+            switch (navigationEvent) {
+                case TAB_SHOWN:
+                    break;
+                case TAB_HIDDEN:
+                    break;
+                case NAVIGATION_FINISHED:
+                    finishLoadingBubble();
+                    break;
+                case NAVIGATION_STARTED:
+                    if (mPendingPageLoadStart) {
+                        BrowserLauncherActivity.moveToBack();
+                        mPendingPageLoadStart = false;
+                    }
+                    break;
+            }
+        }
+    }
+}

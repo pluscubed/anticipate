@@ -1,7 +1,6 @@
 package com.pluscubed.anticipate;
 
 import android.annotation.TargetApi;
-import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -49,6 +48,7 @@ import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.crashlytics.android.Crashlytics;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.pluscubed.anticipate.changelog.ChangelogDialog;
+import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.customtabs.util.CustomTabsHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.filter.DbUtil;
@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             if (settingValue != null) {
                 splitter.setString(settingValue);
                 while (splitter.hasNext()) {
-                    String accessabilityService = splitter.next();
-                    if (accessabilityService.equalsIgnoreCase(service)) {
+                    String accessibilityService = splitter.next();
+                    if (accessibilityService.equalsIgnoreCase(service)) {
                         return true;
                     }
                 }
@@ -307,7 +307,9 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
                     MainAccessibilityService mainAccessibilityService = MainAccessibilityService.get();
                     if (mainAccessibilityService != null) {
-                        mainAccessibilityService.getCustomTabActivityHelper().bindCustomTabsService(mainAccessibilityService);
+                        CustomTabConnectionHelper customTabConnectionHelper = mainAccessibilityService.getCustomTabConnectionHelper();
+                        customTabConnectionHelper.unbindCustomTabsService(mainAccessibilityService);
+                        customTabConnectionHelper.bindCustomTabsService(mainAccessibilityService);
                     }
 
                     spinnerChrome.setDropDownVerticalOffset(Utils.dp2px(MainActivity.this, spinnerChrome.getSelectedItemPosition() * -48));
@@ -360,12 +362,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
                 }
 
                 boolean checked = !mQuickSwitch.isChecked();
-                if (checked && !isAccessibilityServiceEnabled(MainActivity.this)) {
-                    new MaterialDialog.Builder(MainActivity.this)
-                            .positiveText(android.R.string.ok)
-                            .content(R.string.enable_service_quick_switch)
-                            .show();
-                } else if (checked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
+                if (checked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
                             .content(R.string.dialog_draw_overlay)
                             .positiveText(R.string.open_settings)
@@ -486,19 +483,12 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         if (PrefUtils.isFirstRun(this)) {
             PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
         }
+        Utils.notifyChangelog(this);
 
         DbUtil.initializeBlacklist(this);
         MainAccessibilityService.updateFilterList();
 
         invalidateStates();
-
-
-        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this)) {
-            showChangelog();
-
-            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            manager.cancel(MainAccessibilityService.NOTIFICATION_CHANGELOG);
-        }
     }
 
     private void setupAnimationStyle() {

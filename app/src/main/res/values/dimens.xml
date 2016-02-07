@@ -4,7 +4,9 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="dialog_corners">2dp</dimen>
     <dimen name="icon_size">40dp</dimen>
-    <dimen name="floating_size">56dp</dimen>
-    <dimen name="floating_margin">16dp</dimen>
-    <dimen name="floating_padding">16dp</dimen>
+
+    <dimen name="bubble_size">56dp</dimen>
+    <dimen name="bubble_size_padding">88dp</dimen>
+    <dimen name="bubble_margin">16dp</dimen>
+    <dimen name="bubble_bg_padding">16dp</dimen>
 </resources>

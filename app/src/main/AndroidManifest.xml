@@ -62,6 +62,10 @@
             android:exported="false" />
 
         <service
+            android:name=".quickswitch.QuickSwitchService"
+            android:exported="false" />
+
+        <service
             android:name=".customtabs.util.KeepAliveService"
             android:exported="true"
             tools:ignore="ExportedService" />

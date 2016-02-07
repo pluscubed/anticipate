@@ -13,8 +13,8 @@
 
     <ImageView
         android:id="@id/bubble_discard_bg_bubble"
-        android:layout_width="@dimen/floating_size"
-        android:layout_height="@dimen/floating_size"
+        android:layout_width="@dimen/bubble_size"
+        android:layout_height="@dimen/bubble_size"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="48dp"

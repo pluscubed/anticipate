@@ -62,7 +62,7 @@
     <string name="slide_bottom_android">Lollipop+ slide in</string>
     <string name="slide_bottom">Slide in from bottom</string>
     <string name="slide_right">Slide in from right</string>
-    <string name="none">None - system animation</string>
+    <string name="none">System default</string>
     <string name="custom_tab_browser">Custom Tab Browser:</string>
     <string name="install_chrome">Install Chrome</string>
     <string name="error">Error</string>
@@ -79,4 +79,6 @@
     <string name="unable_to_launch_browser_error">Selected Custom Tabs browser reported an error</string>
     <string name="anticipate_settings">Anticipate Settings</string>
     <string name="use_chrome_custom_tabs">Use Chrome Custom Tabs</string>
+    <string name="bubble_notif">Anticipate Quick-Switch Bubbles</string>
+    <string name="bubble_notif_desc">Touch to end service</string>
 </resources>

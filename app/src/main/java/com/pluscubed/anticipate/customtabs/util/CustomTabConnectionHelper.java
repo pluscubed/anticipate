@@ -101,7 +101,8 @@ public class CustomTabConnectionHelper {
     }
 
     public void newSession() {
-        mCustomTabsSession = mClient.newSession(mCustomTabsCallback);
+        if(mClient!=null)
+            mCustomTabsSession = mClient.newSession(mCustomTabsCallback);
     }
 
     /**

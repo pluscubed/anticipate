@@ -1,6 +1,7 @@
 package com.pluscubed.anticipate;
 
 import android.app.Application;
+import android.net.Uri;
 
 import com.afollestad.inquiry.Inquiry;
 import com.bumptech.glide.Glide;
@@ -11,6 +12,7 @@ import com.evernote.android.job.JobManager;
 import com.evernote.android.job.JobRequest;
 import com.pluscubed.anticipate.filter.AppInfo;
 import com.pluscubed.anticipate.glide.AppIconLoader;
+import com.pluscubed.anticipate.glide.FaviconLoader;
 import com.pluscubed.anticipate.toolbarcolor.CleanupJob;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -35,19 +37,22 @@ public class App extends Application {
         Inquiry.init(this, DB, 1);
 
         Glide.get(this)
-                .register(AppInfo.class, InputStream.class, new AppIconLoader.Loader());
+                .register(AppInfo.class, InputStream.class, new AppIconLoader.Factory());
+        Glide.get(this)
+                .register(Uri.class, InputStream.class, new FaviconLoader.Factory());
 
-        JobManager.create(this, new JobCreator() {
-            @Override
-            public Job create(String tag) {
-                switch (tag) {
-                    case CleanupJob.TAG:
-                        return new CleanupJob();
-                    default:
-                        throw new RuntimeException("Cannot find job for tag " + tag);
+        JobManager.create(this)
+            .addJobCreator(new JobCreator() {
+                @Override
+                public Job create(String tag) {
+                    switch (tag) {
+                        case CleanupJob.TAG:
+                            return new CleanupJob();
+                        default:
+                            throw new RuntimeException("Cannot find job for tag " + tag);
+                    }
                 }
-            }
-        });
+            });
 
         JobManager.instance().cancelAll();
 

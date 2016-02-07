@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.afollestad.inquiry.Inquiry;
 import com.crashlytics.android.Crashlytics;
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
+import com.pluscubed.anticipate.quickswitch.QuickSwitchService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteService;
 import com.pluscubed.anticipate.toolbarcolor.WebsiteToolbarDbUtil;
 import com.pluscubed.anticipate.util.AnimationStyle;
@@ -35,9 +36,11 @@ public class BrowserLauncherActivity extends Activity {
 
     public static final int BROWSER_SHORTCUT = 4;
     public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
+    public static final String EXTRA_FINISH = "com.pluscubed.anticipate.EXTRA_FINISH";
+
     private static final String TAG = "CustomTabDummyActivity";
 
-    private static BrowserLauncherActivity sSharedInstance;
+    static BrowserLauncherActivity sSharedInstance;
 
     public static void moveToBack() {
         if (sSharedInstance != null) {
@@ -52,25 +55,43 @@ public class BrowserLauncherActivity extends Activity {
 
         //Launched by bubble
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            finish();
+            if (getIntent().getBooleanExtra(EXTRA_FINISH, false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                finishAndRemoveTask();
+            } else {
+                finish();
+            }
             return;
         }
 
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
+        if (PrefUtils.isFirstRun(this)) {
+            PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
+        }
         Utils.notifyChangelog(this);
 
         sSharedInstance = this;
 
+
         final Uri uri = getIntent().getData();
-        if (uri != null) {
-            MainAccessibilityService service = MainAccessibilityService.get();
+        if (uri == null) {
+            Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final MainAccessibilityService accessibilityService = MainAccessibilityService.get();
+        final QuickSwitchService quickSwitchService = QuickSwitchService.get();
+
+        final CustomTabConnectionHelper customTabConnectionHelper =
+                accessibilityService != null ? accessibilityService.getCustomTabConnectionHelper()
+                        : quickSwitchService != null ? quickSwitchService.getCustomTabConnectionHelper()
+                        : null;
 
             final CustomTabsIntent.Builder builder;
-            if (service != null) {
-                service.getCustomTabActivityHelper().mayLaunchUrl(uri, null, null);
-                builder = new CustomTabsIntent.Builder(service.getCustomTabActivityHelper().getSession());
-            } else {
+        if (customTabConnectionHelper != null) {
+            customTabConnectionHelper.mayLaunchUrl(uri, null, null);
+            builder = new CustomTabsIntent.Builder(customTabConnectionHelper.getSession());
+        } else {
                 builder = new CustomTabsIntent.Builder();
                 if (!MainActivity.isAccessibilityServiceEnabled(this)) {
                     if (!PrefUtils.isAccessibilityOffWarned(this)) {
@@ -101,8 +122,8 @@ public class BrowserLauncherActivity extends Activity {
                 color = -4;
             }
             if (color == -4) {
-                if (PrefUtils.isDynamicAppBasedToolbar(this) && service != null) {
-                    color = service.getLastAppPrimaryColor();
+                if (PrefUtils.isDynamicAppBasedToolbar(this) && accessibilityService != null) {
+                    color = accessibilityService.getLastAppPrimaryColor();
                 } else {
                     color = PrefUtils.getDefaultToolbarColor(this);
                 }
@@ -158,6 +179,18 @@ public class BrowserLauncherActivity extends Activity {
 
             CustomTabsIntent customTabsIntent = builder.build();
             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+
+        boolean openBubble = PrefUtils.isQuickSwitch(this) &&
+                getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true) &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
+
+
+        if (openBubble) {
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            overridePendingTransition(0, 0);
+        }
+
             try {
                 CustomTabConnectionHelper.openCustomTab(
                         BrowserLauncherActivity.this, customTabsIntent, uri,
@@ -173,31 +206,33 @@ public class BrowserLauncherActivity extends Activity {
                 fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
             }
 
-            boolean addToQueue = PrefUtils.isQuickSwitch(this) &&
-                    service != null && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true) &&
-                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
-            if (addToQueue) {
-                service.addQueuedWebsite(uri.toString());
+        if (openBubble) {
+            Intent intent = new Intent(this, QuickSwitchService.class);
+            intent.setData(uri);
+            startService(intent);
 
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (sSharedInstance != null) {
-                            Toast.makeText(BrowserLauncherActivity.this,
-                                    "Either the web page is taking a long time to start loading, or Anticipate\'s Custom Tabs loading detection broke, in which case try turning the Accessibility Service off and on again.",
-                                    Toast.LENGTH_LONG).show();
+
+                            if (customTabConnectionHelper != null && accessibilityService != null) {
+                                customTabConnectionHelper.unbindCustomTabsService(accessibilityService);
+                                customTabConnectionHelper.bindCustomTabsService(accessibilityService);
+                            } else if (customTabConnectionHelper != null) {
+                                customTabConnectionHelper.unbindCustomTabsService(quickSwitchService);
+                                customTabConnectionHelper.bindCustomTabsService(quickSwitchService);
+                            }
+
                             moveTaskToBack(true);
                             finish();
                         }
                     }
-                }, 3000);
+                }, 800);
             } else {
                 finish();
             }
-        } else {
-            Toast.makeText(this, "Launch error", Toast.LENGTH_SHORT).show();
-        }
     }
 
     void fallbackLaunch(String error) {
