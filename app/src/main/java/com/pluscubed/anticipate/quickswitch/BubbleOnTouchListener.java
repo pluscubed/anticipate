@@ -2,6 +2,7 @@ package com.pluscubed.anticipate.quickswitch;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,8 +23,9 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     private final int mBubbleWidth;
     private final String mUrl;
     private final int mBubbleBgPadding;
-    boolean mDiscardAnimatingIn;
-    boolean mDiscardAnimatingOut;
+    BubbleViewHolder mViewHolder;
+    Animator mDiscardAnimatingIn;
+    Animator mDiscardAnimatingOut;
     private float mInitialTouchX;
     private float mInitialTouchY;
     private int mInitialX;
@@ -31,17 +33,18 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     private long mStartClickTime;
     private boolean mIsClick;
 
-    public BubbleOnTouchListener(QuickSwitchService quickSwitchService, String url) {
+    public BubbleOnTouchListener(QuickSwitchService quickSwitchService, String url, BubbleViewHolder holder) {
         mQuickSwitchService = quickSwitchService;
         mBubbleWidth = quickSwitchService.getResources().getDimensionPixelSize(R.dimen.bubble_size);
         mBubbleBgPadding = quickSwitchService.getResources().getDimensionPixelSize(R.dimen.bubble_bg_padding);
+        mViewHolder = holder;
 
         mUrl = url;
     }
 
     @Override
-    public synchronized boolean onTouch(View v, MotionEvent event) {
-        WindowManager.LayoutParams params = (WindowManager.LayoutParams) v.getLayoutParams();
+    public boolean onTouch(View v, MotionEvent event) {
+        WindowManager.LayoutParams params = (WindowManager.LayoutParams) mViewHolder.root.getLayoutParams();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -78,7 +81,7 @@ class BubbleOnTouchListener implements View.OnTouchListener {
                         params.y = (int) (dY + mInitialY);
                     }
 
-                    mQuickSwitchService.getWindowManager().updateViewLayout(v, params);
+                    mQuickSwitchService.getWindowManager().updateViewLayout(mViewHolder.root, params);
                 }
                 return true;
             case MotionEvent.ACTION_UP:
@@ -111,7 +114,7 @@ class BubbleOnTouchListener implements View.OnTouchListener {
 
                     animateOutDiscard();
                 } else {
-                    mQuickSwitchService.animateViewToSideSlot(v);
+                    mQuickSwitchService.animateViewToSideSlot(mViewHolder.root);
 
                     animateOutDiscard();
                 }
@@ -126,38 +129,42 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     }
 
     private void animateInDiscard() {
-        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 1 && !mDiscardAnimatingIn) {
-            mDiscardAnimatingIn = true;
-            mDiscardAnimatingOut = false;
-            mQuickSwitchService.getDiscardLayout().clearAnimation();
-            if (!mQuickSwitchService.getDiscardLayout().isShown()) {
-                mQuickSwitchService.getWindowManager().addView(mQuickSwitchService.getDiscardLayout(), mQuickSwitchService.getDiscardLayout().getLayoutParams());
+        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 1 && mDiscardAnimatingIn == null) {
+
+            if (mDiscardAnimatingOut != null) {
+                mDiscardAnimatingOut.cancel();
+                mDiscardAnimatingOut = null;
             }
-            mQuickSwitchService.getDiscardLayout().animate().alpha(1).setDuration(200).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mDiscardAnimatingIn = false;
-                }
-            }).start();
+
+            mDiscardAnimatingIn = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardLayout(), View.ALPHA, 1f);
+            mDiscardAnimatingIn.setDuration(200)
+                    .addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mDiscardAnimatingIn = null;
+                        }
+                    });
+            mDiscardAnimatingIn.start();
         }
     }
 
     private void animateOutDiscard() {
-        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 0 && !mDiscardAnimatingOut) {
-            mDiscardAnimatingOut = true;
-            mDiscardAnimatingIn = false;
-            mQuickSwitchService.getDiscardLayout().clearAnimation();
-            mQuickSwitchService.getDiscardLayout().animate().alpha(0).setDuration(200).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mDiscardAnimatingOut = false;
-                    if (!mDiscardAnimatingIn) {
-                        if (mQuickSwitchService.getDiscardLayout().isShown()) {
-                            mQuickSwitchService.getWindowManager().removeView(mQuickSwitchService.getDiscardLayout());
+        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 0 && mDiscardAnimatingOut == null) {
+            if (mDiscardAnimatingIn != null) {
+                mDiscardAnimatingIn.cancel();
+                mDiscardAnimatingIn = null;
+            }
+            mDiscardAnimatingOut = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardLayout(), View.ALPHA, 0f);
+            mDiscardAnimatingOut.setDuration(200)
+                    .addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            mDiscardAnimatingOut = null;
                         }
-                    }
-                }
-            }).start();
+                    });
+            mDiscardAnimatingOut.start();
         }
     }
 }

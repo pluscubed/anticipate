@@ -354,7 +354,7 @@ public class MainAccessibilityService extends AccessibilityService {
 
     void onPageLoadStarted() {
         if (mPendingPageLoadStart) {
-            BrowserLauncherActivity.moveToBack();
+            BrowserLauncherActivity.moveInstanceToBack();
             mPendingPageLoadStart = false;
             mPendingLoadFoundApp = false;
 

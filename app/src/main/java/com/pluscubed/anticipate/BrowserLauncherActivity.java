@@ -35,17 +35,17 @@ import com.pluscubed.anticipate.util.Utils;
 public class BrowserLauncherActivity extends Activity {
 
     public static final int BROWSER_SHORTCUT = 4;
+    public static final String EXTRA_MINIMIZE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
     public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
-    public static final String EXTRA_FINISH = "com.pluscubed.anticipate.EXTRA_FINISH";
+    public static final String EXTRA_STOP = "com.pluscubed.anticipate.EXTRA_STOP";
 
     private static final String TAG = "CustomTabDummyActivity";
 
     static BrowserLauncherActivity sSharedInstance;
 
-    public static void moveToBack() {
+    public static void moveInstanceToBack() {
         if (sSharedInstance != null) {
-            sSharedInstance.moveTaskToBack(true);
-            sSharedInstance.finish();
+            sSharedInstance.moveToBack();
         }
     }
 
@@ -55,13 +55,14 @@ public class BrowserLauncherActivity extends Activity {
 
         //Launched by bubble
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            if (getIntent().getBooleanExtra(EXTRA_FINISH, false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (getIntent().getBooleanExtra(EXTRA_STOP, false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 finishAndRemoveTask();
             } else {
                 finish();
             }
             return;
         }
+
 
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
@@ -86,6 +87,18 @@ public class BrowserLauncherActivity extends Activity {
                 accessibilityService != null ? accessibilityService.getCustomTabConnectionHelper()
                         : quickSwitchService != null ? quickSwitchService.getCustomTabConnectionHelper()
                         : null;
+
+        if (getIntent().getBooleanExtra(EXTRA_MINIMIZE, false)) {
+
+            Intent intent = new Intent(this, QuickSwitchService.class);
+            intent.setData(uri);
+            intent.putExtra(QuickSwitchService.EXTRA_LOADED, true);
+            startService(intent);
+
+            moveToBack();
+            return;
+        }
+
 
         final CustomTabsIntent.Builder builder;
         if (customTabConnectionHelper != null) {
@@ -139,12 +152,17 @@ public class BrowserLauncherActivity extends Activity {
         Intent settingsIntent = new Intent(this, MainActivity.class);
         settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+        Intent minimizeToQuickSwitch = new Intent(this, getClass());
+        minimizeToQuickSwitch.putExtra(EXTRA_MINIMIZE, true);
+        minimizeToQuickSwitch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        minimizeToQuickSwitch.setData(uri);
+        PendingIntent minimizePending = PendingIntent.getActivity(this, 0, minimizeToQuickSwitch, PendingIntent.FLAG_CANCEL_CURRENT);
 
         builder.enableUrlBarHiding()
                 .setShowTitle(true)
                 .addMenuItem(getString(R.string.share), sharePending)
                 .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
+                .setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), "Minimize to QuickSwitch Bubble", minimizePending, true)
                 .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
@@ -225,14 +243,18 @@ public class BrowserLauncherActivity extends Activity {
                             customTabConnectionHelper.bindCustomTabsService(quickSwitchService);
                         }
 
-                        moveTaskToBack(true);
-                        finish();
+                        BrowserLauncherActivity.this.moveToBack();
                     }
                 }
             }, 800);
         } else {
             finish();
         }
+    }
+
+    private void moveToBack() {
+        moveTaskToBack(true);
+        finish();
     }
 
     void fallbackLaunch(String error) {

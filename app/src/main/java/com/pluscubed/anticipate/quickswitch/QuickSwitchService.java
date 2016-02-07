@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 public class QuickSwitchService extends Service {
 
     public static final String EXTRA_STOP = "com.pluscubed.anticipate.EXTRA_STOP";
+    public static final String EXTRA_LOADED = "com.pluscubed.anticipate.EXTRA_LOADED";
     public static final String EXTRA_FINISH_LOADING = "com.pluscubed.anticipate.EXTRA_FINISH_LOADING";
     public static final int NOTIFICATION_FLOATING_WINDOW = 23;
 
@@ -69,28 +70,9 @@ public class QuickSwitchService extends Service {
     }
 
     @SuppressLint("InflateParams")
-    private void addBubble(final String url) {
+    private void addBubble(final String url, boolean loaded) {
         LayoutInflater inflater = LayoutInflater.from(this);
-
-        if (mDiscardLayout == null) {
-            mDiscardLayout = inflater.inflate(R.layout.bubble_discard_bg, null);
-            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    WindowManager.LayoutParams.TYPE_PHONE,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    PixelFormat.TRANSLUCENT);
-            params.gravity = Gravity.LEFT | Gravity.TOP;
-
-            mDiscardLayout.setLayoutParams(params);
-
-            View discardScrim = mDiscardLayout.findViewById(R.id.bubble_discard_bg_scrim);
-            discardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
-
-            mDiscardBubble = (ImageView) mDiscardLayout.findViewById(R.id.bubble_discard_bg_bubble);
-
-            mDiscardLayout.setAlpha(0);
-        }
+        initDiscard(inflater);
 
         final BubbleViewHolder holder = new BubbleViewHolder();
         holder.root = inflater.inflate(R.layout.bubble_quick_switch, null);
@@ -102,7 +84,7 @@ public class QuickSwitchService extends Service {
 
         final int bubbleWidth = getResources().getDimensionPixelSize(R.dimen.bubble_size_padding);
 
-        holder.root.setOnTouchListener(new BubbleOnTouchListener(this, url));
+        holder.icon.setOnTouchListener(new BubbleOnTouchListener(this, url, holder));
 
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 bubbleWidth,
@@ -152,10 +134,37 @@ public class QuickSwitchService extends Service {
         });
         valueAnimator.start();
 
-        if (MainAccessibilityService.get() == null) {
-            mPendingPageLoadStart = true;
+        if (!loaded) {
+            if (MainAccessibilityService.get() == null) {
+                mPendingPageLoadStart = true;
+            } else {
+                MainAccessibilityService.get().pendLoadStart();
+            }
         } else {
-            MainAccessibilityService.get().pendLoadStart();
+            holder.progress.setInstantProgress(1);
+            holder.done = true;
+        }
+    }
+
+    private void initDiscard(LayoutInflater inflater) {
+        if (mDiscardLayout == null) {
+            mDiscardLayout = inflater.inflate(R.layout.bubble_discard_bg, null);
+            final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    PixelFormat.TRANSLUCENT);
+            params.gravity = Gravity.LEFT | Gravity.TOP;
+
+            mDiscardLayout.setLayoutParams(params);
+
+            View discardScrim = mDiscardLayout.findViewById(R.id.bubble_discard_bg_scrim);
+            discardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
+
+            mDiscardBubble = (ImageView) mDiscardLayout.findViewById(R.id.bubble_discard_bg_bubble);
+
+            mDiscardLayout.setAlpha(0);
         }
     }
 
@@ -271,7 +280,11 @@ public class QuickSwitchService extends Service {
 
         String url = intent.getDataString();
         if (!mQueuedWebsites.containsKey(url)) {
-            addBubble(url);
+            addBubble(url, intent.getBooleanExtra(EXTRA_LOADED, false));
+
+            if (!mDiscardLayout.isShown()) {
+                mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
+            }
         } else {
             removeUrl(url);
         }
@@ -284,6 +297,7 @@ public class QuickSwitchService extends Service {
         mQueuedWebsites.remove(url);
 
         if (mQueuedWebsites.size() == 0 && mUsingAccessibility) {
+            mWindowManager.removeView(mDiscardLayout);
             stopSelf();
         }
     }
@@ -301,21 +315,10 @@ public class QuickSwitchService extends Service {
     void finishLoadingBubble() {
         for (BubbleViewHolder holder : mQueuedWebsites.values()) {
             if (!holder.done) {
-                ProgressWheel progress = holder.progress;
-                progress.setProgress(1);
+                holder.progress.setProgress(1);
                 holder.done = true;
                 break;
             }
-        }
-    }
-
-    private class BubbleViewHolder {
-        View root;
-        ImageView icon;
-        ProgressWheel progress;
-        boolean done;
-
-        BubbleViewHolder() {
         }
     }
 
@@ -337,7 +340,7 @@ public class QuickSwitchService extends Service {
                     break;
                 case NAVIGATION_STARTED:
                     if (mPendingPageLoadStart) {
-                        BrowserLauncherActivity.moveToBack();
+                        BrowserLauncherActivity.moveInstanceToBack();
                         mPendingPageLoadStart = false;
                     }
                     break;
