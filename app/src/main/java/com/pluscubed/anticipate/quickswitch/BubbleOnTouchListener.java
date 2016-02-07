@@ -128,6 +128,7 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     private void animateInDiscard() {
         if (mQuickSwitchService.getDiscardLayout().getAlpha() != 1 && !mDiscardAnimatingIn) {
             mDiscardAnimatingIn = true;
+            mDiscardAnimatingOut = false;
             mQuickSwitchService.getDiscardLayout().clearAnimation();
             if (!mQuickSwitchService.getDiscardLayout().isShown()) {
                 mQuickSwitchService.getWindowManager().addView(mQuickSwitchService.getDiscardLayout(), mQuickSwitchService.getDiscardLayout().getLayoutParams());
@@ -144,14 +145,16 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     private void animateOutDiscard() {
         if (mQuickSwitchService.getDiscardLayout().getAlpha() != 0 && !mDiscardAnimatingOut) {
             mDiscardAnimatingOut = true;
+            mDiscardAnimatingIn = false;
             mQuickSwitchService.getDiscardLayout().clearAnimation();
             mQuickSwitchService.getDiscardLayout().animate().alpha(0).setDuration(200).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mDiscardAnimatingOut = false;
-
-                    if (mQuickSwitchService.getDiscardLayout().isShown()) {
-                        mQuickSwitchService.getWindowManager().removeView(mQuickSwitchService.getDiscardLayout());
+                    if (!mDiscardAnimatingIn) {
+                        if (mQuickSwitchService.getDiscardLayout().isShown()) {
+                            mQuickSwitchService.getWindowManager().removeView(mQuickSwitchService.getDiscardLayout());
+                        }
                     }
                 }
             }).start();

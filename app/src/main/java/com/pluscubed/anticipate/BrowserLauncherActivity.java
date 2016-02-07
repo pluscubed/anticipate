@@ -142,14 +142,9 @@ public class BrowserLauncherActivity extends Activity {
 
             builder.enableUrlBarHiding()
                     .setShowTitle(true)
-                    .setActionButton(
-                            Utils.drawableToBitmap(this, R.drawable.ic_share_black_24dp),
-                            getString(R.string.share),
-                            shareBroadcast,
-                            true)
+                    .addMenuItem(getString(R.string.share), shareBroadcast)
                     .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
-                    .setCloseButtonIcon(
-                            getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
+                    .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
                             getString(R.string.share),
@@ -216,6 +211,10 @@ public class BrowserLauncherActivity extends Activity {
                     @Override
                     public void run() {
                         if (sSharedInstance != null) {
+                            if (BuildConfig.DEBUG)
+                                Toast.makeText(BrowserLauncherActivity.this,
+                                        "Not properly launching",
+                                        Toast.LENGTH_LONG).show();
 
                             if (customTabConnectionHelper != null && accessibilityService != null) {
                                 customTabConnectionHelper.unbindCustomTabsService(accessibilityService);

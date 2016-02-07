@@ -282,6 +282,10 @@ public class QuickSwitchService extends Service {
     void removeUrl(String url) {
         mWindowManager.removeView(mQueuedWebsites.get(url).root);
         mQueuedWebsites.remove(url);
+
+        if (mQueuedWebsites.size() == 0 && mUsingAccessibility) {
+            stopSelf();
+        }
     }
 
     @Nullable
