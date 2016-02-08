@@ -245,8 +245,12 @@ public class MainAccessibilityService extends AccessibilityService {
             }
         }
 
+        String allText = "";
+        try {
+            allText = getAllText(getRootInActiveWindow(), 0);
+        } catch (SecurityException ignored) {
+        }
 
-        String allText = getAllText(getRootInActiveWindow(), 0);
 
         Log.v(TAG, allText);
 
