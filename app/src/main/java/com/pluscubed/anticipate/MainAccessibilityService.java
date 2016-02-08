@@ -345,7 +345,10 @@ public class MainAccessibilityService extends AccessibilityService {
         }
 
         for (int i = 0; i < source.getChildCount(); i++) {
-            string += getAllText(source.getChild(i), depth + 1);
+            try {
+                string += getAllText(source.getChild(i), depth + 1);
+            } catch (SecurityException ignored) {
+            }
         }
 
         source.recycle();
