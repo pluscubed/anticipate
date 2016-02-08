@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import com.pluscubed.anticipate.customtabs.util.CustomTabConnectionHelper;
 import com.pluscubed.anticipate.filter.AppInfo;
@@ -62,7 +63,7 @@ public class MainAccessibilityService extends AccessibilityService {
         }
     }
 
-    private static void log(String info) {
+    static void log(String info) {
         if (BuildConfig.DEBUG)
             Log.i(TAG, info);
     }
@@ -207,7 +208,12 @@ public class MainAccessibilityService extends AccessibilityService {
                     public void run() {
                         if (mPendingPageLoadStart) {
                             onPageLoadStarted();
+
+                            if (BuildConfig.DEBUG) {
+                                Toast.makeText(MainAccessibilityService.this, "accessibility detected Chrome - load started", Toast.LENGTH_LONG).show();
+                            }
                         }
+                        mPendingLoadFoundApp = false;
                     }
                 }, 200);
             }
@@ -383,6 +389,10 @@ public class MainAccessibilityService extends AccessibilityService {
                 case TAB_SHOWN:
                     break;
                 case TAB_HIDDEN:
+                    Intent checkBubblesIntent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);
+                    checkBubblesIntent.putExtra(QuickSwitchService.EXTRA_CHECK_BUBBLES, true);
+                    startService(checkBubblesIntent);
+
                     break;
                 case NAVIGATION_FINISHED:
                     Intent intent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);

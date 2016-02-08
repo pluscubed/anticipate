@@ -203,9 +203,9 @@ public final class CustomTabsIntent {
      * @param context The source Activity.
      * @param url     The URL to load in the Custom Tab.
      */
-    public void launchUrl(Activity context, Uri url) {
+    public void launchUrl(Activity context, Uri url, int requestCode) {
         intent.setData(url);
-        ActivityCompat.startActivity(context, intent, startAnimationBundle);
+        ActivityCompat.startActivityForResult(context, intent, requestCode, startAnimationBundle);
     }
 
     /**

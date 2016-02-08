@@ -3,9 +3,11 @@ package com.pluscubed.anticipate.quickswitch;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
@@ -35,17 +37,22 @@ import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.ScrimUtil;
 import com.pluscubed.anticipate.widget.ProgressWheel;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class QuickSwitchService extends Service {
 
     public static final String EXTRA_STOP = "com.pluscubed.anticipate.EXTRA_STOP";
-    public static final String EXTRA_LOADED = "com.pluscubed.anticipate.EXTRA_LOADED";
     public static final String EXTRA_FINISH_LOADING = "com.pluscubed.anticipate.EXTRA_FINISH_LOADING";
+    public static final String EXTRA_CHECK_BUBBLES = "com.pluscubed.anticipate.EXTRA_CHECK_BUBBLES";
+
     public static final int NOTIFICATION_FLOATING_WINDOW = 23;
 
     private static QuickSwitchService sSharedService;
-    LinkedHashMap<String, BubbleViewHolder> mQueuedWebsites;
+    LinkedHashMap<String, BubbleViewHolder> mQuickSwitchWebsites;
     WindowManager mWindowManager;
     boolean mPendingPageLoadStart;
     private View mDiscardLayout;
@@ -73,6 +80,9 @@ public class QuickSwitchService extends Service {
     private void addBubble(final String url, boolean loaded) {
         LayoutInflater inflater = LayoutInflater.from(this);
         initDiscard(inflater);
+        if (!mDiscardLayout.isShown()) {
+            mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
+        }
 
         final BubbleViewHolder holder = new BubbleViewHolder();
         holder.root = inflater.inflate(R.layout.bubble_quick_switch, null);
@@ -116,7 +126,7 @@ public class QuickSwitchService extends Service {
 
         mWindowManager.addView(holder.root, params);
 
-        mQueuedWebsites.put(url, holder);
+        mQuickSwitchWebsites.put(url, holder);
 
 
         int endX = size.x - bubbleWidth * 7 / 10;
@@ -223,7 +233,7 @@ public class QuickSwitchService extends Service {
 
         sSharedService = this;
 
-        mQueuedWebsites = new LinkedHashMap<>();
+        mQuickSwitchWebsites = new LinkedHashMap<>();
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         Intent notificationIntent = new Intent(this, getClass());
@@ -265,26 +275,27 @@ public class QuickSwitchService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getBooleanExtra(EXTRA_STOP, false)) {
+        if (intent != null && intent.getBooleanExtra(EXTRA_STOP, false)) {
             stopSelf();
             return super.onStartCommand(intent, flags, startId);
         }
 
         updateUsingAccessibility();
 
-        if (intent.getBooleanExtra(EXTRA_FINISH_LOADING, false)) {
+        if (intent != null && intent.getBooleanExtra(EXTRA_FINISH_LOADING, false)) {
             finishLoadingBubble();
-
             return super.onStartCommand(intent, flags, startId);
         }
 
-        String url = intent.getDataString();
-        if (!mQueuedWebsites.containsKey(url)) {
-            addBubble(url, intent.getBooleanExtra(EXTRA_LOADED, false));
+        if (intent != null && intent.getBooleanExtra(EXTRA_CHECK_BUBBLES, false)) {
+            checkBubbles();
+            return super.onStartCommand(intent, flags, startId);
+        }
 
-            if (!mDiscardLayout.isShown()) {
-                mWindowManager.addView(mDiscardLayout, mDiscardLayout.getLayoutParams());
-            }
+
+        String url = intent != null ? intent.getDataString() : null;
+        if (!mQuickSwitchWebsites.containsKey(url)) {
+            addBubble(url, false);
         } else {
             removeUrl(url);
         }
@@ -292,11 +303,49 @@ public class QuickSwitchService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    void removeUrl(String url) {
-        mWindowManager.removeView(mQueuedWebsites.get(url).root);
-        mQueuedWebsites.remove(url);
+    void checkBubbles() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.AppTask> appTasks;
+            appTasks = manager.getAppTasks();
 
-        if (mQueuedWebsites.size() == 0 && mUsingAccessibility) {
+            Map<String, ActivityManager.AppTask> taskOpenUrls = new HashMap<>();
+            for (ActivityManager.AppTask task : appTasks) {
+                Intent baseIntent = task.getTaskInfo().baseIntent;
+                String url = baseIntent.getDataString();
+                if (url != null && task.getTaskInfo().numActivities > 0) {
+                    taskOpenUrls.put(url, task);
+                }
+            }
+
+            for (Iterator<String> iterator = mQuickSwitchWebsites.keySet().iterator(); iterator.hasNext(); ) {
+                String quickSwitchUrl = iterator.next();
+                if (!taskOpenUrls.containsKey(quickSwitchUrl)) {
+                    removeUrl(quickSwitchUrl, false);
+                    iterator.remove();
+                }
+            }
+
+
+            for (String taskOpenUrl : taskOpenUrls.keySet()) {
+                if (!mQuickSwitchWebsites.containsKey(taskOpenUrl)) {
+                    addBubble(taskOpenUrl, true);
+                }
+            }
+        }
+    }
+
+    void removeUrl(String url) {
+        removeUrl(url, true);
+    }
+
+    void removeUrl(String url, boolean removeFromList) {
+        mWindowManager.removeView(mQuickSwitchWebsites.get(url).root);
+        if (removeFromList) {
+            mQuickSwitchWebsites.remove(url);
+        }
+
+        if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
             mWindowManager.removeView(mDiscardLayout);
             stopSelf();
         }
@@ -313,7 +362,7 @@ public class QuickSwitchService extends Service {
     }
 
     void finishLoadingBubble() {
-        for (BubbleViewHolder holder : mQueuedWebsites.values()) {
+        for (BubbleViewHolder holder : mQuickSwitchWebsites.values()) {
             if (!holder.done) {
                 holder.progress.setProgress(1);
                 holder.done = true;
@@ -334,6 +383,7 @@ public class QuickSwitchService extends Service {
                 case TAB_SHOWN:
                     break;
                 case TAB_HIDDEN:
+                    checkBubbles();
                     break;
                 case NAVIGATION_FINISHED:
                     finishLoadingBubble();

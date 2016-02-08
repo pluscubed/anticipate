@@ -24,6 +24,7 @@
         </activity>
         <activity
             android:name=".BrowserLauncherActivity"
+            android:autoRemoveFromRecents="true"
             android:documentLaunchMode="intoExisting"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.Anticipate.NoDisplay">

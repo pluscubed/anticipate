@@ -32,7 +32,7 @@ import java.util.List;
  * This is a helper class to manage the connection to the Custom Tabs Service.
  */
 public class CustomTabConnectionHelper {
-    private static String sPackageName;
+    public static String sPackageName;
     CustomTabsSession mCustomTabsSession;
     CustomTabsClient mClient;
     ConnectionCallback mConnectionCallback;
@@ -50,7 +50,8 @@ public class CustomTabConnectionHelper {
     public static void openCustomTab(Activity activity,
                                      CustomTabsIntent customTabsIntent,
                                      Uri uri,
-                                     CustomTabFallback fallback) {
+                                     CustomTabFallback fallback,
+                                     int requestCode) {
         updatePackageName(activity);
 
         //If we cant find a package name, it means theres no browser that supports
@@ -61,11 +62,11 @@ public class CustomTabConnectionHelper {
             }
         } else {
             customTabsIntent.intent.setPackage(sPackageName);
-            customTabsIntent.launchUrl(activity, uri);
+            customTabsIntent.launchUrl(activity, uri, requestCode);
         }
     }
 
-    private static void updatePackageName(Context activity) {
+    public static void updatePackageName(Context activity) {
         sPackageName = PrefUtils.getChromeApp(activity);
         if (sPackageName.isEmpty()) {
             sPackageName = CustomTabsHelper.getDefaultPackage(

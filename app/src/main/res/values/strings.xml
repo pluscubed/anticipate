@@ -81,4 +81,5 @@
     <string name="use_chrome_custom_tabs">Use Chrome Custom Tabs</string>
     <string name="bubble_notif">Anticipate Quick-Switch Bubbles</string>
     <string name="bubble_notif_desc">Touch to end service</string>
+    <string name="minimize_to_bubble">Minimize to QuickSwitch Bubble</string>
 </resources>

@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.afollestad.inquiry.Inquiry;
@@ -35,17 +36,18 @@ import com.pluscubed.anticipate.util.Utils;
 public class BrowserLauncherActivity extends Activity {
 
     public static final int BROWSER_SHORTCUT = 4;
-    public static final String EXTRA_MINIMIZE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
+    public static final String EXTRA_MINIMIZE = "com.pluscubed.anticipate.EXTRA_MINIMIZE";
     public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
-    public static final String EXTRA_STOP = "com.pluscubed.anticipate.EXTRA_STOP";
-
+    public static final int REQUEST_CODE = 23;
     private static final String TAG = "CustomTabDummyActivity";
-
-    static BrowserLauncherActivity sSharedInstance;
+    static BrowserLauncherActivity sPendLoadInstance;
+    String mHost;
+    int mToolbarColor;
 
     public static void moveInstanceToBack() {
-        if (sSharedInstance != null) {
-            sSharedInstance.moveToBack();
+        if (sPendLoadInstance != null) {
+            Log.i(TAG, "moveInstanceToBack");
+            sPendLoadInstance.onPageLoadStarted();
         }
     }
 
@@ -55,11 +57,7 @@ public class BrowserLauncherActivity extends Activity {
 
         //Launched by bubble
         if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            if (getIntent().getBooleanExtra(EXTRA_STOP, false) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                finishAndRemoveTask();
-            } else {
-                finish();
-            }
+            finish();
             return;
         }
 
@@ -71,7 +69,7 @@ public class BrowserLauncherActivity extends Activity {
         }
         Utils.notifyChangelog(this);
 
-        sSharedInstance = this;
+        sPendLoadInstance = this;
 
 
         final Uri uri = getIntent().getData();
@@ -89,13 +87,9 @@ public class BrowserLauncherActivity extends Activity {
                         : null;
 
         if (getIntent().getBooleanExtra(EXTRA_MINIMIZE, false)) {
+            onPageLoadStarted();
 
-            Intent intent = new Intent(this, QuickSwitchService.class);
-            intent.setData(uri);
-            intent.putExtra(QuickSwitchService.EXTRA_LOADED, true);
-            startService(intent);
-
-            moveToBack();
+            checkBubbles();
             return;
         }
 
@@ -116,36 +110,34 @@ public class BrowserLauncherActivity extends Activity {
             }
         }
 
-        String host = uri.toString();
-        host = Utils.getHost(host);
+        mHost = uri.toString();
+        mHost = Utils.getHost(mHost);
 
-        int color;
         if (PrefUtils.isDynamicToolbar(this)) {
-            color = WebsiteToolbarDbUtil.getColor(host);
-            if (color == WebsiteToolbarDbUtil.NOT_FOUND) {
+            mToolbarColor = WebsiteToolbarDbUtil.getColor(mHost);
+            if (mToolbarColor == WebsiteToolbarDbUtil.NOT_FOUND) {
                 Intent serviceIntent = new Intent(BrowserLauncherActivity.this, WebsiteService.class);
-                serviceIntent.putExtra(WebsiteService.EXTRA_HOST, host);
+                serviceIntent.putExtra(WebsiteService.EXTRA_HOST, mHost);
                 startService(serviceIntent);
 
-                color = -4;
-            } else if (color == WebsiteToolbarDbUtil.NO_COLOR) {
-                color = -4;
+                mToolbarColor = -4;
+            } else if (mToolbarColor == WebsiteToolbarDbUtil.NO_COLOR) {
+                mToolbarColor = -4;
             }
         } else {
-            color = -4;
+            mToolbarColor = -4;
         }
-        if (color == -4) {
+        if (mToolbarColor == -4) {
             if (PrefUtils.isDynamicAppBasedToolbar(this) && accessibilityService != null) {
-                color = accessibilityService.getLastAppPrimaryColor();
+                mToolbarColor = accessibilityService.getLastAppPrimaryColor();
             } else {
-                color = PrefUtils.getDefaultToolbarColor(this);
+                mToolbarColor = PrefUtils.getDefaultToolbarColor(this);
             }
         }
 
-        builder.setToolbarColor(color);
+        builder.setToolbarColor(mToolbarColor);
 
-
-        boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(color);
+        boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(mToolbarColor);
 
         Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
         PendingIntent sharePending = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -162,7 +154,7 @@ public class BrowserLauncherActivity extends Activity {
                 .setShowTitle(true)
                 .addMenuItem(getString(R.string.share), sharePending)
                 .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
-                .setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), "Minimize to QuickSwitch Bubble", minimizePending, true)
+                .setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), getString(R.string.minimize_to_bubble), minimizePending, true)
                 .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
@@ -205,20 +197,8 @@ public class BrowserLauncherActivity extends Activity {
             overridePendingTransition(0, 0);
         }
 
-        try {
-            CustomTabConnectionHelper.openCustomTab(
-                    BrowserLauncherActivity.this, customTabsIntent, uri,
-                    new CustomTabConnectionHelper.CustomTabFallback() {
-                        @Override
-                        public void openUri(Context activity, Uri uri) {
-                            fallbackLaunch(getString(R.string.unable_to_launch));
-                        }
-                    });
-        } catch (ActivityNotFoundException e) {
-            Crashlytics.logException(e);
+        openCustomTab(customTabsIntent, uri);
 
-            fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
-        }
 
         if (openBubble) {
             Intent intent = new Intent(this, QuickSwitchService.class);
@@ -229,7 +209,7 @@ public class BrowserLauncherActivity extends Activity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (sSharedInstance != null) {
+                    if (sPendLoadInstance != null) {
                         if (BuildConfig.DEBUG)
                             Toast.makeText(BrowserLauncherActivity.this,
                                     "Not properly launching",
@@ -243,18 +223,45 @@ public class BrowserLauncherActivity extends Activity {
                             customTabConnectionHelper.bindCustomTabsService(quickSwitchService);
                         }
 
-                        BrowserLauncherActivity.this.moveToBack();
+                        BrowserLauncherActivity.this.onPageLoadStarted();
                     }
                 }
             }, 800);
         } else {
             finish();
         }
+
+        checkBubbles();
     }
 
-    private void moveToBack() {
+    private void openCustomTab(CustomTabsIntent intent, Uri uri) {
+        try {
+            CustomTabConnectionHelper.openCustomTab(
+                    BrowserLauncherActivity.this, intent, uri,
+                    new CustomTabConnectionHelper.CustomTabFallback() {
+                        @Override
+                        public void openUri(Context activity, Uri uri) {
+                            fallbackLaunch(getString(R.string.unable_to_launch));
+                        }
+                    },
+                    REQUEST_CODE);
+        } catch (ActivityNotFoundException e) {
+            Crashlytics.logException(e);
+
+            fallbackLaunch(getString(R.string.unable_to_launch_browser_error));
+        }
+    }
+
+    void onPageLoadStarted() {
+        sPendLoadInstance = null;
+
         moveTaskToBack(true);
         finish();
+
+        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            ActivityManager.TaskDescription taskDescription = new ActivityManager.TaskDescription(mHost,  null, mToolbarColor);
+            setTaskDescription(taskDescription);
+        }*/
     }
 
     void fallbackLaunch(String error) {
@@ -265,10 +272,23 @@ public class BrowserLauncherActivity extends Activity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void checkBubbles() {
+        Intent checkBubblesIntent = new Intent(this, QuickSwitchService.class);
+        checkBubblesIntent.putExtra(QuickSwitchService.EXTRA_CHECK_BUBBLES, true);
+        startService(checkBubblesIntent);
+    }
+
+
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        sSharedInstance = null;
+        sPendLoadInstance = null;
     }
 
     private Bitmap getToolbarIcon(@DrawableRes int resId, boolean lightToolbar) {
