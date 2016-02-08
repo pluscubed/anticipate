@@ -745,8 +745,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         mEnabledImage.setImageResource(accessibilityServiceEnabled ? R.drawable.ic_done_black_24dp : R.drawable.ic_cross_black_24dp);
         mEnableServiceButton.setVisibility(accessibilityServiceEnabled ? View.GONE : View.VISIBLE);
         mPageBasedToolbarSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isDynamicAppBasedToolbar(this));
-        mQuickSwitch.setChecked(accessibilityServiceEnabled && PrefUtils.isQuickSwitch(this) &&
-                (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this)));
+        mQuickSwitch.setChecked(PrefUtils.isQuickSwitch(this)
+                && (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(MainActivity.this)));
 
         boolean isSetAsDefault = isSetAsDefault();
 

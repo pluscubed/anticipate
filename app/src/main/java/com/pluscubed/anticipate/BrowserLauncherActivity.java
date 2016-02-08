@@ -55,13 +55,6 @@ public class BrowserLauncherActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Launched by bubble
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            finish();
-            return;
-        }
-
-
         Inquiry.init(getApplicationContext(), App.DB, 1);
 
         if (PrefUtils.isFirstRun(this)) {
@@ -69,8 +62,17 @@ public class BrowserLauncherActivity extends Activity {
         }
         Utils.notifyChangelog(this);
 
-        sPendLoadInstance = this;
+        //Launched by bubble
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            finish();
+            return;
+        }
 
+        if (getIntent().getBooleanExtra(EXTRA_MINIMIZE, false)) {
+            onPageLoadStarted();
+            checkBubbles();
+            return;
+        }
 
         final Uri uri = getIntent().getData();
         if (uri == null) {
@@ -85,13 +87,6 @@ public class BrowserLauncherActivity extends Activity {
                 accessibilityService != null ? accessibilityService.getCustomTabConnectionHelper()
                         : quickSwitchService != null ? quickSwitchService.getCustomTabConnectionHelper()
                         : null;
-
-        if (getIntent().getBooleanExtra(EXTRA_MINIMIZE, false)) {
-            onPageLoadStarted();
-
-            checkBubbles();
-            return;
-        }
 
 
         final CustomTabsIntent.Builder builder;
@@ -154,12 +149,17 @@ public class BrowserLauncherActivity extends Activity {
                 .setShowTitle(true)
                 .addMenuItem(getString(R.string.share), sharePending)
                 .addMenuItem(getString(R.string.anticipate_settings), settingsPending)
-                .setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), getString(R.string.minimize_to_bubble), minimizePending, true)
                 .setCloseButtonIcon(getToolbarIcon(R.drawable.ic_arrow_back_white_24dp, isLightToolbar))
                     /*.addActionBarItem(BROWSER_SHORTCUT,
                             Utils.drawableToBitmap(getPackageManager().getApplicationIcon(PrefUtils.getChromeApp(this))),
                             getString(R.string.share),
                             sharePending)*/;
+
+        boolean bubbleAvailable = PrefUtils.isQuickSwitch(this) &&
+                (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
+        if (bubbleAvailable) {
+            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), getString(R.string.minimize_to_bubble), minimizePending, true);
+        }
 
         int animationStyleId = PrefUtils.getAnimationStyle(this);
         AnimationStyle animationStyle = AnimationStyle.valueWithId(animationStyleId);
@@ -187,9 +187,7 @@ public class BrowserLauncherActivity extends Activity {
         customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
 
-        boolean openBubble = PrefUtils.isQuickSwitch(this) &&
-                getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true) &&
-                (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
+        boolean openBubble = bubbleAvailable && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
 
 
         if (openBubble) {
@@ -201,6 +199,8 @@ public class BrowserLauncherActivity extends Activity {
 
 
         if (openBubble) {
+            sPendLoadInstance = this;
+
             Intent intent = new Intent(this, QuickSwitchService.class);
             intent.setData(uri);
             startService(intent);
@@ -231,7 +231,9 @@ public class BrowserLauncherActivity extends Activity {
             finish();
         }
 
-        checkBubbles();
+        if (bubbleAvailable) {
+            checkBubbles();
+        }
     }
 
     private void openCustomTab(CustomTabsIntent intent, Uri uri) {
