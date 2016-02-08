@@ -146,7 +146,11 @@ public class CustomTabConnectionHelper {
 
             }
         });
-        return CustomTabsClient.bindCustomTabsService(activity, sPackageName, mConnection);
+        try {
+            return CustomTabsClient.bindCustomTabsService(activity, sPackageName, mConnection);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     /**

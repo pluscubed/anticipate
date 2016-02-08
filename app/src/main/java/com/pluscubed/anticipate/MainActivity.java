@@ -121,7 +121,12 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         mEnableServiceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                try {
+                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+                } catch (ActivityNotFoundException e) {
+                    Crashlytics.logException(e);
+                    Toast.makeText(MainActivity.this, R.string.open_settings_failed_accessibility, Toast.LENGTH_LONG).show();
+                }
             }
         });
 

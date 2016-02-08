@@ -12,6 +12,7 @@
     <string name="open_settings">Open Settings Page</string>
     <string name="open_settings_failed_clear_deafults">Open settings failed. Please manually clear the defaults for your current browser.</string>
     <string name="open_settings_failed_overlay">Open settings failed. Please manually enable the \"Draw over other apps\" setting for Anticipate.</string>
+    <string name="open_settings_failed_accessibility">Open settings failed. Please manually enable the Accessibility Service setting for Anticipate.</string>
     <string name="accessibility_disabled">Anticipate\'s accessibility service is disabled. Please enable to pre-load links.</string>
     <string name="floating_window_checkbox">Floating window to monitor warmed-up URLs</string>
     <string name="anticipate_url_monitor">Anticipate URL Monitor</string>
