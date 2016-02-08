@@ -10,23 +10,29 @@
         android:layout_height="match_parent"
         android:src="@drawable/bubble_shadow" />
 
-    <ImageView
-        android:id="@id/bubble_quick_switch_icon"
+    <FrameLayout
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="center"
         android:background="@drawable/bubble"
-        android:contentDescription="@null"
-        android:elevation="4dp"
-        android:padding="16dp" />
+        android:elevation="4dp">
 
-    <com.pluscubed.anticipate.widget.ProgressWheel
-        android:id="@id/bubble_quick_switch_progress"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:layout_gravity="center"
-        app:matProg_barWidth="2dp"
-        app:matProg_fillRadius="true"
-        app:matProg_progressIndeterminate="true" />
+        <ImageView
+            android:id="@id/bubble_quick_switch_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:padding="16dp" />
+
+        <com.pluscubed.anticipate.widget.ProgressWheel
+            android:id="@id/bubble_quick_switch_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:matProg_barWidth="2dp"
+            app:matProg_fillRadius="true"
+            app:matProg_progressIndeterminate="true" />
+
+
+    </FrameLayout>
 
 </FrameLayout>
