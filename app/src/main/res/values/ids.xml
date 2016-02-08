@@ -38,4 +38,5 @@
     <item name="bubble_quick_switch_progress" type="id" />
     <item name="bubble_discard_bg_scrim" type="id" />
     <item name="bubble_discard_bg_bubble" type="id" />
+    <item name="bubble_discard_bg_alpha" type="id" />
 </resources>

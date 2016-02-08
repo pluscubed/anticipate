@@ -5,32 +5,28 @@
     android:layout_height="@dimen/bubble_size_padding"
     android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
-        android:layout_width="80.4dp"
-        android:layout_height="84.4dp"
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bubble_shadow" />
+
+    <ImageView
+        android:id="@id/bubble_quick_switch_icon"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
         android:layout_gravity="center"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true">
+        android:background="@drawable/bubble"
+        android:contentDescription="@null"
+        android:elevation="4dp"
+        android:padding="16dp" />
 
-        <ImageView
-            android:id="@id/bubble_quick_switch_icon"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:background="@drawable/bubble"
-            android:contentDescription="@null"
-            android:padding="16dp" />
-
-        <com.pluscubed.anticipate.widget.ProgressWheel
-            android:id="@id/bubble_quick_switch_progress"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            app:matProg_barWidth="2dp"
-            app:matProg_fillRadius="true"
-            app:matProg_progressIndeterminate="true" />
-
-    </android.support.v7.widget.CardView>
+    <com.pluscubed.anticipate.widget.ProgressWheel
+        android:id="@id/bubble_quick_switch_progress"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center"
+        app:matProg_barWidth="2dp"
+        app:matProg_fillRadius="true"
+        app:matProg_progressIndeterminate="true" />
 
 </FrameLayout>

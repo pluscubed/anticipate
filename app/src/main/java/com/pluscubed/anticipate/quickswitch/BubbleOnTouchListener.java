@@ -129,14 +129,14 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     }
 
     private void animateInDiscard() {
-        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 1 && mDiscardAnimatingIn == null) {
+        if (mQuickSwitchService.getDiscardAlphaLayout().getAlpha() != 1 && mDiscardAnimatingIn == null) {
 
             if (mDiscardAnimatingOut != null) {
                 mDiscardAnimatingOut.cancel();
                 mDiscardAnimatingOut = null;
             }
 
-            mDiscardAnimatingIn = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardLayout(), View.ALPHA, 1f);
+            mDiscardAnimatingIn = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardAlphaLayout(), View.ALPHA, 1f);
             mDiscardAnimatingIn.setDuration(200)
                     .addListener(new AnimatorListenerAdapter() {
                         @Override
@@ -150,12 +150,12 @@ class BubbleOnTouchListener implements View.OnTouchListener {
     }
 
     private void animateOutDiscard() {
-        if (mQuickSwitchService.getDiscardLayout().getAlpha() != 0 && mDiscardAnimatingOut == null) {
+        if (mQuickSwitchService.getDiscardAlphaLayout().getAlpha() != 0 && mDiscardAnimatingOut == null) {
             if (mDiscardAnimatingIn != null) {
                 mDiscardAnimatingIn.cancel();
                 mDiscardAnimatingIn = null;
             }
-            mDiscardAnimatingOut = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardLayout(), View.ALPHA, 0f);
+            mDiscardAnimatingOut = ObjectAnimator.ofFloat(mQuickSwitchService.getDiscardAlphaLayout(), View.ALPHA, 0f);
             mDiscardAnimatingOut.setDuration(200)
                     .addListener(new AnimatorListenerAdapter() {
                         @Override

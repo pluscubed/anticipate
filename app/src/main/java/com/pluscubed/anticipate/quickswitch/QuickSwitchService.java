@@ -55,8 +55,11 @@ public class QuickSwitchService extends Service {
     LinkedHashMap<String, BubbleViewHolder> mQuickSwitchWebsites;
     WindowManager mWindowManager;
     boolean mPendingPageLoadStart;
+
     private View mDiscardLayout;
     private ImageView mDiscardBubble;
+    private View mDiscardAlphaLayout;
+
     private boolean mUsingAccessibility;
     private CustomTabConnectionHelper mCustomTabConnectionHelper;
 
@@ -68,8 +71,8 @@ public class QuickSwitchService extends Service {
         return mWindowManager;
     }
 
-    public View getDiscardLayout() {
-        return mDiscardLayout;
+    public View getDiscardAlphaLayout() {
+        return mDiscardAlphaLayout;
     }
 
     public CustomTabConnectionHelper getCustomTabConnectionHelper() {
@@ -173,8 +176,9 @@ public class QuickSwitchService extends Service {
             discardScrim.setBackground(ScrimUtil.makeCubicGradientScrimDrawable(0xaa000000, 8, Gravity.BOTTOM));
 
             mDiscardBubble = (ImageView) mDiscardLayout.findViewById(R.id.bubble_discard_bg_bubble);
+            mDiscardAlphaLayout = mDiscardLayout.findViewById(R.id.bubble_discard_bg_alpha);
 
-            mDiscardLayout.setAlpha(0);
+            mDiscardAlphaLayout.setAlpha(0);
         }
     }
 

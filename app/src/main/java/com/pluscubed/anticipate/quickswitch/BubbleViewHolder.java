@@ -9,6 +9,7 @@ public class BubbleViewHolder {
     View root;
     ImageView icon;
     ProgressWheel progress;
+    View alphaLayout;
     boolean done;
 
     BubbleViewHolder() {
