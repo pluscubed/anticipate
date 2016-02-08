@@ -244,7 +244,7 @@ public class QuickSwitchService extends Service {
                 .setContentTitle(getString(R.string.bubble_notif))
                 .setContentText(getString(R.string.bubble_notif_desc))
                 .setPriority(Notification.PRIORITY_MIN)
-                .setSmallIcon(R.drawable.earth)
+                .setSmallIcon(R.drawable.ic_earth)
                 .setContentIntent(pendingIntent)
                 .build();
 

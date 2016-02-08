@@ -158,7 +158,7 @@ public class BrowserLauncherActivity extends Activity {
         boolean bubbleAvailable = PrefUtils.isQuickSwitch(this) &&
                 (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
         if (bubbleAvailable) {
-            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.earth), getString(R.string.minimize_to_bubble), minimizePending, true);
+            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.ic_earth), getString(R.string.minimize_to_bubble), minimizePending, true);
         }
 
         int animationStyleId = PrefUtils.getAnimationStyle(this);
@@ -304,6 +304,18 @@ public class BrowserLauncherActivity extends Activity {
     }
 
     public static class ShareBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, intent.getDataString());
+            Intent chooserIntent = Intent.createChooser(shareIntent, context.getString(R.string.share));
+            chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(chooserIntent);
+        }
+    }
+
+    public static class OpenInChromeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             final Intent shareIntent = new Intent(Intent.ACTION_SEND);

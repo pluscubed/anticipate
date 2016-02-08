@@ -50,7 +50,7 @@ public class FloatingMonitorService extends Service {
                 .setContentTitle(getString(R.string.anticipate_url_monitor))
                 .setContentText(getString(R.string.notification_tap_to_close))
                 .setPriority(Notification.PRIORITY_MIN)
-                .setSmallIcon(R.drawable.earth)
+                .setSmallIcon(R.drawable.ic_earth)
                 .setContentIntent(pendingIntent)
                 .build();
 

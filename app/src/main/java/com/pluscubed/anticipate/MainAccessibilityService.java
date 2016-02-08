@@ -210,12 +210,12 @@ public class MainAccessibilityService extends AccessibilityService {
                             onPageLoadStarted();
 
                             if (BuildConfig.DEBUG) {
-                                Toast.makeText(MainAccessibilityService.this, "accessibility detected Chrome - load started", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainAccessibilityService.this, "Accessibility detected Chrome - load started", Toast.LENGTH_LONG).show();
                             }
                         }
                         mPendingLoadFoundApp = false;
                     }
-                }, 200);
+                }, 100);
             }
 
             CharSequence className = event.getClassName();
@@ -396,15 +396,19 @@ public class MainAccessibilityService extends AccessibilityService {
                 case TAB_SHOWN:
                     break;
                 case TAB_HIDDEN:
-                    Intent checkBubblesIntent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);
-                    checkBubblesIntent.putExtra(QuickSwitchService.EXTRA_CHECK_BUBBLES, true);
-                    startService(checkBubblesIntent);
+                    if (PrefUtils.isQuickSwitch(MainAccessibilityService.this)) {
+                        Intent checkBubblesIntent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);
+                        checkBubblesIntent.putExtra(QuickSwitchService.EXTRA_CHECK_BUBBLES, true);
+                        startService(checkBubblesIntent);
+                    }
 
                     break;
                 case NAVIGATION_FINISHED:
-                    Intent intent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);
-                    intent.putExtra(QuickSwitchService.EXTRA_FINISH_LOADING, true);
-                    startService(intent);
+                    if (PrefUtils.isQuickSwitch(MainAccessibilityService.this)) {
+                        Intent intent = new Intent(MainAccessibilityService.this, QuickSwitchService.class);
+                        intent.putExtra(QuickSwitchService.EXTRA_FINISH_LOADING, true);
+                        startService(intent);
+                    }
 
                     break;
                 case NAVIGATION_STARTED:
