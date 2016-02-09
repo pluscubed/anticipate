@@ -184,6 +184,14 @@
                         android:paddingRight="16dp"
                         tools:ignore="UseCompoundDrawables">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="32dp"
+                            android:layout_marginRight="32dp"
+                            android:src="@drawable/ic_swap_vertical_circle_black_24dp"
+                            android:tint="?android:textColorSecondary" />
+
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -199,7 +207,7 @@
                                 android:paddingEnd="8dp"
                                 android:paddingRight="8dp"
                                 android:text="@string/open_in_quick_switch_bubble"
-                                android:textSize="16sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                             <TextView
@@ -209,7 +217,7 @@
                                 android:paddingRight="8dp"
                                 android:text="@string/quick_switch_bubble_desc"
                                 android:textColor="?android:textColorSecondary"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                         </LinearLayout>
@@ -221,7 +229,7 @@
                     <LinearLayout
                         android:id="@id/linear_default_toolbar_color"
                         android:layout_width="match_parent"
-                        android:layout_height="56dp"
+                        android:layout_height="48dp"
                         android:background="?selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
@@ -229,6 +237,13 @@
                         android:paddingRight="16dp"
                         tools:ignore="UseCompoundDrawables">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="32dp"
+                            android:layout_marginRight="32dp"
+                            android:src="@drawable/ic_color_lens_black_24dp"
+                            android:tint="?android:textColorSecondary" />
 
                         <TextView
                             android:layout_width="0dp"
@@ -237,7 +252,7 @@
                             android:paddingEnd="8dp"
                             android:paddingRight="8dp"
                             android:text="@string/default_toolbar_color"
-                            android:textSize="16sp"
+                            android:textSize="13sp"
                             tools:ignore="RtlSymmetry" />
 
                         <View
@@ -259,6 +274,13 @@
                         android:paddingRight="16dp"
                         tools:ignore="UseCompoundDrawables">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="32dp"
+                            android:layout_marginRight="32dp"
+                            android:src="@drawable/ic_colorize_black_24dp"
+                            android:tint="?android:textColorSecondary" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -274,7 +296,7 @@
                                 android:paddingEnd="8dp"
                                 android:paddingRight="8dp"
                                 android:text="@string/dynamic_page_toolbar_color"
-                                android:textSize="16sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                             <TextView
@@ -284,7 +306,7 @@
                                 android:paddingRight="8dp"
                                 android:text="@string/dynamic_page_toolbar_color_desc"
                                 android:textColor="?android:textColorSecondary"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                         </LinearLayout>
@@ -305,6 +327,13 @@
                         android:paddingRight="16dp"
                         tools:ignore="UseCompoundDrawables">
 
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="32dp"
+                            android:layout_marginRight="32dp"
+                            android:src="@drawable/ic_web_asset_black_24dp"
+                            android:tint="?android:textColorSecondary" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -320,7 +349,7 @@
                                 android:paddingEnd="8dp"
                                 android:paddingRight="8dp"
                                 android:text="@string/dynamic_toolbar_color"
-                                android:textSize="16sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                             <TextView
@@ -330,7 +359,7 @@
                                 android:paddingRight="8dp"
                                 android:text="@string/toolbar_color_desc"
                                 android:textColor="?android:textColorSecondary"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 tools:ignore="RtlSymmetry" />
 
                         </LinearLayout>
@@ -354,7 +383,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/animation"
-                            android:textSize="16sp" />
+                            android:textSize="13sp" />
 
                         <Space
                             android:layout_width="8dp"
@@ -385,7 +414,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/custom_tab_browser"
-                            android:textSize="16sp" />
+                            android:textSize="13sp" />
 
                         <Space
                             android:layout_width="8dp"
@@ -423,7 +452,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/per_app_filter_mode"
-                            android:textSize="16sp" />
+                            android:textSize="13sp" />
 
                         <Space
                             android:layout_width="8dp"
@@ -441,7 +470,8 @@
                             style="@style/Widget.AppCompat.Button.Borderless.Colored"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/configure" />
+                            android:text="@string/configure"
+                            android:textSize="13sp" />
 
                     </LinearLayout>
 
@@ -466,7 +496,7 @@
                             android:paddingRight="8dp"
                             android:paddingTop="16dp"
                             android:text="@string/floating_window_checkbox"
-                            android:textSize="16sp"
+                            android:textSize="13sp"
                             tools:ignore="RtlSymmetry" />
 
                         <include layout="@layout/switch_layout" />

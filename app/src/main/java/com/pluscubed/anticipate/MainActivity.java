@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //QUICK SWITCH BUBBLE
         final ViewGroup quickSwitchLinear = (ViewGroup) findViewById(R.id.linear_quick_switch_bubble);
-        mQuickSwitch = (SwitchCompat) quickSwitchLinear.getChildAt(1);
+        mQuickSwitch = (SwitchCompat) quickSwitchLinear.getChildAt(2);
 
         //state set in invalidateStates
 
@@ -395,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //DEFAULT TOOLBAR COLOR
         final ViewGroup defaultToolbarLinear = (ViewGroup) findViewById(R.id.linear_default_toolbar_color);
-        mDefaultToolbarColorView = defaultToolbarLinear.getChildAt(1);
+        mDefaultToolbarColorView = defaultToolbarLinear.getChildAt(2);
 
         defaultToolbarLinear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -417,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //DYNAMIC TOOLBAR COLOR
         final ViewGroup dynamicToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_toolbar_color);
-        final SwitchCompat dynamicToolbarSwitch = (SwitchCompat) dynamicToolbarLinear.getChildAt(1);
+        final SwitchCompat dynamicToolbarSwitch = (SwitchCompat) dynamicToolbarLinear.getChildAt(2);
 
         dynamicToolbarSwitch.setChecked(PrefUtils.isDynamicToolbar(this));
 
@@ -432,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         //DYNAMIC APP-BASED TOOLBAR COLOR
         final ViewGroup appBasedToolbarLinear = (ViewGroup) findViewById(R.id.linear_dynamic_app_toolbar_color);
-        mPageBasedToolbarSwitch = (SwitchCompat) appBasedToolbarLinear.getChildAt(1);
+        mPageBasedToolbarSwitch = (SwitchCompat) appBasedToolbarLinear.getChildAt(2);
 
         //state set in invalidateStates
 

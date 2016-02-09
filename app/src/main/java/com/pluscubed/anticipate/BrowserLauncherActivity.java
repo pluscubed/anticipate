@@ -188,7 +188,7 @@ public class BrowserLauncherActivity extends Activity {
         boolean bubbleAvailable = PrefUtils.isQuickSwitch(this) &&
                 (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
         if (bubbleAvailable) {
-            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.ic_toll_black_24dp), getString(R.string.minimize_to_bubble), minimizePending, true);
+            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.ic_swap_vertical_circle_black_24dp), getString(R.string.minimize_to_bubble), minimizePending, true);
         }
 
         int animationStyleId = PrefUtils.getAnimationStyle(this);
