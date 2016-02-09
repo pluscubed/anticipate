@@ -127,8 +127,10 @@
                         android:layout_height="wrap_content"
                         android:focusableInTouchMode="true"
                         android:orientation="horizontal"
-                        android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingEnd="12dp"
+                        android:paddingLeft="12dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="12dp"
                         android:theme="@style/Theme.Anticipate.DarkAccent"
                         tools:ignore="UseCompoundDrawables">
 
@@ -180,8 +182,10 @@
                         android:baselineAligned="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:paddingEnd="12dp"
                         android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="16dp"
                         tools:ignore="UseCompoundDrawables">
 
                         <ImageView
@@ -270,8 +274,10 @@
                         android:baselineAligned="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:paddingEnd="12dp"
                         android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="16dp"
                         tools:ignore="UseCompoundDrawables">
 
                         <ImageView
@@ -323,8 +329,10 @@
                         android:baselineAligned="false"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:paddingEnd="12dp"
                         android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="16dp"
                         tools:ignore="UseCompoundDrawables">
 
                         <ImageView
@@ -441,8 +449,10 @@
                         android:layout_height="56dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:paddingEnd="12dp"
                         android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="16dp"
                         android:theme="@style/Theme.Anticipate.DarkAccent"
                         tools:ignore="UseCompoundDrawables"
                         tools:layout_height="48dp">
@@ -482,8 +492,10 @@
                         android:background="?selectableItemBackground"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
+                        android:paddingEnd="12dp"
                         android:paddingLeft="16dp"
-                        android:paddingRight="16dp"
+                        android:paddingRight="12dp"
+                        android:paddingStart="16dp"
                         tools:ignore="UseCompoundDrawables">
 
 
