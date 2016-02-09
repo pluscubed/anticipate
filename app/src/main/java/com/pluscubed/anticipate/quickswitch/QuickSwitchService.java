@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -37,11 +38,10 @@ import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.ScrimUtil;
 import com.pluscubed.anticipate.widget.ProgressWheel;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class QuickSwitchService extends Service {
 
@@ -313,30 +313,29 @@ public class QuickSwitchService extends Service {
     }
 
     void checkBubbles() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-            List<ActivityManager.AppTask> appTasks;
-            appTasks = manager.getAppTasks();
+        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
 
-            Map<String, ActivityManager.AppTask> taskOpenUrls = new HashMap<>();
-            for (ActivityManager.AppTask task : appTasks) {
+            Set<String> taskOpenUrls = new HashSet<>();
+
+            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.AppTask task : manager.getAppTasks()) {
                 Intent baseIntent = task.getTaskInfo().baseIntent;
                 String url = baseIntent.getDataString();
-                if (url != null && task.getTaskInfo().numActivities > 0) {
-                    taskOpenUrls.put(url, task);
+                if (url != null && task.getTaskInfo().id > -1) {
+                    taskOpenUrls.add(url);
                 }
             }
 
             for (Iterator<String> iterator = mQuickSwitchWebsites.keySet().iterator(); iterator.hasNext(); ) {
                 String quickSwitchUrl = iterator.next();
-                if (!taskOpenUrls.containsKey(quickSwitchUrl)) {
+                if (!taskOpenUrls.contains(quickSwitchUrl)) {
                     removeUrl(quickSwitchUrl, false);
                     iterator.remove();
                 }
             }
 
 
-            for (String taskOpenUrl : taskOpenUrls.keySet()) {
+            for (String taskOpenUrl : taskOpenUrls) {
                 if (!mQuickSwitchWebsites.containsKey(taskOpenUrl)) {
                     addBubble(taskOpenUrl, true);
                 }
