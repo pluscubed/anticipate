@@ -361,7 +361,6 @@ public class QuickSwitchService extends Service {
                     iterator.remove();
                 }
             }
-            checkExit();
 
 
             for (String taskOpenUrl : taskOpenUrls) {
@@ -369,6 +368,8 @@ public class QuickSwitchService extends Service {
                     addBubble(taskOpenUrl, true);
                 }
             }
+
+            checkExit();
         }
     }
 
