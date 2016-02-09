@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -760,8 +761,10 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
 
         boolean isSetAsDefault = isSetAsDefault();
 
-        Drawable drawable = mSetDefaultImage.getDrawable();
+        Drawable drawable = DrawableCompat.wrap(mSetDefaultImage.getDrawable().mutate());
+        DrawableCompat.setTintMode(drawable, PorterDuff.Mode.SRC_ATOP);
         DrawableCompat.setTint(drawable, ContextCompat.getColor(this, isSetAsDefault ? R.color.green_500 : R.color.blue_800));
+        mSetDefaultImage.setImageDrawable(drawable);
         mSetDefaultButton.setVisibility(isSetAsDefault ? View.GONE : View.VISIBLE);
     }
 
