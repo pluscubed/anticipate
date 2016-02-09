@@ -38,9 +38,12 @@ import com.pluscubed.anticipate.util.PrefUtils;
 import com.pluscubed.anticipate.util.ScrimUtil;
 import com.pluscubed.anticipate.widget.ProgressWheel;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Set;
 
 public class QuickSwitchService extends Service {
@@ -116,7 +119,29 @@ public class QuickSwitchService extends Service {
                         .intoCallBack(new BitmapPalette.CallBack() {
                             @Override
                             public void onPaletteLoaded(@Nullable Palette palette) {
-                                holder.progress.setBarColor(palette.getVibrantColor(defaultToolbarColor));
+
+                                int color = palette.getVibrantColor(defaultToolbarColor);
+
+                                if (color == defaultToolbarColor) {
+                                    List<Palette.Swatch> swatches = palette.getSwatches();
+                                    if (swatches.size() > 0) {
+                                        Palette.Swatch most = Collections.max(swatches, new Comparator<Palette.Swatch>() {
+                                            @Override
+                                            public int compare(Palette.Swatch lhs, Palette.Swatch rhs) {
+                                                if (lhs.getPopulation() < rhs.getPopulation()) {
+                                                    return -1;
+                                                } else if (lhs.getPopulation() == rhs.getPopulation()) {
+                                                    return 0;
+                                                } else {
+                                                    return 1;
+                                                }
+                                            }
+                                        });
+                                        color = most.getRgb();
+                                    }
+                                }
+
+                                holder.progress.setBarColor(color);
                             }
                         }))
                 .into(holder.icon);
