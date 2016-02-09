@@ -304,6 +304,11 @@ public class QuickSwitchService extends Service {
             removeUrl(url);
         }
 
+        if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
+            mWindowManager.removeView(mDiscardLayout);
+            stopSelf();
+        }
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -347,11 +352,6 @@ public class QuickSwitchService extends Service {
         mWindowManager.removeView(mQuickSwitchWebsites.get(url).root);
         if (removeFromList) {
             mQuickSwitchWebsites.remove(url);
-        }
-
-        if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
-            mWindowManager.removeView(mDiscardLayout);
-            stopSelf();
         }
     }
 

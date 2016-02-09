@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="open_settings_failed_overlay">Öppna inställningar misslyckades. Vänligen, manuellt välj \"Rita över andra appar\" inställning för Anticipate.</string>
+    <string name="dynamic_page_toolbar_color">Sid-baserad verktygsfält färg (BETA)</string>
+</resources>

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Zet Anticipate\'s toegankelijkheidsservice aan om links op het scherm te detecteren en ze voor te bereiden</string>
+    <string name="enable_accessibility_service">Zet toegankelijkheidsservice aan</string>
+    <string name="desc_default">Om alle links met Anticipate te openen, kun je Anticipate als standaardbrowser instellen</string>
+    <string name="set_as_default_browser">Stel in als standaardbrowser</string>
+    <string name="dialog_clear_defaults">Een andere browser is momenteel als standaard ingesteld. Verwijder eerst de standaardinstellingen van deze browser om Anticipate als standaard in te stellen.</string>
+    <string name="try_it_out">Probeer het</string>
+    <string name="enter_a_url">Voer een URL in</string>
+    <string name="dialog_draw_overlay">Verleen in Android 6.0+ toestemming om elementen in de voorgrond te tonen</string>
+    <string name="open_settings">Open instellingen</string>
+    <string name="open_settings_failed_clear_deafults">Instellingen openen niet succesvol. Verwijder alsjeblieft manueel de standaardinstellingen van je huidige browser.</string>
+    <string name="open_settings_failed_overlay">"Instellingen openen niet succesvol. Geef Anticipate alsjeblieft manueel permissie om elementen in de voorgrond te tonen."</string>
+    <string name="open_settings_failed_accessibility">Instellingen openen niet succesvol. Zet alsjeblieft manueel de toegankelijkheidsservice voor Anticipate aan.</string>
+    <string name="accessibility_disabled">De toegankelijkheidsservice voor Anticipate is uitgeschakeld. Zet deze alsjeblieft aan om links voor te bereiden.</string>
+    <string name="floating_window_checkbox">Zwevend venster om voorbereide URL\'s te controleren</string>
+    <string name="anticipate_url_monitor">Anticipate URL-controle</string>
+    <string name="notification_tap_to_close">Druk om zwevend venster te sluiten</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">Sluit</string>
+    <string name="about_body"><![CDATA[
+        <b>Anticipate</b> is een internetbrowsetool die links op het scherm detecteert en ze voorbereidt.
+        <br/><br/>
+        Het gebruikt Chrome Custom Tabs om domeinen en bronner vooraf te laden zodat je webpagina\'s zo snel mogelijk klaar zijn om te bekijken.<br/><br/>
+
+        Ontwikkeld door <b>Daniel Ciao</b><br/>
+
+        <a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp;
+        <a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
+        <a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
+        <a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
+        <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
+
+        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> — bron, bugs, aangevraagde functionaliteit<br/>
+        <a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> — help de app te vertalen<br/><br/>
+    ]]></string>
+    <string name="about">Over</string>
+    <string name="per_app_filter_mode">Filter per app:</string>
+    <string name="configure">Configureer</string>
+    <string name="blacklist">Zwarte lijst</string>
+    <string name="whitelist">Witte lijst</string>
+    <string name="blacklisted_apps">Apps op de zwarte lijst</string>
+    <string name="whitelisted_apps">Apps op de witte lijst</string>
+    <string name="open_with">Open met:</string>
+    <string name="unable_to_launch">Geen browsers compatibel met Chrome Custom Tabs zijn geïnstalleerd</string>
+    <string name="undo">Ongedaan maken</string>
+    <string name="app_removed">%s verwijderd uit de lijst</string>
+    <string name="no_blacklisted_apps">Geen apps op de zwarte lijst</string>
+    <string name="no_whitelisted_apps">Geen apps op de witte lijst</string>
+    <string name="swipe_to_remove">Veeg om te verwijderen</string>
+    <string name="accessibility_service_not_active">De toegankelijkheidsservice van Anticipate is inactief geworden. Zet deze alsjeblieft manueel uit en terug aan.</string>
+    <string name="dynamic_toolbar_color">"Sitegebaseerde werkbalkkleur"</string>
+    <string name="toolbar_color_desc">Gebruik de werkbalkkleur gedefinieerd door de website (indien gedefinieerd). Dit zal pas werken wanneer een website voor de tweede keer geopend wordt.</string>
+    <string name="dynamic_page_toolbar_color">"Paginagebaseerde werkbalkkleur (BÈTA)"</string>
+    <string name="dynamic_page_toolbar_color_desc">Gebruik de primaire kleur van de oorspronkelijke pagina of app als werkbalkkleur</string>
+    <string name="enable_service_page_toolbar">De toegankelijkheidsservice moet worden aangezet om de paginagebaseerde werkbalkkleur te gebruiken</string>
+    <string name="default_toolbar_color">Standaardwerkbalkkleur</string>
+    <string name="share">Delen</string>
+    <string name="animation">Animatie:</string>
+    <string name="slide_bottom_android">Lollipop+ slide-in</string>
+    <string name="slide_bottom">Slide-in vanaf onderaan</string>
+    <string name="slide_right">Slide-in vanaf rechts</string>
+    <string name="none">Systeemstandaard</string>
+    <string name="custom_tab_browser">Custom Tab-browser:</string>
+    <string name="install_chrome">Installeer Chrome</string>
+    <string name="error">Fout</string>
+    <string name="changelog">Veranderingen</string>
+    <string name="custom">Aangepast</string>
+    <string name="done">Klaar</string>
+    <string name="using_anticipate">met Anticipate</string>
+    <string name="using_browser">met de browser</string>
+    <string name="anticipate_update">Anticipate is geüpdatet naar v%s</string>
+    <string name="anticipate_update_desc">Raak aan om de nieuwe functionaliteit te ontdekken</string>
+    <string name="open_in_quick_switch_bubble">Open in bubbel (BÈTA)</string>
+    <string name="quick_switch_bubble_desc">Begint met links te laden in Custom Tabs en keert terug naar de vorige app, met bubbels om de geladen websites te openen</string>
+    <string name="enable_service_quick_switch">De toegankelijkheidsservice moet worden aangezet om bubbels te gebruiken.</string>
+    <string name="unable_to_launch_browser_error">De geselecteerde Custom Tabs gaven een foutmelding.</string>
+    <string name="anticipate_settings">Anticipate-instellingen</string>
+    <string name="use_chrome_custom_tabs">Gebruik Chrome Custom Tabs</string>
+    <string name="bubble_notif">Anticipate-bubbels</string>
+    <string name="bubble_notif_desc">Raak aan om service te stoppen</string>
+    <string name="minimize_to_bubble">Minimaliseer naar bubbel</string>
+</resources>

@@ -10,7 +10,7 @@
     <string name="enter_a_url">输入网址</string>
     <string name="dialog_draw_overlay">为了在安卓6.0以上显示浮动界面，请允许Anticipate在其它应用的上层显示</string>
     <string name="open_settings">打开设置</string>
-    <string name="open_settings_failed_clear_deafults">无法自动打开设置。请手动清除默认浏览器</string>
+    <string name="open_settings_failed_clear_deafults">无法自动打开设置。请手动清除默认浏览器。</string>
     <string name="accessibility_disabled">Anticipate的无障碍服务没有开启，为了准备载入连接请启用服务</string>
     <string name="floating_window_checkbox">浮悬窗口 - 监视已预加载的链接</string>
     <string name="anticipate_url_monitor">Anticipate链接监视</string>
@@ -52,9 +52,9 @@
     <string name="swipe_to_remove">拖动移除应用</string>
     <string name="accessibility_service_not_active">Anticipate无障碍选项已开启但服务意外关闭。请手动关闭再开启无障碍服务。</string>
     <string name="use_chrome_custom_tabs">使用Chrome Custom Tabs</string>
-    <string name="toolbar_color_desc">使用网页指定的导航栏颜色(如果网页有指定)。打开某一网站第二次时起效。</string>
-    <string name="dynamic_toolbar_color">网页导航栏颜色</string>
-    <string name="default_toolbar_color">默认导航栏颜色</string>
+    <string name="toolbar_color_desc">使用网页指定的标签栏颜色(如果网页有指定)。打开某一网站第二次时起效。</string>
+    <string name="dynamic_toolbar_color">网页标签栏颜色</string>
+    <string name="default_toolbar_color">默认标签栏颜色</string>
 
     <string name="share">分享</string>
     <string name="animation">打开关闭动画: </string>
@@ -72,17 +72,21 @@
     <string name="using_anticipate">Anticipate</string>
     <string name="using_browser">其它浏览器</string>
 
-    <string name="anticipate_update">Anticipate已更新到v</string>
+    <string name="anticipate_update">Anticipate已更新到v%s</string>
     <string name="anticipate_update_desc">点击查看新功能</string>
     <string name="anticipate_settings">Anticipate设置</string>
-    <string name="dynamic_page_toolbar_color">前页面导航栏颜色(BETA)</string>
-    <string name="dynamic_page_toolbar_color_desc">用打开Anticipate的App所有的导航栏颜色</string>
-    <string name="enable_service_page_toolbar">使用前页面导航栏颜色需打开无障碍服务</string>
+    <string name="dynamic_page_toolbar_color">前页面标签栏颜色(BETA)</string>
+    <string name="dynamic_page_toolbar_color_desc">用打开Anticipate的App所有的标签栏颜色</string>
+    <string name="enable_service_page_toolbar">使用前页面标签栏颜色需打开无障碍服务</string>
     <string name="enable_service_quick_switch">使用快速切换泡泡需打开无障碍服务</string>
     <string name="open_in_quick_switch_bubble">使用快速切换泡泡打开(BETA)</string>
-    <string name="open_settings_failed_overlay">无法自动打开设置。请手动允许Anticipate在其它应用的上层显示</string>
+    <string name="open_settings_failed_overlay">无法自动打开设置。请手动允许Anticipate在其它应用的上层显示。</string>
     <string name="quick_switch_bubble_desc">使用Custom Tabs开始加载、回到正在使用的app、及显示快速切换泡泡</string>
     <string name="slide_bottom_android">安卓5.0+页面滑入</string>
     <string name="unable_to_launch_browser_error">选择的Custom Tabs浏览器未能打开连接</string>
+    <string name="bubble_notif">Anticipate快速切换泡泡</string>
+    <string name="bubble_notif_desc">点击关闭服务</string>
+    <string name="minimize_to_bubble">最小化为泡泡</string>
+    <string name="open_settings_failed_accessibility">无法自动打开设置。请手动启用Anticipate的无障碍设置。</string>
 
 </resources>

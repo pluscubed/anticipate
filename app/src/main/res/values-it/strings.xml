@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<resources>
+    <string name="app_name">Anticipate</string>
+    <string name="desc">Per trovare i link sullo schermo e prepararsi, attiva il servizio di accessibilità di Anticipate</string>
+    <string name="enable_accessibility_service">Attiva Servizio Accessibilità</string>
+    <string name="desc_default">Per aprire tutti i link con Anticipate, devi prima impostarlo come browser predefinito</string>
+    <string name="set_as_default_browser">Imposta come browser predefinito</string>
+    <string name="dialog_clear_defaults">Un altro browser è attualmente impostato come predefinito. Cancella le sue impostazioni predefinite prima di impostare Anticipate come predefinito.</string>
+    <string name="try_it_out">Provalo</string>
+    <string name="enter_a_url">Inserisci un URL</string>
+    <string name="dialog_draw_overlay">Per vedere gli elementi galleggianti su Android 6.0+, garantisci il permesso \"Disegna Sopra Altre App\"</string>
+    <string name="open_settings">Apri pagina Impostazioni</string>
+    <string name="open_settings_failed_clear_deafults">Apertura impostazioni non riuscita. Cancella manualmente le impostazioni di default del tuo attuale browser.</string>
+    <string name="open_settings_failed_overlay">Apertura impostazioni fallita. Attiva manualmente l\'impostazione \"Disegna sopra le altre app\" per Anticipate.</string>
+    <string name="accessibility_disabled">Il servizio di accessibilità di Anticipate è disattivato. Attivalo per pre-caricare i link.</string>
+    <string name="floating_window_checkbox">Finestra galleggiante per controllare gli URL caldi</string>
+    <string name="anticipate_url_monitor">Anticipate URL Monitor</string>
+    <string name="notification_tap_to_close">Tocca per chiudere la finestra galleggiante</string>
+    <string name="about_dialog_title">Anticipate v%s</string>
+    <string name="dismiss">Esci</string>
+    <string name="about_body"><![CDATA[
+<b>Anticipate</b> è uno strumento per navigare il web che trova e warms-up i link sullo schermo.
+<br/><br/>
+Usa le Chrome Custom Tabs per pre-risolvere i domini e pre-caricare le risorse in anticipo così le tue pagine web sono pronte 
+per essere viste il prima possibile.<br/><br/>
+
+Sviluppato ba <b>Daniel Ciao</b><br/>
+
+<a href=\'http://pluscubed.com\'>Sito web</a>&nbsp;&nbsp;
+<a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp; 
+<a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp; 
+<a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp; 
+<a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/> 
+
+<a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - sorgente, problemi, richiesta di features<br/> 
+<a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> - aiuto per tradurre l\'app<br/><br/> ]]></string>
+    <string name="about">About</string>
+    <string name="per_app_filter_mode">Filtro per-app:</string>
+    <string name="configure">Configura</string>
+    <string name="blacklist">Blacklist</string>
+    <string name="whitelist">Whitelist</string>
+    <string name="blacklisted_apps">App in blacklist</string>
+    <string name="whitelisted_apps">App in whitelist</string>
+    <string name="open_with">Apri con:</string>
+    <string name="unable_to_launch">Nessun browser installato compatibile con Chrome Custom Tabs</string>
+    <string name="undo">Annulla</string>
+    <string name="app_removed">%s rimosso dalla lista</string>
+    <string name="no_blacklisted_apps">Nessuna app in blacklist</string>
+    <string name="no_whitelisted_apps">Nessuna app in whitelist</string>
+    <string name="swipe_to_remove">Scorri per rimuovere</string>
+    <string name="accessibility_service_not_active">Il servizio di accessibilità di Anticipate è diventato inattivo. Spegni manualmente il servizio di accessibilità e poi riattivalo.</string>
+    <string name="dynamic_toolbar_color">Colore della barra degli strumenti basato sul sito</string>
+    <string name="toolbar_color_desc">Usa il colore della barra degli strumenti definito dal sito (quando definito). Questo funzionerà dalla seconda volta che apri il sito.</string>
+    <string name="dynamic_page_toolbar_color">Colore della barra degli strumenti basato sulla pagina (BETA)</string>
+    <string name="dynamic_page_toolbar_color_desc">Usa il colore principale dalla pagina/app di origine come colore della barra degli strumenti</string>
+    <string name="enable_service_page_toolbar">Il servizio di accessibilità deve essere attivo per usare il colore della barra degli indirizzi basato sulla pagine</string>
+    <string name="default_toolbar_color">Colore della barra degli strumenti predefinito</string>
+    <string name="share">Condividi</string>
+    <string name="animation">Animazione:</string>
+    <string name="slide_bottom_android">Lollipop+ slide in</string>
+    <string name="slide_bottom">Scorri dal basso</string>
+    <string name="slide_right">Scorri da destra</string>
+    <string name="none">Nessuna - animazione di sistema</string>
+    <string name="custom_tab_browser">Custom Tab Browser:</string>
+    <string name="install_chrome">Installa Chrome</string>
+    <string name="error">Errore</string>
+    <string name="changelog">Changelog</string>
+    <string name="custom">Personalizzato</string>
+    <string name="done">Fatto</string>
+    <string name="using_anticipate">usando Anticipate</string>
+    <string name="using_browser">usando il browser</string>
+    <string name="anticipate_update">Anticipate aggiornato a v%s</string>
+    <string name="anticipate_update_desc">Tocca per controllare le nuove features</string>
+    <string name="open_in_quick_switch_bubble">Apri in Bolle a Cambio-Rapido (BETA)</string>
+    <string name="quick_switch_bubble_desc">Inizia a caricare i link in Custom Tabs e torna alla precedente app, con bolle per aprire il sito caricato</string>
+    <string name="enable_service_quick_switch">Il servizio di accessibilità deve essere attivato per usare le bolle a cambio-rapido.</string>
+    <string name="unable_to_launch_browser_error">La Custom Tab selezionata ha riportato un errore</string>
+    <string name="anticipate_settings">Impostazioni di Anticipate</string>
+    <string name="use_chrome_custom_tabs">Usa Chrome Custom Tabs</string>
+</resources>

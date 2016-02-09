@@ -72,7 +72,7 @@
     <string name="done">Done</string>
     <string name="using_anticipate">using Anticipate</string>
     <string name="using_browser">using browser</string>
-    <string name="anticipate_update">Anticipate updated to v</string>
+    <string name="anticipate_update">Anticipate updated to v%s</string>
     <string name="anticipate_update_desc">Touch to check out the new features</string>
     <string name="open_in_quick_switch_bubble">Open in QuickSwitch Bubble (BETA)</string>
     <string name="quick_switch_bubble_desc">Starts loading links in Custom Tabs and resumes your previous app, with bubbles to open the loaded websites</string>

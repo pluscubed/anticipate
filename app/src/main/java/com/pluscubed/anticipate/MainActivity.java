@@ -66,6 +66,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback {
 
     public static final String TAG = "MainActivity";
+    public static final String EXTRA_SHOW_CHANGELOG = "com.pluscubed.anticipate.EXTRA_SHOW_CHANGELOG";
 
     PopupMenu mTryPopup;
     DispatchBackEditText mTryEditText;
@@ -488,7 +489,11 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         if (PrefUtils.isFirstRun(this)) {
             PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
         }
-        Utils.notifyChangelog(this);
+
+        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this) ||
+                getIntent().getBooleanExtra(EXTRA_SHOW_CHANGELOG, false)) {
+            showChangelog();
+        }
 
         DbUtil.initializeBlacklist(this);
         MainAccessibilityService.updateFilterList();

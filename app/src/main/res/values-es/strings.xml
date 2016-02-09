@@ -49,7 +49,7 @@
     <string name="done">Hecho</string>
     <string name="using_anticipate">Usando Anticipate</string>
     <string name="using_browser">Usando Navegador</string>
-    <string name="anticipate_update">Anticipate actualizado a v</string>
+    <string name="anticipate_update">Anticipate actualizado a v%s</string>
     <string name="anticipate_update_desc">Tocar para comprobar las nuevas características</string>
     <string name="use_chrome_custom_tabs">Usar Pestañas Personalizadas de Chrome</string>
 </resources>

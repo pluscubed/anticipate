@@ -6,6 +6,9 @@ import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
@@ -136,14 +139,37 @@ public class BrowserLauncherActivity extends Activity {
 
         Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
         PendingIntent sharePending = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         Intent settingsIntent = new Intent(this, MainActivity.class);
         settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
         Intent minimizeToQuickSwitch = new Intent(this, getClass());
         minimizeToQuickSwitch.putExtra(EXTRA_MINIMIZE, true);
         minimizeToQuickSwitch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         minimizeToQuickSwitch.setData(uri);
         PendingIntent minimizePending = PendingIntent.getActivity(this, 0, minimizeToQuickSwitch, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        String chromeAppPackageName = PrefUtils.getChromeApp(this);
+        Intent openInChrome = new Intent();
+        openInChrome.setPackage(chromeAppPackageName);
+        openInChrome.setData(uri);
+        openInChrome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent openInChromePending = PendingIntent.getActivity(this, 0, openInChrome, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        String chromeApp = null;
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(chromeAppPackageName, 0);
+
+            if (packageInfo.versionCode >= 261900501) {
+                //If newer than 1/14 Chrome Dev release
+                ApplicationInfo applicationInfo = packageInfo.applicationInfo;
+                chromeApp = (String) applicationInfo.loadLabel(getPackageManager());
+            }
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         builder.enableUrlBarHiding()
                 .setShowTitle(true)
@@ -155,10 +181,14 @@ public class BrowserLauncherActivity extends Activity {
                             getString(R.string.share),
                             sharePending)*/;
 
+        if (chromeApp != null) {
+            builder.addMenuItem(String.format("Open in %s", chromeApp), openInChromePending);
+        }
+
         boolean bubbleAvailable = PrefUtils.isQuickSwitch(this) &&
                 (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(this));
         if (bubbleAvailable) {
-            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.ic_earth), getString(R.string.minimize_to_bubble), minimizePending, true);
+            builder.setActionButton(Utils.drawableToBitmap(this, R.drawable.ic_toll_black_24dp), getString(R.string.minimize_to_bubble), minimizePending, true);
         }
 
         int animationStyleId = PrefUtils.getAnimationStyle(this);
@@ -304,18 +334,6 @@ public class BrowserLauncherActivity extends Activity {
     }
 
     public static class ShareBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, intent.getDataString());
-            Intent chooserIntent = Intent.createChooser(shareIntent, context.getString(R.string.share));
-            chooserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(chooserIntent);
-        }
-    }
-
-    public static class OpenInChromeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             final Intent shareIntent = new Intent(Intent.ACTION_SEND);

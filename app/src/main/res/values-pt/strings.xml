@@ -11,13 +11,14 @@
     <string name="dialog_draw_overlay">Para mostrar a janela flutuante no Android 6.0+, conceda a permissão \"Sobrepor a outros apps\"</string>
     <string name="open_settings">Abrir Configurações</string>
     <string name="open_settings_failed_clear_deafults">Falha ao abrir configurações. Por favor, limpe os padrões manualmente do seu navegador atual.</string>
+    <string name="open_settings_failed_overlay">Falha ao abrir configurações. Por favor ative manualmente a configuração \"Sobrepor a outros apps\" para o Anticipate.</string>
     <string name="accessibility_disabled">Serviço de acessibilidade do Anticipate está desativado. Por favor ative para pré-carregar os links.</string>
     <string name="floating_window_checkbox">Janela flutuante para monitorar URLs preparadas</string>
     <string name="anticipate_url_monitor">Monitor de URL do Anticipate</string>
     <string name="notification_tap_to_close">Toque para fechar a janela flutuante</string>
     <string name="about_dialog_title">Anticipate v%s</string>
     <string name="dismiss">Dispensar</string>
-    <string name="about_body"><![CDATA[<b>Anticipate</b> é ferramenta de navegação na web que detecta e prepara os links que estão na sua tela. 
+    <string name="about_body"><![CDATA[<b>Anticipate</b> é ferramenta de navegação na web que detecta e prepara os links que estão na sua tela.
 <br/><br/>
 Isso usa o Chrome Custom Tabs para pré-carregar domínios e pré-buscar recursos com antecedência para suas páginas da web estarem prontas para serem visualizadas o mais rápido possível.<br/><br/>
 
@@ -47,9 +48,13 @@ Desenvolvido por <b>Daniel Ciao</b><br/>
     <string name="accessibility_service_not_active">Serviço de acessibilidade do Anticipate ficou inativo. Por favor desative manualmente o serviço de acessibilidade e ative novamente.</string>
     <string name="dynamic_toolbar_color">Cor dinâmica da barra de ferramentas</string>
     <string name="toolbar_color_desc">Usar a cor definida na barra de ferramentas do website (quando definida).  Isso irá funcionar na segunda vez que um site é aberto.</string>
+    <string name="dynamic_page_toolbar_color">Cor da página com base na barra de ferramentas (BETA)</string>
+    <string name="dynamic_page_toolbar_color_desc">Use a cor principal da página de origem/app como a cor da barra de ferramentas.</string>
+    <string name="enable_service_page_toolbar">O serviço de acessibilidade precisa estar habilitado para usar a cor da página com base na barra de ferramentas</string>
     <string name="default_toolbar_color">Cor padrão da barra de ferramentas</string>
     <string name="share">Compartilhar</string>
     <string name="animation">Animação:</string>
+    <string name="slide_bottom_android">Deslize do Lollipop+</string>
     <string name="slide_bottom">Deslizar vindo de baixo</string>
     <string name="slide_right">Deslizar vindo da direita</string>
     <string name="none">Nada - animação do sistema</string>
@@ -61,7 +66,12 @@ Desenvolvido por <b>Daniel Ciao</b><br/>
     <string name="done">Feito</string>
     <string name="using_anticipate">usando Anticipate</string>
     <string name="using_browser">usando o Navegador</string>
-    <string name="anticipate_update">Anticipate atualizado para v</string>
+    <string name="anticipate_update">Anticipate atualizado para v%s</string>
     <string name="anticipate_update_desc">Toque de verificar as novas funcionalidades</string>
+    <string name="open_in_quick_switch_bubble">Abrir em Bolha Flutuante (BETA)</string>
+    <string name="quick_switch_bubble_desc">Inicie o carregamento de links em Custom Tabs e retorne para o seu aplicativo anterior, usando bolhas para abrir os sites carregados</string>
+    <string name="enable_service_quick_switch">O serviço de acessibilidade precisa estar habilitado para usar as bolhas flutuantes.</string>
+    <string name="unable_to_launch_browser_error">O navegador de Custom Tabs relatou um erro</string>
+    <string name="anticipate_settings">Configurações do Anticipate</string>
     <string name="use_chrome_custom_tabs">Usar Chrome Custom Tabs</string>
 </resources>

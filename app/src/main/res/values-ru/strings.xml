@@ -11,26 +11,28 @@
     <string name="dialog_draw_overlay">Чтобы показывать контент поверх других приложений в Android 6.0+, необходимо разрешение \"Наложение поверх других окон\"</string>
     <string name="open_settings">Открыть настройки</string>
     <string name="open_settings_failed_clear_deafults">Не получилось открыть настройки. Очистите настройки по умолчания для текущего браузера самостоятельно.</string>
+    <string name="open_settings_failed_overlay">"Произошла ошика. Вручную включите в настройках \"Наложение поверх других окон\" для Anticipate."</string>
+    <string name="open_settings_failed_accessibility">Ошибка при открытии настроек. Необходимо вручную включить Anticipate в настройках.</string>
     <string name="accessibility_disabled">Anticipate отключен в настройках. Включите его для предзагрузки ссылок.</string>
     <string name="floating_window_checkbox">Перекрывающее окно для мониторинга предзагруженых URL</string>
     <string name="anticipate_url_monitor">Anticipate URL монитор</string>
     <string name="notification_tap_to_close">Коснитесь чтобы закрыть</string>
     <string name="about_dialog_title">Anticipate v%s</string>
     <string name="dismiss">Закрыть</string>
-    <string name="about_body"><![CDATA[ <b>Anticipate</b> это приложение для просмотра веб-страниц и предзагрузки ссылок на экране.
-        <br/><br/>
-        Оно использует Chrome Custom Tabs для определения домена и предзагрузки ресурсов заранее для того, чтобы веб-страницы
-        были готовы для отображения как можно быстрее.<br/><br/>
+    <string name="about_body"><![CDATA[ <b>Anticipate</b> — это приложение для просмотра веб-страниц и предзагрузки ссылок на экране.
+<br/><br/>
+Оно использует Chrome Custom Tabs для определения домена и предзагрузки ресурсов заранее для того, чтобы веб-страницы были готовы для отображения как можно быстрее.<br/><br/>
 
-        Разработчик <b>Daniel Ciao</b><br/>
+Разработчик <b>Daniel Ciao</b><br/>
 
-        <a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp;
-        <a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
-        <a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
-        <a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
-        <a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
+<a href=\'http://pluscubed.com\'>Website</a>&nbsp;&nbsp;
+<a href=\'https://twitter.com/plusCubed\'>Twitter</a>&nbsp;&nbsp;
+<a href=\'https://google.com/+DanielCiao\'>Google+</a>&nbsp;&nbsp;
+<a href=\'https://github.com/pluscubed\'>GitHub</a>&nbsp;&nbsp;
+<a href=\'https://www.linkedin.com/in/dciao\'>LinkedIn</a><br/><br/>
 
-        <a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - исходники, проблемы, предложения<br/><br/> ]]></string>
+<a href=\'https://github.com/pluscubed/anticipate\'>GitHub</a> - исходники, проблемы, предложения<br/><br/>
+ <a href=\'http://ost4cel.oneskyapp.com/collaboration/project/55161\'>OneSky</a> - помогите перевести приложение на свой язык<br/><br/> ]]></string>
     <string name="about">О приложении</string>
     <string name="per_app_filter_mode">Фильтр прил.:</string>
     <string name="configure">Настроить</string>
@@ -46,11 +48,15 @@
     <string name="no_whitelisted_apps">Нет приложений в белом списке</string>
     <string name="swipe_to_remove">Смахните для удаления</string>
     <string name="accessibility_service_not_active">Сервис Anticipate стал неактивным. Отключите и включите его снова</string>
-    <string name="dynamic_toolbar_color">Динамический цвет тулбара</string>
+    <string name="dynamic_toolbar_color">"Цвет тулбара как на сайте"</string>
     <string name="toolbar_color_desc">Использовать цвет тулбара заданного на сайте (если задан). Это будет работать, если сайт открыть во второй раз.</string>
+    <string name="dynamic_page_toolbar_color">"Цвет тулбара как на веб-странице"</string>
+    <string name="dynamic_page_toolbar_color_desc">Использовать основной цвет от страницы/приложения как цвет тулбара</string>
+    <string name="enable_service_page_toolbar">Нужно включить Anticipate в настройках для задания цвета тулбара как на странице</string>
     <string name="default_toolbar_color">Стандартный цвет тулбара</string>
     <string name="share">Поделиться</string>
     <string name="animation">Анимация:</string>
+    <string name="slide_bottom_android">Lollipop+ слайд вверх</string>
     <string name="slide_bottom">Слайд вверх</string>
     <string name="slide_right">Слайд влево</string>
     <string name="none">Системная</string>
@@ -62,7 +68,15 @@
     <string name="done">Готово</string>
     <string name="using_anticipate">используя Anticipate</string>
     <string name="using_browser">используя браузер</string>
-    <string name="anticipate_update">Anticipate обновился до версии</string>
+    <string name="anticipate_update">Anticipate обновился до версии %s</string>
     <string name="anticipate_update_desc">Коснитесь для просмотра новых возможностей</string>
+    <string name="open_in_quick_switch_bubble">Открыть в QuickSwitch (Бета)</string>
+    <string name="quick_switch_bubble_desc">Начать загрузку ссылки в Custom Tabs и продолжить работу с текущим приложением, показав пузырек с загруженным сайтом</string>
+    <string name="enable_service_quick_switch">Необходимо включить Anticipate в настройках, для использования QuickSwitch</string>
+    <string name="unable_to_launch_browser_error">Выбранный браузер для Custom Tabs сообщил об ошибке</string>
+    <string name="anticipate_settings">Настройки Anticipate</string>
     <string name="use_chrome_custom_tabs">Использовать Chrome Custom Tabs</string>
+    <string name="bubble_notif">Anticipate QuickSwitch</string>
+    <string name="bubble_notif_desc">Коснитесь чтобы закончить работу</string>
+    <string name="minimize_to_bubble">Свернуть в QuickSwitch</string>
 </resources>

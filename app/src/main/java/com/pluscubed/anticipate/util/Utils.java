@@ -77,7 +77,7 @@ public abstract class Utils {
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
             Notification notification = new NotificationCompat.Builder(context)
-                    .setContentTitle(context.getString(R.string.anticipate_update) + BuildConfig.VERSION_NAME)
+                    .setContentTitle(String.format(context.getString(R.string.anticipate_update), BuildConfig.VERSION_NAME))
                     .setContentText(context.getString(R.string.anticipate_update_desc))
                     .setSmallIcon(R.drawable.ic_trending_up_black_24dp)
                     .setContentIntent(pendingIntent)
@@ -85,6 +85,8 @@ public abstract class Utils {
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.notify(NOTIFICATION_CHANGELOG, notification);
+
+            PrefUtils.setVersionCode(context, BuildConfig.VERSION_CODE);
         }
     }
 
