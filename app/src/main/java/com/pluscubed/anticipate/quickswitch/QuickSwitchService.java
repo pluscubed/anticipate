@@ -50,6 +50,7 @@ public class QuickSwitchService extends Service {
     public static final String EXTRA_CHECK_BUBBLES = "com.pluscubed.anticipate.EXTRA_CHECK_BUBBLES";
 
     public static final int NOTIFICATION_FLOATING_WINDOW = 23;
+    public static final int PENDING_STOP = 6;
 
     private static QuickSwitchService sSharedService;
     LinkedHashMap<String, BubbleViewHolder> mQuickSwitchWebsites;
@@ -242,7 +243,7 @@ public class QuickSwitchService extends Service {
 
         Intent notificationIntent = new Intent(this, getClass());
         notificationIntent.putExtra(EXTRA_STOP, true);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(this, PENDING_STOP, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.bubble_notif))
@@ -304,10 +305,7 @@ public class QuickSwitchService extends Service {
             removeUrl(url);
         }
 
-        if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
-            mWindowManager.removeView(mDiscardLayout);
-            stopSelf();
-        }
+        checkExit();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -351,6 +349,15 @@ public class QuickSwitchService extends Service {
         mWindowManager.removeView(mQuickSwitchWebsites.get(url).root);
         if (removeFromList) {
             mQuickSwitchWebsites.remove(url);
+        }
+
+        checkExit();
+    }
+
+    private void checkExit() {
+        if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
+            mWindowManager.removeView(mDiscardLayout);
+            stopSelf();
         }
     }
 

@@ -491,15 +491,26 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
         }
 
-        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this) ||
-                getIntent().getBooleanExtra(EXTRA_SHOW_CHANGELOG, false)) {
-            showChangelog();
-        }
+        processIntent();
 
         DbUtil.initializeBlacklist(this);
         MainAccessibilityService.updateFilterList();
 
         invalidateStates();
+    }
+
+    private void processIntent() {
+        if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(this) ||
+                getIntent().getBooleanExtra(EXTRA_SHOW_CHANGELOG, false)) {
+            showChangelog();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        processIntent();
     }
 
     private void setupAnimationStyle() {
@@ -556,6 +567,8 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         ChangelogDialog.newInstance().show(getFragmentManager(), "CHANGELOG_DIALOG");
 
         PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
+
+        Utils.cancelChangelog(this);
     }
 
     boolean onFloatingWindowSwitchChange(boolean checked) {

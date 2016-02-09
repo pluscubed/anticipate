@@ -18,6 +18,7 @@ import android.widget.TextView;
 public class FloatingMonitorService extends Service {
 
     public static final int NOTIFICATION_FLOATING_WINDOW = 1;
+    public static final int PENDING_CLOSE = 5;
     private static FloatingMonitorService sSharedService;
 
     String mOldDisplayed = "";
@@ -44,7 +45,7 @@ public class FloatingMonitorService extends Service {
         super.onCreate();
 
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, PENDING_CLOSE, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this)
                 .setContentTitle(getString(R.string.anticipate_url_monitor))

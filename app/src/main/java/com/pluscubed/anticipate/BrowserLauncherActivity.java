@@ -42,6 +42,10 @@ public class BrowserLauncherActivity extends Activity {
     public static final String EXTRA_MINIMIZE = "com.pluscubed.anticipate.EXTRA_MINIMIZE";
     public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
     public static final int REQUEST_CODE = 23;
+    public static final int PENDING_SHARE = 1;
+    public static final int PENDING_SETTINGS = 2;
+    public static final int PENDING_MINIMIZE = 3;
+    public static final int PENDING_CHROME = 4;
     private static final String TAG = "CustomTabDummyActivity";
     static BrowserLauncherActivity sPendLoadInstance;
     String mHost;
@@ -138,24 +142,24 @@ public class BrowserLauncherActivity extends Activity {
         boolean isLightToolbar = !ColorUtils.shouldUseLightForegroundOnBackground(mToolbarColor);
 
         Intent shareIntent = new Intent(this, ShareBroadcastReceiver.class);
-        PendingIntent sharePending = PendingIntent.getBroadcast(this, 0, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent sharePending = PendingIntent.getBroadcast(this, PENDING_SHARE, shareIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent settingsIntent = new Intent(this, MainActivity.class);
         settingsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent settingsPending = PendingIntent.getActivity(this, 0, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent settingsPending = PendingIntent.getActivity(this, PENDING_SETTINGS, settingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Intent minimizeToQuickSwitch = new Intent(this, getClass());
         minimizeToQuickSwitch.putExtra(EXTRA_MINIMIZE, true);
         minimizeToQuickSwitch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         minimizeToQuickSwitch.setData(uri);
-        PendingIntent minimizePending = PendingIntent.getActivity(this, 0, minimizeToQuickSwitch, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent minimizePending = PendingIntent.getActivity(this, PENDING_MINIMIZE, minimizeToQuickSwitch, PendingIntent.FLAG_CANCEL_CURRENT);
 
         String chromeAppPackageName = PrefUtils.getChromeApp(this);
         Intent openInChrome = new Intent();
         openInChrome.setPackage(chromeAppPackageName);
         openInChrome.setData(uri);
         openInChrome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent openInChromePending = PendingIntent.getActivity(this, 0, openInChrome, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent openInChromePending = PendingIntent.getActivity(this, PENDING_CHROME, openInChrome, PendingIntent.FLAG_CANCEL_CURRENT);
 
         String chromeApp = null;
         try {

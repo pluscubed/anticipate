@@ -24,6 +24,7 @@ import com.pluscubed.anticipate.R;
 public abstract class Utils {
 
     public static final int NOTIFICATION_CHANGELOG = 2;
+    public static final int PENDING_OPEN_CHANGELOG = 7;
 
     /**
      * Convert a dp float value to pixels
@@ -74,13 +75,15 @@ public abstract class Utils {
     public static void notifyChangelog(Context context) {
         if (BuildConfig.VERSION_CODE > PrefUtils.getVersionCode(context)) {
             Intent notificationIntent = new Intent(context, MainActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+            notificationIntent.putExtra(MainActivity.EXTRA_SHOW_CHANGELOG, true);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, PENDING_OPEN_CHANGELOG, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             Notification notification = new NotificationCompat.Builder(context)
                     .setContentTitle(String.format(context.getString(R.string.anticipate_update), BuildConfig.VERSION_NAME))
                     .setContentText(context.getString(R.string.anticipate_update_desc))
                     .setSmallIcon(R.drawable.ic_trending_up_black_24dp)
                     .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
                     .build();
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -88,6 +91,11 @@ public abstract class Utils {
 
             PrefUtils.setVersionCode(context, BuildConfig.VERSION_CODE);
         }
+    }
+
+    public static void cancelChangelog(Context context) {
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        manager.cancel(NOTIFICATION_CHANGELOG);
     }
 
     /**
