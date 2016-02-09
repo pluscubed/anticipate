@@ -62,5 +62,7 @@
         <attr name="matProg_linearProgress" format="boolean" />
     </declare-styleable>
 
+    <integer name="launchMode">0</integer>
+
 
 </resources>

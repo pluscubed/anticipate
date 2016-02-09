@@ -40,7 +40,7 @@ public class BrowserLauncherActivity extends Activity {
 
     public static final int BROWSER_SHORTCUT = 4;
     public static final String EXTRA_MINIMIZE = "com.pluscubed.anticipate.EXTRA_MINIMIZE";
-    public static final String EXTRA_ADD_QUEUE = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
+    public static final String EXTRA_LAUNCH_EXISTING = "com.pluscubed.anticipate.EXTRA_ADD_QUEUE";
     public static final int REQUEST_CODE = 23;
     public static final int PENDING_SHARE = 1;
     public static final int PENDING_SETTINGS = 2;
@@ -69,8 +69,11 @@ public class BrowserLauncherActivity extends Activity {
         }
         Utils.notifyChangelog(this);
 
-        //Launched by bubble
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+
+        boolean launchExisting = getIntent().getBooleanExtra(EXTRA_LAUNCH_EXISTING, false);
+
+        boolean broughtToFront = (getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0;
+        if (broughtToFront) {
             finish();
             return;
         }
@@ -221,7 +224,7 @@ public class BrowserLauncherActivity extends Activity {
         customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 
 
-        boolean openBubble = bubbleAvailable && getIntent().getBooleanExtra(EXTRA_ADD_QUEUE, true);
+        boolean openBubble = bubbleAvailable && !launchExisting;
 
 
         if (openBubble) {

@@ -4,4 +4,6 @@
     <style name="Theme.Anticipate" parent="Base.Theme.Anticipate">
         <item name="toolbarShadow">@null</item>
     </style>
+
+    <integer name="launchMode">0</integer>
 </resources>

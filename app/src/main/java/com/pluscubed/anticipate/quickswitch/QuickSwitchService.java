@@ -306,7 +306,7 @@ public class QuickSwitchService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getBooleanExtra(EXTRA_STOP, false)) {
-            stopSelf();
+            exit();
             return super.onStartCommand(intent, flags, startId);
         }
 
@@ -325,12 +325,17 @@ public class QuickSwitchService extends Service {
 
         String url = intent != null ? intent.getDataString() : null;
         if (!mQuickSwitchWebsites.containsKey(url)) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                for (String website : mQuickSwitchWebsites.keySet()) {
+                    removeUrl(website, false);
+                }
+                mQuickSwitchWebsites.clear();
+            }
+
             addBubble(url, false);
         } else {
             removeUrl(url);
         }
-
-        checkExit();
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -356,6 +361,7 @@ public class QuickSwitchService extends Service {
                     iterator.remove();
                 }
             }
+            checkExit();
 
 
             for (String taskOpenUrl : taskOpenUrls) {
@@ -379,11 +385,20 @@ public class QuickSwitchService extends Service {
         checkExit();
     }
 
-    private void checkExit() {
+    void checkExit() {
         if (mQuickSwitchWebsites.size() == 0 && mUsingAccessibility) {
-            mWindowManager.removeView(mDiscardLayout);
-            stopSelf();
+            exit();
         }
+    }
+
+    private void exit() {
+        if (mDiscardLayout != null) {
+            mWindowManager.removeView(mDiscardLayout);
+        }
+        for (BubbleViewHolder holder : mQuickSwitchWebsites.values()) {
+            mWindowManager.removeView(holder.root);
+        }
+        stopSelf();
     }
 
     @Nullable

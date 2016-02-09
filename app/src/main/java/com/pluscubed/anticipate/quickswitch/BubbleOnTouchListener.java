@@ -92,7 +92,8 @@ class BubbleOnTouchListener implements View.OnTouchListener {
                     Intent intent = new Intent(mQuickSwitchService, BrowserLauncherActivity.class);
                     intent.setData(Uri.parse(mUrl));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(BrowserLauncherActivity.EXTRA_ADD_QUEUE, false);
+                    intent.putExtra(BrowserLauncherActivity.EXTRA_LAUNCH_EXISTING, true);
+
                     mQuickSwitchService.startActivity(intent);
 
                     mQuickSwitchService.removeUrl(mUrl);

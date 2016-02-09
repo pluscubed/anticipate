@@ -364,11 +364,15 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
             @Override
             public void onClick(View v) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    Toast.makeText(MainActivity.this, "This beta feature currently only works on Android 5.0+. Stay tuned to updates!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "This beta feature is currently only available on Android 5.0+. Stay tuned to updates!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 boolean checked = !mQuickSwitch.isChecked();
+                /*if (checked && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    Toast.makeText(MainActivity.this, "Currently on Android 4.x, only one bubble is open at a time - newer load requests override old ones. Stay tuned for updates!", Toast.LENGTH_LONG).show();
+                }*/
+
                 if (checked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(MainActivity.this)) {
                     new MaterialDialog.Builder(MainActivity.this)
                             .content(R.string.dialog_draw_overlay)
