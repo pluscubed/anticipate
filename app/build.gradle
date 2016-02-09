@@ -20,8 +20,8 @@ android {
         applicationId "com.pluscubed.anticipate"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 4
-        versionName "1.1.0"
+        versionCode 5
+        versionName "1.1.1"
         manifestPlaceholders = [appName: "@string/app_name"]
     }
 
@@ -88,7 +88,7 @@ dependencies {
     compile 'com.flipboard:bottomsheet-core:1.5.0'
     compile 'com.flipboard:bottomsheet-commons:1.5.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.okhttp3:okhttp:3.0.1'
+    compile 'com.squareup.okhttp3:okhttp:3.1.1'
     compile 'com.evernote:android-job:1.0.2'
     //compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.github.florent37:glidepalette:1.0.6'
