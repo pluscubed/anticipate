@@ -85,6 +85,10 @@ public class QuickSwitchService extends Service {
 
     @SuppressLint("InflateParams")
     private void addBubble(final String url, boolean loaded) {
+        if (url == null) {
+            return;
+        }
+
         LayoutInflater inflater = LayoutInflater.from(this);
         initDiscard(inflater);
         if (!mDiscardLayout.isShown()) {
@@ -168,7 +172,9 @@ public class QuickSwitchService extends Service {
                 WindowManager.LayoutParams params = (WindowManager.LayoutParams) holder.root.getLayoutParams();
                 params.x = (int) animation.getAnimatedValue();
 
-                mWindowManager.updateViewLayout(holder.root, params);
+                if (holder.root.isShown()) {
+                    mWindowManager.updateViewLayout(holder.root, params);
+                }
             }
         });
         valueAnimator.start();
@@ -378,9 +384,11 @@ public class QuickSwitchService extends Service {
     }
 
     void removeUrl(String url, boolean removeFromList) {
-        mWindowManager.removeView(mQuickSwitchWebsites.get(url).root);
-        if (removeFromList) {
-            mQuickSwitchWebsites.remove(url);
+        if (mQuickSwitchWebsites.containsKey(url)) {
+            mWindowManager.removeView(mQuickSwitchWebsites.get(url).root);
+            if (removeFromList) {
+                mQuickSwitchWebsites.remove(url);
+            }
         }
 
         checkExit();
