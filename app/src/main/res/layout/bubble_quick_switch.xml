@@ -8,7 +8,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/bubble_shadow" />
+        app:srcCompat="@drawable/bubble_shadow" />
 
     <FrameLayout
         android:layout_width="56dp"

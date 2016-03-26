@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 /**
  * Class holding the {@link Intent} and start bundle for a Custom Tabs Activity.
- * <p/>
+ *
  * <p>
  * <strong>Note:</strong> The constants below are public for the browser implementation's benefit.
  * You are strongly encouraged to use {@link CustomTabsIntent.Builder}.</p>
@@ -95,17 +95,24 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
 
     /**
-     * List<Bundle> used for adding items to the top and bottom action bars. The client should
+     * List<Bundle> used for adding items to the top and bottom toolbars. The client should
      * provide an ID, a description, an icon {@link Bitmap} for each item. They may also provide a
      * {@link PendingIntent} if the item is a button.
      */
-    public static final String EXTRA_ACTION_BAR_ITEMS =
-            "android.support.customtabs.extra.ACTION_BAR_ITEMS";
+    public static final String EXTRA_TOOLBAR_ITEMS =
+            "android.support.customtabs.extra.TOOLBAR_ITEMS";
+
+    /**
+     * Extra that changes the background color for the secondary toolbar. The value should be an
+     * int that specifies a {@link Color}, not a resource id.
+     */
+    public static final String EXTRA_SECONDARY_TOOLBAR_COLOR =
+            "android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR";
 
     /**
      * Key that specifies the {@link Bitmap} to be used as the image source for the action button.
-     * The icon should't be more than 24dp in height (No padding needed. The button itself will be
-     * 48dp in height) and have a width/height ratio of less than 2.
+     *  The icon should't be more than 24dp in height (No padding needed. The button itself will be
+     *  48dp in height) and have a width/height ratio of less than 2.
      */
     public static final String KEY_ICON = "android.support.customtabs.customaction.ICON";
 
@@ -169,9 +176,9 @@ public final class CustomTabsIntent {
     public static final int TOOLBAR_ACTION_BUTTON_ID = 0;
 
     /**
-     * The maximum allowed number of action bar items.
+     * The maximum allowed number of toolbar items.
      */
-    private static final int MAX_ACTION_BAR_ITEMS = 5;
+    private static final int MAX_TOOLBAR_ITEMS = 5;
 
     /**
      * An {@link Intent} used to start the Custom Tabs Activity.
@@ -191,17 +198,18 @@ public final class CustomTabsIntent {
     }
 
     /**
-     * @return The maximum number of allowed action bar items.
+     * @return The maximum number of allowed toolbar items for
+     * {@link CustomTabsIntent.Builder#addToolbarItem(int, Bitmap, String, PendingIntent)} and
+     * {@link CustomTabsIntent#EXTRA_TOOLBAR_ITEMS}.
      */
-    public static int getMaxActionBarItems() {
-        return MAX_ACTION_BAR_ITEMS;
+    public static int getMaxToolbarItems() {
+        return MAX_TOOLBAR_ITEMS;
     }
 
     /**
      * Convenience method to launch a Custom Tabs Activity.
-     *
      * @param context The source Activity.
-     * @param url     The URL to load in the Custom Tab.
+     * @param url The URL to load in the Custom Tab.
      */
     public void launchUrl(Activity context, Uri url, int requestCode) {
         intent.setData(url);
@@ -228,7 +236,7 @@ public final class CustomTabsIntent {
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with a given
          * {@link CustomTabsSession}.
-         * <p/>
+         *
          * Guarantees that the {@link Intent} will be sent to the same component as the one the
          * session is associated with.
          *
@@ -284,7 +292,7 @@ public final class CustomTabsIntent {
         /**
          * Adds a menu item.
          *
-         * @param label         Menu label.
+         * @param label Menu label.
          * @param pendingIntent Pending intent delivered when the menu item is clicked.
          */
         public Builder addMenuItem(@NonNull String label, @NonNull PendingIntent pendingIntent) {
@@ -306,16 +314,17 @@ public final class CustomTabsIntent {
 
         /**
          * Set the action button  that is displayed in the Toolbar.
-         * <p/>
+         * <p>
          * This is equivalent to calling
-         * {@link CustomTabsIntent.Builder#addActionBarItem(int, Bitmap, String, PendingIntent)}
+         * {@link CustomTabsIntent.Builder#addToolbarItem(int, Bitmap, String, PendingIntent)}
          * with {@link #TOOLBAR_ACTION_BUTTON_ID} as id.
          *
-         * @param icon          The icon.
-         * @param description   The description for the button. To be used for accessibility.
+         * @param icon The icon.
+         * @param description The description for the button. To be used for accessibility.
          * @param pendingIntent pending intent delivered when the button is clicked.
-         * @param shouldTint    Whether the action button should be tinted.
-         * @see CustomTabsIntent.Builder#addActionBarItem(int, Bitmap, String, PendingIntent)
+         * @param shouldTint Whether the action button should be tinted.
+         *
+         * @see CustomTabsIntent.Builder#addToolbarItem(int, Bitmap, String, PendingIntent)
          */
         public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
                                        @NonNull PendingIntent pendingIntent, boolean shouldTint) {
@@ -344,24 +353,26 @@ public final class CustomTabsIntent {
          * Adds an action button to the custom tab. Multiple buttons can be added via this method.
          * If the given id equals {@link #TOOLBAR_ACTION_BUTTON_ID}, the button will be placed on
          * the toolbar; if the bitmap is too wide, it will be put to the bottom bar instead. If
-         * the id is not {@link #TOOLBAR_ACTION_BUTTON_ID}, it will be directly put on bottom bar.
-         * The maximum number of allowed action bar items is 5. Throws an
-         * {@link IllegalStateException} when that number is exceeded.
+         * the id is not {@link #TOOLBAR_ACTION_BUTTON_ID}, it will be directly put on secondary
+         * toolbar. The maximum number of allowed toolbar items in a single intent is
+         * {@link CustomTabsIntent#getMaxToolbarItems()}. Throws an
+         * {@link IllegalStateException} when that number is exceeded per intent.
          *
-         * @param id            The unique id of the action button. This should be non-negative.
-         * @param icon          The icon.
-         * @param description   The description for the button. To be used for accessibility.
+         * @param id The unique id of the action button. This should be non-negative.
+         * @param icon The icon.
+         * @param description The description for the button. To be used for accessibility.
          * @param pendingIntent The pending intent delivered when the button is clicked.
-         * @see CustomTabsIntent#getMaxActionBarItems().
+         *
+         * @see CustomTabsIntent#getMaxToolbarItems().
          */
-        public Builder addActionBarItem(int id, @NonNull Bitmap icon, @NonNull String description,
-                                        PendingIntent pendingIntent) throws IllegalStateException {
+        public Builder addToolbarItem(int id, @NonNull Bitmap icon, @NonNull String description,
+                                      PendingIntent pendingIntent) throws IllegalStateException {
             if (mActionButtons == null) {
                 mActionButtons = new ArrayList<>();
             }
-            if (mActionButtons.size() >= MAX_ACTION_BAR_ITEMS) {
+            if (mActionButtons.size() >= MAX_TOOLBAR_ITEMS) {
                 throw new IllegalStateException(
-                        "Exceeded maximum action bar item count of " + MAX_ACTION_BAR_ITEMS);
+                        "Exceeded maximum toolbar item count of " + MAX_TOOLBAR_ITEMS);
             }
             Bundle bundle = new Bundle();
             bundle.putInt(KEY_ID, id);
@@ -373,11 +384,20 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets the color of the secondary toolbar.
+         * @param color The color for the secondary toolbar.
+         */
+        public Builder setSecondaryToolbarColor(@ColorInt int color) {
+            mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_COLOR, color);
+            return this;
+        }
+
+        /**
          * Sets the start animations,
          *
-         * @param context    Application context.
+         * @param context Application context.
          * @param enterResId Resource ID of the "enter" animation for the browser.
-         * @param exitResId  Resource ID of the "exit" animation for the application.
+         * @param exitResId Resource ID of the "exit" animation for the application.
          */
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
@@ -389,9 +409,9 @@ public final class CustomTabsIntent {
         /**
          * Sets the exit animations,
          *
-         * @param context    Application context.
+         * @param context Application context.
          * @param enterResId Resource ID of the "enter" animation for the application.
-         * @param exitResId  Resource ID of the "exit" animation for the browser.
+         * @param exitResId Resource ID of the "exit" animation for the browser.
          */
         public Builder setExitAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
@@ -410,7 +430,7 @@ public final class CustomTabsIntent {
                 mIntent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_MENU_ITEMS, mMenuItems);
             }
             if (mActionButtons != null) {
-                mIntent.putParcelableArrayListExtra(EXTRA_ACTION_BAR_ITEMS, mActionButtons);
+                mIntent.putParcelableArrayListExtra(EXTRA_TOOLBAR_ITEMS, mActionButtons);
             }
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
         }

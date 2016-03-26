@@ -46,8 +46,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="Theme.Anticipate.NoDisplay" parent="android:Theme.Translucent.NoTitleBar">
-    </style>
+    <style name="Theme.Anticipate.NoDisplay" parent="android:Theme.Translucent.NoTitleBar"></style>
 
     <declare-styleable name="ProgressWheel">
         <attr name="matProg_progressIndeterminate" format="boolean" />

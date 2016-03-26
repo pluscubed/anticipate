@@ -62,7 +62,7 @@ public class CustomTabConnectionHelper {
             }
         } else {
             customTabsIntent.intent.setPackage(sPackageName);
-            customTabsIntent.launchUrl(activity, uri, requestCode);
+            customTabsIntent.launchUrl(activity, uri/*, requestCode*/);
         }
     }
 

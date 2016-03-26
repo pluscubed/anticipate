@@ -40,8 +40,8 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="32dp"
                 android:layout_marginRight="32dp"
-                android:src="@drawable/ic_swap_vertical_circle_black_24dp"
-                android:tint="#8a000000" />
+                android:tint="#8a000000"
+                app:srcCompat="@drawable/ic_swap_vertical_circle_black_24dp" />
 
 
             <LinearLayout

@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.21.4'
+        classpath 'io.fabric.tools:gradle:1.21.5'
     }
 }
 
@@ -74,27 +74,27 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
 
-    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta1'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
 
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    //compile 'com.android.support:customtabs:23.1.1'
-    compile 'com.android.support:design:23.2.0'
-    compile 'com.android.support:cardview-v7:23.2.0'
-    compile 'com.github.afollestad.material-dialogs:core:0.8.5.6'
-    compile 'com.github.afollestad.material-dialogs:commons:0.8.5.6'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:customtabs:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:cardview-v7:23.2.1'
+    compile 'com.github.afollestad.material-dialogs:core:0.8.5.7'
+    compile 'com.github.afollestad.material-dialogs:commons:0.8.5.7'
     compile 'io.reactivex:rxandroid:1.1.0'
-    compile 'io.reactivex:rxjava:1.1.1'
+    compile 'io.reactivex:rxjava:1.1.2'
     compile 'com.github.afollestad:inquiry:2.0.1'
     compile 'com.flipboard:bottomsheet-core:1.5.0'
     compile 'com.flipboard:bottomsheet-commons:1.5.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.okhttp3:okhttp:3.1.2'
-    compile 'com.evernote:android-job:1.0.2'
+    compile 'com.squareup.okhttp3:okhttp:3.2.0'
+    compile 'com.evernote:android-job:1.0.3'
     //compile 'com.pnikosis:materialish-progress:1.7'
     compile 'com.github.florent37:glidepalette:1.0.6'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
-    compile project(':customtabs')
+    //compile project(':customtabs')
 }
