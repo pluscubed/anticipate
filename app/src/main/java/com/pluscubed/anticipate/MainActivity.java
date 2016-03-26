@@ -571,8 +571,6 @@ public class MainActivity extends AppCompatActivity implements ColorChooserDialo
         ChangelogDialog.newInstance().show(getFragmentManager(), "CHANGELOG_DIALOG");
 
         PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
-
-        Utils.cancelChangelog(this);
     }
 
     boolean onFloatingWindowSwitchChange(boolean checked) {

@@ -25,7 +25,6 @@ import com.pluscubed.anticipate.filter.DbUtil;
 import com.pluscubed.anticipate.quickswitch.QuickSwitchService;
 import com.pluscubed.anticipate.util.LimitedQueue;
 import com.pluscubed.anticipate.util.PrefUtils;
-import com.pluscubed.anticipate.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -98,8 +97,6 @@ public class MainAccessibilityService extends AccessibilityService {
         DbUtil.initializeBlacklist(this);
         updateFilterList();
 
-        Utils.notifyChangelog(this);
-
         mServiceInfo = getServiceInfo();
     }
 
@@ -162,6 +159,7 @@ public class MainAccessibilityService extends AccessibilityService {
                         TypedArray a = theme.obtainStyledAttributes(attrs);
                         int fallback = defaultToolbarColor;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            //noinspection ResourceType
                             fallback = a.getColor(1, defaultToolbarColor);
                         }
                         int colorPrimary = a.getColor(0, fallback);

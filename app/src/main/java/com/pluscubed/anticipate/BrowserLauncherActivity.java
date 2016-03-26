@@ -67,8 +67,6 @@ public class BrowserLauncherActivity extends Activity {
         if (PrefUtils.isFirstRun(this)) {
             PrefUtils.setVersionCode(this, BuildConfig.VERSION_CODE);
         }
-        Utils.notifyChangelog(this);
-
 
         boolean launchExisting = getIntent().getBooleanExtra(EXTRA_LAUNCH_EXISTING, false);
 
