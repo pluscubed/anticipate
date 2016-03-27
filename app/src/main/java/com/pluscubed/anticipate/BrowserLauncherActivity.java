@@ -20,6 +20,7 @@ import android.provider.Settings;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.customtabs.CustomTabsIntent;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.util.Log;
@@ -319,8 +320,6 @@ public class BrowserLauncherActivity extends Activity {
         startService(checkBubblesIntent);
     }
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -329,7 +328,7 @@ public class BrowserLauncherActivity extends Activity {
     }
 
     private Bitmap getToolbarIcon(@DrawableRes int resId, boolean lightToolbar) {
-        Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), resId);
+        Drawable drawable = VectorDrawableCompat.create(getResources(), resId, getTheme());
         Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
         if (lightToolbar) {
             DrawableCompat.setTintMode(wrappedDrawable, PorterDuff.Mode.SRC_IN);

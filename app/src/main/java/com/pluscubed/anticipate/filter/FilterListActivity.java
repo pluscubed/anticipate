@@ -102,28 +102,28 @@ public class FilterListActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 final AppInfo appInfo = mFilterList.get(viewHolder.getAdapterPosition());
                 final String tableName = mBlacklistMode ? DbUtil.TABLE_BLACKLISTED_APPS : DbUtil.TABLE_WHITELISTED_APPS;
+
                 DbUtil.deleteApp(appInfo, tableName);
-                mFilterList.remove(viewHolder.getAdapterPosition());
-
                 MainAccessibilityService.updateFilterList();
-
+                mFilterList.remove(viewHolder.getAdapterPosition());
+                invalidateEmpty();
+                mAdapter.notifyDataSetChanged();
+                
                 Snackbar undoSnackbar = Snackbar.make(mRecyclerView, String.format(getString(R.string.app_removed), appInfo.name), Snackbar.LENGTH_LONG);
                 undoSnackbar.setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         DbUtil.insertApp(appInfo, tableName);
-
                         MainAccessibilityService.updateFilterList();
-
                         mFilterList.add(appInfo);
+
                         Collections.sort(mFilterList);
+
                         invalidateEmpty();
                         mAdapter.notifyDataSetChanged();
                     }
                 });
                 undoSnackbar.show();
-
-                invalidateEmpty();
             }
         }).attachToRecyclerView(mRecyclerView);
 

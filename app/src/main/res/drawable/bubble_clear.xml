@@ -5,7 +5,7 @@
         android:drawable="@drawable/ic_cross_white_24dp"
         android:left="8dp"
         android:right="8dp"
-        android:top="8dp"></item>
+        android:top="8dp" />
     <item>
         <shape android:shape="oval">
             <stroke
