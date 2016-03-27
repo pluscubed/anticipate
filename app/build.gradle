@@ -20,8 +20,8 @@ android {
         applicationId "com.pluscubed.anticipate"
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 6
-        versionName "1.1.2"
+        versionCode 7
+        versionName "1.1.3"
         manifestPlaceholders = [appName: "@string/app_name"]
         vectorDrawables.useSupportLibrary = true
     }
